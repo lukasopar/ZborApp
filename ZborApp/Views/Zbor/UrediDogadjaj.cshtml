@@ -1,0 +1,128 @@
+﻿@model ZborApp.Models.ZborViewModels.NoviDogadjajViewModel
+@using ZborData.Model;
+@{
+    ViewData["Title"] = "Uredi događaj";
+}
+
+    <head>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.0-alpha14/css/tempusdominus-bootstrap-4.min.css" />
+        <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.css" />
+
+    </head>
+
+
+<div class="container-wrap">
+    <div class="container-wrap" style="margin-left:50px; padding-top:50px">
+        <h2>@ViewData["Title"]</h2>
+        <div class="row">
+            <div class="col-md-8">
+                <form asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+
+                    <div asp-validation-summary="All" class="text-danger"></div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="Novi.Naziv"></label>
+                            <input asp-for="Novi.Naziv" class="form-control" />
+                            <span asp-validation-for="Novi.Naziv" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="Novi.Lokacija"></label>
+                            <input asp-for="Novi.Lokacija" class="form-control" />
+                            <span asp-validation-for="Novi.Lokacija" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label>Vrsta događaja</label>
+
+                            <select asp-for="Novi.IdVrsteDogadjaja" asp-items="Model.VrsteDogadjaja" class="form-control"></select>
+                        </div>
+                    </div>
+                    <input hidden asp-for="Novi.IdProjekt" value="@Model.IdProjekt" />
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="form-group">
+
+                                <label asp-for="Novi.DatumIvrijeme">Datum početka: </label>
+                                <div><span asp-validation-for="Novi.DatumIvrijeme" class="text-danger" /></div>
+                                <div class="input-group date">
+                                    <input asp-for="Novi.DatumIvrijeme" type="text" class="form-control datetimepicker-input" onkeydown="return false" id="datetimepicker6" data-toggle="datetimepicker" data-target="#datetimepicker6" />
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <label asp-for="Novi.DatumIvrijemeKraja">Datum završetka: </label>
+                                <div><span asp-validation-for="Novi.DatumIvrijemeKraja" class="text-danger" /></div>
+                                <div class="input-group date">
+                                    <input asp-for="Novi.DatumIvrijemeKraja" type="text" class="form-control datetimepicker-input" onkeydown="return false" id="datetimepicker7" data-toggle="datetimepicker" data-target="#datetimepicker7" />
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-12">
+                            <label asp-for="Novi.DodatanOpis">Opis</label>
+                            <textarea class="col-md-12" asp-for="Novi.DodatanOpis"></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-2">Dodaj!</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr />
+
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script type="text/javascript" src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/locale/hr.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.0-alpha14/js/tempusdominus-bootstrap-4.min.js"></script>
+    <script type="text/javascript">
+        
+        $(function () {
+            $('#datetimepicker6').datetimepicker({
+                fontAwesome: 'font-awesome',
+                locale: 'hr'
+            });
+            $('#datetimepicker7').datetimepicker({
+                locale: 'hr',
+                useCurrent: false
+            });
+             $('#datetimepicker6').datetimepicker('viewDate', moment('@Model.Novi.DatumIvrijeme', 'DD.MM.YYYY. hh.mm:ss') );
+
+             $("#datetimepicker6").on("change.datetimepicker", function (e) {
+                  $('#datetimepicker7').datetimepicker('minDate', e.date);
+             });
+            $("#datetimepicker7").on("change.datetimepicker", function (e) {
+              $('#datetimepicker6').datetimepicker('maxDate', e.date);
+            });
+            $('#datetimepicker6').datetimepicker('minDate', new Date());
+            
+         });
+
+
+
+
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
+
+    <script>
+        $('.selectpicker').selectpicker({
+            //style: 'btn-info',
+            size: 10
+        });
+    </script>
+
+
+
+
+}

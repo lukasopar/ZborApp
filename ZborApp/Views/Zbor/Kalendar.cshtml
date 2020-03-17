@@ -1,0 +1,43 @@
+﻿@using ZborApp.Models;
+@model ZborApp.Models.ZborViewModels.KalendarViewModel
+
+@{
+    ViewData["Title"] = "Kalendar";
+}
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/daygrid/main.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/timegrid/main.min.css" />
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/daygrid/main.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/locales/hr.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/timegrid/main.min.js"></script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                locale: 'hr',
+                plugins: ['dayGrid', 'timeGrid'],
+                events: @Json.Serialize(Model.Dogadjaji)
+            });
+            calendar.changeView('timeGridWeek');
+
+
+            calendar.render();
+        });
+
+    </script>
+</head>
+
+
+<div id="calendar">
+
+</div>
+<a asp-action="SkiniKalendar" asp-route-id="@Model.IdZbor">Skini kalendar</a>
+

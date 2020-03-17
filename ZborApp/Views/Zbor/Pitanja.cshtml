@@ -1,0 +1,46 @@
+﻿@using ZborData.Model;
+@model ZborApp.Models.ZborViewModels.PitanjaViewModel
+@{
+    ViewData["Title"] = "Pitanja";
+}
+
+
+
+<div class="container-wrap">
+    <div class="container-wrap" style="margin-left:50px; padding-top:50px">
+        <h4>
+            <a asp-action="NovaAnketa" asp-route-id="@Model.IdZbor">+ Postavi novo pitanje</a>
+        </h4>
+        <br />
+        <h4>Aktivna pitanja</h4>
+        @if (Model.AktivnaPitanja == null || Model.AktivnaPitanja.Count() == 0)
+        {
+            <p>Nema akttivnih pitanja</p>
+        }
+        @foreach (Anketa a in Model.AktivnaPitanja)
+        {
+            <div class="row">
+                <div>Datum zatvaranja: @a.DatumKraja.ToLongDateString() <a asp-action="RijesiAnketu" asp-route-id="@a.Id" asp-route-idZbor="@a.IdZbor">@a.Pitanje</a>  </div>
+
+            </div>
+
+        }
+        <br />
+
+        <h4>Završena pitanja</h4>
+        @if (Model.AktivnaPitanja == null || Model.AktivnaPitanja.Count() == 0)
+        {
+            <p>Nema zatvorenih pitanja</p>
+        }
+        @foreach (Anketa a in Model.GotovaPitanja)
+        {
+            <div class="row">
+                <div>Datum zatvaranja: @a.DatumKraja.ToLongDateString() <a asp-action="RijesiAnketu" asp-route-id="@a.Id" asp-route-idZbor="@a.IdZbor">@a.Pitanje</a>  </div>
+
+            </div>
+
+        }
+        <br />
+</div>
+
+</div>

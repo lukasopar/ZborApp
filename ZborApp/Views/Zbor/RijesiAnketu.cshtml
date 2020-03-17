@@ -1,0 +1,132 @@
+﻿@model ZborApp.Models.ZborViewModels.PrikazAnketeViewModel;
+
+@{
+    ViewData["Title"] = "Anketa";
+}
+    <head>
+        <link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
+        <link rel="stylesheet" href="~/css/Slider.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
+
+    </head>
+@if (Model.Anketa.DatumKraja > DateTime.Now)
+{
+<textarea hidden id="survey">@Model.AnketaJson</textarea>
+<textarea hidden id="preload">@Model.Odgovor</textarea>
+
+
+    <div>
+        <div class="row row-divider"><h1 class="col-md-3">Anketa</h1><h1 class="col-md-9">    &nbsp;&nbsp; </h1></div>
+        <div class="row"><h1></h1></div>
+
+
+        <div class="row row-divider" style="padding-top:10px">
+            <div class="col-md-10">
+                <div id="question-status"></div>
+                <form class="form-inline">
+                    <h2 id="current-question-title">Pitanje</h2>
+                    <div>
+                        <table class="table borderless">
+                            <tbody></tbody>
+
+                            <tbody id="quiz-control">
+                                <tr>
+                                    <td colspan="2">
+                                        <button type="button" class="btn btn-outline-success"> Završi! </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <button id="modal" type="button" data-toggle="modal" data-target="#myModal" hidden></button>
+    <div id="myModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Spremi</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Jeste li sigurni da želite spremiti odgovor?</p>
+
+
+                </div>
+                <form asp-action="RijesiAnketu" asp-route-idZbor="@Model.Anketa.IdZbor" asp-route-id="@Model.Id" id="forma" method="post">
+                    <textarea asp-for="Rjesenje" hidden id="answers"></textarea>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Ne</button>
+                        <button class="btn btn-primary" type="submit">Da</button>
+                    </div>
+                </form>
+                <textarea hidden id="idanketa">@Model.Id</textarea>
+            </div>
+        </div>
+    </div>
+
+}
+
+<script>
+    var odgovori = [];
+    var boje = [];
+    var borderi = [];
+    var data = [];
+
+
+</script>
+<div>
+    Rezultati:
+    @foreach (var odgovor in Model.Anketa.OdgovorAnkete)
+    {
+        <p>@odgovor.Odgovor: @odgovor.OdgovorKorisnikaNaAnketu.Count</p>
+        <script>odgovori.push("Odgovor: " + '@odgovor.Odgovor');
+                var boja = "rgba(" + Math.floor(Math.random()*256) + ", " + Math.floor(Math.random()*256) + ", " + Math.floor(Math.random() * 256) + ", ";
+        boje.push(boja + "0.2)");
+            borderi.push(boja + "1)");
+            data.push(@odgovor.OdgovorKorisnikaNaAnketu.Count);
+    </script>
+    }
+
+</div>
+<canvas id="graf"></canvas>
+<div>
+    <script>
+                var ctx = document.getElementById("graf").getContext('2d');
+
+                        var myChart = new Chart(ctx, {
+                            type: 'pie',
+
+                    data: {
+                            labels: odgovori,
+
+                       datasets: [{
+                                label: 'Broj odgovora',
+                            data: data,
+                            backgroundColor: boje,
+                            borderColor: borderi,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true
+                        }
+                    });
+    </script>
+</div>
+
+
+@section Scripts{
+    @if (Model.Anketa.DatumKraja > DateTime.Now)
+    {
+        <script src="~/js/poll.js"></script>
+    }
+
+
+
+
+}

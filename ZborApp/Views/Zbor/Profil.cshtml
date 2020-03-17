@@ -1,0 +1,306 @@
+﻿@model ZborApp.Models.ZborViewModels.ProfilViewModel;
+@using ZborData.Model
+@{
+    ViewData["Title"] = "Profil";
+}
+
+
+<h1>Profil</h1>
+
+
+
+<div class="d-flex justify-content-between align-items-center">
+    <div class="btn-group">
+        <a class="btn btn-secondary" asp-action="Kalendar" asp-route-id="@Model.Zbor.Id">Kalendar</a>
+
+        <a class="btn btn-secondary" asp-action="Projekti" asp-route-id="@Model.Zbor.Id">Projekti</a>
+        <a class="btn btn-secondary" asp-action="Pitanja" asp-route-id="@Model.Zbor.Id">Pitanja</a>
+
+        @if (Model.Admin == true)
+        {
+            <a class="btn btn-secondary" asp-action="Administracija" asp-route-id="@Model.Zbor.Id">Administracija</a>
+        }
+
+    </div>
+    <div>
+        <a class="btn btn-danger" asp-action="NapustiZbor" asp-route-id="@Model.Zbor.Id">Napusti zbor</a>
+
+    </div>
+</div>
+
+
+
+<hr />
+
+<div>
+    <h4>Napiši obavijest</h4>
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-route-returnUrl="@ViewData["ReturnUrl"]" asp-route-id="@Model.Zbor.Id" method="post">
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="row">
+
+                    <div class="form-group col-md-6">
+                        <label asp-for="NovaObavijest.Naslov"></label>
+                        <input asp-for="NovaObavijest.Naslov" class="form-control" />
+                        <span asp-validation-for="NovaObavijest.Naslov" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label asp-for="NovaObavijest.Tekst">Obavijest:</label>
+                        <textarea class="col-md-12" asp-for="NovaObavijest.Tekst"></textarea>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-outline-secondary mb-2">Dodaj!</button>
+            </form>
+        </div>
+    </div>
+
+
+
+</div>
+
+<hr />
+<hr />
+
+
+<div class="container-wrap">
+
+    @foreach (Obavijest o in Model.Obavijesti)
+    {
+        <div style="width:800px">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <img src="@o.IdKorisnikNavigation.Slika" alt="profpic" style="border-radius:50%; width:30px; height:30px">
+                        @o.IdKorisnikNavigation.Ime @o.IdKorisnikNavigation.Prezime  <text class="small text-muted"> @o.DatumObjave</text>
+                    </div>
+                    <div>
+                        @if (Model.Admin || o.IdKorisnik == Model.IdKorisnik)
+                        {
+                            <a style="right:0px" class="btn btn-sm btn-outline-danger" asp-action="ObrisiObavijest" asp-route-id="@o.Id">Obriši</a>
+                        }
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="card-body alert alert-warning">
+                <h6 class="card-title">@o.Naslov</h6>
+                <p class="card-text">
+                    @o.Tekst
+                </p>
+
+            </div>
+            <div class="card-footer">
+                <div class="col-md-10" style="padding-left:0px">
+                    <text class="small">Lajkovi</text> <text style="color:forestgreen" id="LajkO-@o.Id">@o.LajkObavijesti.Count</text>
+                    @if (o.LajkObavijesti.Where(l => l.IdKorisnik == Model.IdKorisnik).Count() == 0)
+                    {
+                        <button id="BtnO-@o.Id" onclick="lajkObavijesti('@o.Id')" class="btn btn-outline-secondary btn-sm">Lajk</button>
+                        <div id="TekstO-@o.Id" class="small" style="display: none; color:forestgreen">Sviđa vam se!</div>
+
+                    }
+                    else
+                    {
+                        <div>
+                            <text class="small" style="color:forestgreen">Sviđa vam se!</text>
+                        </div>
+                    }
+                </div>
+            </div>
+            <ul id="Komentari-@o.Id" class="list-group list-group-flush">
+                <li class="list-group-item">Komentari:</li>
+                @foreach (KomentarObavijesti k in o.KomentarObavijesti.OrderBy(k => k.DatumObjave))
+                {
+                    <li class="list-group-item " id="Kom-@k.Id">
+                        <div class="col-md-6 alert alert-warning" style="display: inline-block">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <img src="@k.IdKorisnikNavigation.Slika" alt="profpic" style="border-radius:50%; width:30px; height:30px">
+                                    <span style="color:cornflowerblue">@k.IdKorisnikNavigation.Ime @k.IdKorisnikNavigation.Prezime</span>: @k.Tekst
+                                </div>
+                                <div>
+                                    @if (Model.Admin || o.IdKorisnik == Model.IdKorisnik || k.IdKorisnik == Model.IdKorisnik)
+                                    {
+                                        <button class="btn btn-sm btn-outline-danger" onclick="obrisi('@k.Id')">Obriši</button>
+                                    }
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="small">
+                                @k.DatumObjave <text>Lajkovi</text> <text style="color:forestgreen" id="LajkK-@k.Id">@k.LajkKomentara.Count</text>
+                                @if (k.LajkKomentara.Where(l => l.IdKorisnik == Model.IdKorisnik).Count() == 0)
+                                {
+                                    <button class="btn btn-outline-secondary btn-sm" id="BtnK-@k.Id" onclick="lajkKomentara('@k.Id')">Lajk</button>
+                                    <div id="TekstK-@o.Id" class="small" style="display: none" color:forestgreen"s>Sviđa vam se!</div>
+                                }
+
+                            </p>
+                        </div>
+
+                    </li>
+                }
+
+            </ul>
+
+            <form>
+                <input class="form-control" placeholder="Komentiraj..." id="noviKomentar-@o.Id" type="text" onkeydown="test(this, '@o.Id')">
+            </form>
+
+
+        </div>
+        <hr />
+    }
+</div>
+
+@section Scripts {
+
+    <script>
+        function lajkObavijesti(id) {
+            data = { IdCilj: id + '', IdKorisnik: '@Model.IdKorisnik'}
+            $.ajax({
+                 type: "POST",
+                 dataType: "json",
+                contentType: "application/json;charset=utf-8",
+                 url: '@Url.Action("LajkObavijesti", "Zbor")',
+                 data: JSON.stringify(data),
+                xhrFields: {
+                    withCredentials: true
+                }
+            });
+            gumbObavijest = '#BtnO-' + id
+            tekstObavijest = '#TekstO-' + id
+            $(gumbObavijest).hide()
+            $(tekstObavijest).show()
+            brojLajkovaObavijest = '#LajkO-' + id
+            brojLajkova = $(brojLajkovaObavijest).val() + 1
+            console.log(brojLajkova)
+            $(brojLajkovaObavijest).text(brojLajkova)
+        }
+
+    </script>
+
+    <script>
+        function lajkKomentara(id) {
+            data = { IdCilj: id + '', IdKorisnik: '@Model.IdKorisnik'}
+            $.ajax({
+                 type: "POST",
+                 dataType: "json",
+                contentType: "application/json;charset=utf-8",
+                 url: '@Url.Action("LajkKomentara", "Zbor")',
+                 data: JSON.stringify(data),
+                xhrFields: {
+                    withCredentials: true
+                }
+            });
+            gumbObavijest = '#BtnK-' + id
+            tekstObavijest = '#TekstK-' + id
+            $(gumbObavijest).hide()
+            $(tekstObavijest).show()
+            brojLajkovaObavijest = '#LajkK-' + id
+            brojLajkova = $(brojLajkovaObavijest).val() + 1
+            $(brojLajkovaObavijest).text(brojLajkova)
+        }
+
+    </script>
+
+    <script>
+
+        function test(ele, id) {
+            if(event.keyCode != 13) {
+                return;
+            }
+            inputPolje = '#noviKomentar-' + id
+            $(inputPolje).prop('disabled', true)
+            data = { Tekst: ele.value + '', IdObavijest: id + '' }
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json;charset=utf-8",
+                url: '@Url.Action("NoviKomentar", "Zbor")',
+                data: JSON.stringify(data),
+                xhrFields: {
+                    withCredentials: true
+                }
+            }).done(function (response) {
+                console.log(response)
+                idKomentara = response + '';
+                idDiv = "#Komentari-" + id;
+                var $listItem = $('<li class="list-group-item" id="Kom-'+response.id+'"></li>')
+                $(idDiv).append($listItem);
+
+                var $d = $('<div class="d-flex justify-content-between align-items-center"></div>');
+                var $kom = $('<div class="col-md-6 alert alert-warning" style="display: inline-block"></div>');
+                var $div1 = $('<div><img src="@Model.Slika" alt="profpic" style="border-radius:50%; width:30px; height:30px"><span style="color:cornflowerblue">' + '@Model.ImeIPrezime' + '</span>: ' + response.tekst + '</div>');
+                var $newdiv1 = $('<div class="col-md-6"><p>' + response.tekst + '</p></div>')
+                //$($listItem).append($newdiv1);
+                $($d).append($div1);
+
+                var $div2 = $('<div><button class="btn btn-sm btn-outline-danger" onclick="obrisi(\'' + response.id + '\')">Obriši</button>  </div>');
+                $($d).append($div2);
+                $($kom).append($d);
+
+                $($listItem).append($kom);
+
+                var $newdiv2 = $( '<div class="col-md-2"><p class="small">'+'@DateTime.Now'+'</p></div>' )
+                //$($listItem).append($newdiv2);
+
+                var $last = $('<div class="col-md-4"> <p class="small">' + '@DateTime.Now' + ' <text>Lajkovi</text> <text style="color:forestgreen" id="LajkK-' + response.id + '">0</text> <button class="btn btn-outline-secondary btn-sm" id="BtnK-' + response.id + '" onclick="lajkKomentara(\'' + response.id + '\')">Lajk</button>  <div id="TekstK-'+response.id+'" class="small" style="display: none" color:forestgreen"s>Sviđa vam se!</div></p></div>');
+                $($listItem).append($last);
+
+                var $newdiv3 = $('<div class="col-md-4"><p class="small">' +'@Model.ImeIPrezime' + '</p></div>')
+                          //        $($listItem).append($newdiv3);
+
+                var $newdiv4 = $('<div class="col-md-10">Broj lajkova <text id="LajkK-' + response.id + '">0</text><button class="btn btn-sm btn-secondary" id="BtnK-' + response.id + '" onclick="lajkKomentara(\'' + response.id + '\')">Lajk</button><div id="TekstK-' + response.id + '" style="display: none">Lajkali ste :)</div></div>')
+                  //$($listItem).append($newdiv4);
+                $(idDiv).append($listItem);
+
+                $(inputPolje).val('');
+
+
+
+
+            })
+            .always(function () {
+
+                $(inputPolje).prop('disabled', false)
+            });
+
+        }
+
+    </script>
+    <script>
+        $("#trenutniZbor").attr("href", "https://localhost:44373/Zbor/Profil/" + '@Model.Zbor.Id');
+        $("#trenutniZbor").text('@Model.Zbor.Naziv');
+    </script>
+
+    <script>
+        function obrisi(id) {
+            data = { Value: id + '' }
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json;charset=utf-8",
+                url: '@Url.Action("ObrisiKomentar", "Zbor")',
+                data: JSON.stringify(data),
+                xhrFields: {
+                    withCredentials: true
+                }
+            }).done(function (response) {
+                kom = '#Kom-' + id
+                $(kom).hide();
+
+            })
+            .always(function () {
+                g = 2;
+            });
+
+        }
+    </script>
+}
