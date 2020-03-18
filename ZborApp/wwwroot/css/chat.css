@@ -16,6 +16,7 @@ img {
     border-right: 1px solid #c4c4c4;
 }
 
+
 .inbox_msg {
     border: 1px solid #c4c4c4;
     clear: both;
@@ -42,6 +43,15 @@ img {
 .headind_srch {
     padding: 10px 29px 10px 20px;
     overflow: hidden;
+    border-bottom: 1px solid #c4c4c4;
+}
+.headind_name {
+    background: #f8f8f8;
+    height: 51px;
+    padding: 10px 0 0px 20px;
+    overflow: hidden;
+    color: #05728f;
+    font-size: 21px;
     border-bottom: 1px solid #c4c4c4;
 }
 
@@ -71,6 +81,8 @@ img {
     margin: 0 0 0 -27px;
 }
 
+
+
 .chat_ib h5 {
     font-size: 15px;
     color: #464646;
@@ -85,8 +97,14 @@ img {
 .chat_ib p {
     font-size: 14px;
     color: #989898;
-    margin: auto
+    margin: auto;
+   
 }
+ .chat_ib p .novo {
+     float: right;
+     color: aquamarine;
+ }
+
 
 .chat_img {
     float: left;
@@ -104,12 +122,17 @@ img {
     clear: both;
 }
 
+
+
 .chat_list {
     border-bottom: 1px solid #c4c4c4;
     margin: 0;
     padding: 18px 16px 10px;
+    cursor: pointer;
 }
-
+.chat_list:hover {
+    background-color: lightgrey;
+}
 .inbox_chat {
     height: 550px;
     overflow-y: scroll;
@@ -121,7 +144,8 @@ img {
 
 .incoming_msg_img {
     display: inline-block;
-    width: 6%;
+    width: 7%;
+    padding-left:20px;
 }
 
 .received_msg {
@@ -154,7 +178,7 @@ img {
 
 .mesgs {
     float: left;
-    padding: 30px 15px 0 25px;
+    padding: 0 0 0 o;
     width: 60%;
 }
 
@@ -185,6 +209,8 @@ img {
     font-size: 15px;
     min-height: 48px;
     width: 100%;
+    padding-left:10px;
+    padding-right:20px;
 }
 
 .type_msg {

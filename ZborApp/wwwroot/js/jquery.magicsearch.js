@@ -671,7 +671,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
             //generate html string
             if (data.length === 0) {
-                var noResult = options.noResult ? options.noResult : '&#x672a;&#x641c;&#x7d22;&#x5230;&#x7ed3;&#x679c;';
+                var noResult = options.noResult ? options.noResult : 'Nema rezultata.';
                 htmlStr = '<span class="no-result">' + noResult + '</span>';
             } else {
                 //delete empty input

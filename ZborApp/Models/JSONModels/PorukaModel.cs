@@ -14,5 +14,8 @@ namespace ZborApp.Models.JSONModels
         public DateTime When { get; set; }
         public string Slika { get; set; }
         public string Ime { get; set; }
+        public IList<string> Kontakti { get; set; }
+        public string ImeRazgovora { get; set; }
+        public string Popis { get; set; }
     }
 }

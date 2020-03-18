@@ -7,5 +7,7 @@
 
     $(novePoruke).show();
     $(noviRazg).addClass("active_chat");
-
+    let chat = "#Chat-" + id;
+    $(chat).scrollTop($(chat)[0].scrollHeight - $(chat)[0].clientHeight);
+    procitano(id);
 }

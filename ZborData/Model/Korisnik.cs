@@ -63,5 +63,10 @@ namespace ZborData.Model
         public virtual ICollection<Tema> Tema { get; set; }
         public virtual ICollection<Voditelj> Voditelj { get; set; }
         public virtual ICollection<Zapis> Zapis { get; set; }
+
+        public string ImeIPrezime()
+        {
+            return Ime + " " + Prezime;
+        }
     }
 }
