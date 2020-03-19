@@ -9,4 +9,10 @@ namespace ZborApp.Models.JSONModels
     {
         public string Value {get; set;}
     }
+
+    public class TwoIdModel
+    {
+        public string Id1 { get; set; }
+        public string Id2 { get; set; }
+    }
 }

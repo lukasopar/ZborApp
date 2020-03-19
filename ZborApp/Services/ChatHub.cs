@@ -26,9 +26,25 @@ namespace ZborApp.Services
             var user = _ctx.Korisnik.Where(k => k.Id == Guid.Parse(poruka.IdUser)).SingleOrDefault();
             poruka.Slika = user.Slika;
             poruka.Ime = user.Ime;
+            Poruka novaPoruka = new Poruka
+            {
+                DatumIvrijeme = poruka.When,
+                Id = Guid.NewGuid(),
+                IdKorisnik = Guid.Parse(poruka.IdUser),
+                IdRazgovor = Guid.Parse(poruka.IdRazg),
+                Poruka1 = poruka.Message
+            };
+            razg.DatumZadnjePoruke = poruka.When;
+            _ctx.Add(novaPoruka);
             foreach (KorisnikUrazgovoru k in razg.KorisnikUrazgovoru)
+            {
+                if (k.IdKorisnik != novaPoruka.IdKorisnik)
+                    k.Procitano = false;
+                else
+                    k.Procitano = true;
                 await Clients.User(k.IdKorisnik.ToString()).SendAsync("ReceiveMessage", k.IdKorisnik, poruka);
-          
+            }
+            _ctx.SaveChanges();
         }
 
         public async Task NewConversation(PorukaModel poruka)
@@ -36,7 +52,7 @@ namespace ZborApp.Services
             var listaId = poruka.Kontakti.Select(p => Guid.Parse(p)).ToList();
             listaId.Add(Guid.Parse(poruka.IdUser));
             //glupi uvjet, treba bolji napisat
-            var razg = _ctx.Razgovor.Where(razg => razg.KorisnikUrazgovoru.Select(k => k.IdKorisnik).All(id => listaId.Contains(id)) && razg.KorisnikUrazgovoru.Count() == listaId.Count()).SingleOrDefault();
+            var razg = _ctx.Razgovor.Where(razg => razg.KorisnikUrazgovoru.Select(k => k.IdKorisnik).All(id => listaId.Contains(id)) && razg.KorisnikUrazgovoru.Count() == listaId.Count()).Include(k=>k.KorisnikUrazgovoru).SingleOrDefault();
 
             if (razg != null)
             {
@@ -44,8 +60,26 @@ namespace ZborApp.Services
                 poruka.Slika = user.Slika;
                 poruka.Ime = user.Ime;
                 poruka.IdRazg = razg.Id.ToString();
-                foreach (var id in listaId)
-                    await Clients.User(id.ToString()).SendAsync("ReceiveMessage", id, poruka);
+                Poruka novaPoruka = new Poruka
+                {
+                    DatumIvrijeme = poruka.When,
+                    Id = Guid.NewGuid(),
+                    IdKorisnik = Guid.Parse(poruka.IdUser),
+                    IdRazgovor = Guid.Parse(poruka.IdRazg),
+                    Poruka1 = poruka.Message
+                };
+                razg.DatumZadnjePoruke = poruka.When;
+                _ctx.Add(novaPoruka);
+                foreach (KorisnikUrazgovoru k in razg.KorisnikUrazgovoru)
+                {
+                    if (k.IdKorisnik != novaPoruka.IdKorisnik)
+                        k.Procitano = false;
+                    else
+                        k.Procitano = true;
+                    await Clients.User(k.IdKorisnik.ToString()).SendAsync("ReceiveMessage", k.IdKorisnik, poruka);
+                }
+                _ctx.SaveChanges();
+
             }
             else
             {
@@ -53,11 +87,49 @@ namespace ZborApp.Services
                 var user = _ctx.Korisnik.Where(k => k.Id == Guid.Parse(poruka.IdUser)).SingleOrDefault();
                 poruka.Slika = user.Slika;
                 poruka.Ime = user.Ime;
-                poruka.IdRazg = Guid.NewGuid().ToString();
-                poruka.ImeRazgovora = "Razgovor";
-                poruka.Popis = "Kruno Jurčić";
+                Poruka novaPoruka = new Poruka
+                {
+                    DatumIvrijeme = poruka.When,
+                    Id = Guid.NewGuid(),
+                    IdKorisnik = Guid.Parse(poruka.IdUser),
+                    Poruka1 = poruka.Message
+                };
+                Razgovor noviRazg = new Razgovor
+                {
+                    Id = Guid.NewGuid(),
+                    Naslov = "",
+                    DatumZadnjePoruke = poruka.When,
+
+                };
+                novaPoruka.IdRazgovor = noviRazg.Id;
+                noviRazg.Poruka.Add(novaPoruka);
+                poruka.IdRazg = noviRazg.Id.ToString();
+                poruka.ImeRazgovora = "";
+               
                 foreach (var id in listaId)
+                {
+                    KorisnikUrazgovoru k = new KorisnikUrazgovoru
+                    {
+                        Id = Guid.NewGuid(),
+                        IdKorisnik = id,
+                        IdRazgovor = noviRazg.Id,
+                        IdKorisnikNavigation = _ctx.Korisnik.Find(id)
+                    };
+                    if (k.IdKorisnik != novaPoruka.IdKorisnik)
+                        k.Procitano = false;
+                    else
+                        k.Procitano = true;
+                    noviRazg.KorisnikUrazgovoru.Add(k);
+
+                }
+                poruka.Popis = noviRazg.GetPopisKorisnika(novaPoruka.IdKorisnik);
+                foreach (var id in listaId)
+                {
                     await Clients.User(id.ToString()).SendAsync("ReceiveNewConversation", id, poruka);
+                }
+                _ctx.Add(noviRazg);
+                _ctx.SaveChanges();
+                int g = 0;
             }
         }
     }

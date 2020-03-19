@@ -57,5 +57,25 @@ namespace ZborApp.Controllers
             };
             return View(model);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Procitano([FromBody] StringModel model)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            KorisnikUrazgovoru k = _ctx.KorisnikUrazgovoru.Where(k => k.IdKorisnik == user.Id && k.IdRazgovor == Guid.Parse(model.Value)).SingleOrDefault();
+            k.Procitano = true;
+            _ctx.SaveChanges();
+            var m = new StringModel { Value = "Ok" };
+            return Ok(m);
+        }
+        [HttpPost]
+        public IActionResult PromjenaNaslova([FromBody] PretragaModel model)
+        {
+            Razgovor r = _ctx.Razgovor.Where(r => r.Id == Guid.Parse(model.Id)).SingleOrDefault();
+            r.Naslov = model.Tekst;
+            _ctx.SaveChanges();
+            var m = new StringModel { Value = "Ok" };
+            return Ok(m);
+        }
     }
 }

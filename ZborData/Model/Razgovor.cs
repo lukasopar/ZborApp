@@ -21,8 +21,10 @@ namespace ZborData.Model
 
         public string GetNaslov()
         {
-            if ((Naslov == null || Naslov == "") && KorisnikUrazgovoru.Count > 2)
+            if ((Naslov == null || Naslov.Equals("")) && KorisnikUrazgovoru.Count > 2)
                 return "Grupa";
+            else if (Naslov != null && !Naslov.Equals(""))
+                return Naslov;
             else return null;
         }
 

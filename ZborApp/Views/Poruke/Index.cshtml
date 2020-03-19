@@ -41,7 +41,7 @@
                     <div class="inbox_chat" id="lista">
                         @foreach (Razgovor razg in Model.Razgovori)
                         {
-                            razg.Poruka.OrderBy(p => p.DatumIvrijeme);
+                            razg.Poruka = razg.Poruka.OrderBy(p => p.DatumIvrijeme).ToList();
 
                             string name = "", slika = "";
                             foreach (KorisnikUrazgovoru k in razg.KorisnikUrazgovoru)
@@ -56,28 +56,32 @@
 
                                     <div class="chat_img"><img src="@slika" alt="profpic"> </div>
                                     <div class="chat_ib">
-                                        <h5>
+                                        <h5><b id="Naslov-@razg.Id">
                                         @if(razg.GetNaslov() == null)
                                         {
                                             <text>@razg.GetPopisKorisnika(Model.IdKorisnik)</text>
                                         }
                                         else
                                         {
-                                            <text>@razg.GetNaslov() (@razg.GetPopisKorisnika(Model.IdKorisnik))</text>
-                                        }
-                                        <span class="chat_date" id="DatZadnje-@razg.Id">@razg.DatumZadnjePoruke.ToString("dd.MM.yyyy hh:mm")</span></h5>
-                                        <p >
+                                            <text>@razg.GetNaslov()</text>
+                                        }</b>
+                                        <span class="chat_date" id="DatZadnje-@razg.Id">@razg.DatumZadnjePoruke.ToString("dd.MM.yyyy HH:mm")</span></h5>
+                                        <p>
                                             <span id="Sazetak-@razg.Id">@if (razg.Poruka.First().IdKorisnik == Model.IdKorisnik)
                                             {
                                                 <span>Ti: </span>
                                             }
-                                            @razg.Poruka.First().Poruka1
+                                            @razg.Poruka.Last().Poruka1
                                             </span>
-                                            <span class="novo" id="Novo-@razg.Id">Novo!</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
+                                            <span class="novo" id="Novo-@razg.Id" @if (razg.KorisnikUrazgovoru.Where(k => k.IdKorisnik == Model.IdKorisnik).Single().Procitano == true) { <text>style = "display:none"</text>}>Novo!</span>
+
+     </p>
+
+ </div>
+
+</div>
+
+</div>
                         }
 
 
@@ -88,7 +92,7 @@
                 <div class="mesgs" id="poruke">
                     @foreach (Razgovor razg in Model.Razgovori)
                     {
-                        
+
                     <div id="Poruke-@razg.Id" style="display:none" onclick="procitano('@razg.Id')">
                         <div class="headind_name" >
                                 <p><span class="editable" data-id="@razg.Id">@if (razg.GetNaslov() == null)
@@ -231,16 +235,29 @@
 
     <script>
         function bindEdit() {
-            $('.editable').bind('click', function() {
+            $('.editable').bind('click', function () {
                 $(this).attr('contentEditable', true);
-                }).blur(
-                    function () {
-                        console.log($(this).text());
-                        console.log($(this).attr('data-id'));
-                        //Zove se ajax i mijenja se u sazetku.
-                        $(this).attr('contentEditable', false);
-                });
-        }
+            }).blur(
+                function () {
+                    console.log($(this).text());
+                    let id = $(this).attr('data-id');
+                    //Zove se ajax i mijenja se u sazetku.
+                    data = { id: id + '', tekst : $(this).text() };
+
+                    $.ajax({
+                        type: "POST",
+                        dataType: "json",
+                        contentType: "application/json;charset=utf-8",
+                        url: 'Poruke/PromjenaNaslova',
+                        data: JSON.stringify(data),
+                        xhrFields: {
+                            withCredentials: true
+                        }
+
+                    });
+                    $(this).attr('contentEditable', false);
+        });
+        };
         bindEdit();
     </script>
 }

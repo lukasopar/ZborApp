@@ -42,7 +42,6 @@ connection.on("ReceiveMessage", function (userId, message) {
     let dat = "#DatZadnje-" + message.idRazg;
     $(dat).html(formatDate(message.when) + " " + formatTime(message.when));
     setOnTop(message.idRazg);
-    //OVO NE DELA NE ZNAM ZAKAJ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     if (userId === message.idUser) {
         var novo = "#Novo-" + message.idRazg;
         $(novo).show();
@@ -53,12 +52,13 @@ connection.on("ReceiveMessage", function (userId, message) {
 
 connection.on("ReceiveNewConversation", function (userId, message) {
     //sazetak desno
-    var newDiv = '<div class="chat_list" id="Razg-' + message.idRazg + '" onclick="promjenaRazgovora(\'' + message.idRazg + '\')"><div class="chat_people" ><div class="chat_img"><img src="' + message.slika + '" alt="profpic"></div> <div class="chat_ib"><h5>' + message.imeRazgovora + message.popis + ' <span class="chat_date" id="DatZadnje-' + message.idRazg + '">' + formatDate(message.when) + ' ' + formatTime(message.when) + '</span></h5> <p><span  id="Sazetak-' + message.idRazg + '">' + getSazetak(userId, message) + '</span><span class="novo" id="Novo-' + message.idRazg + '" style="display:none">Novo!</span></p></div></div ></div>';
+    var newDiv = '<div class="chat_list" id="Razg-' + message.idRazg + '" onclick="promjenaRazgovora(\'' + message.idRazg + '\')"><div class="chat_people" ><div class="chat_img"><img src="' + message.slika + '" alt="profpic"></div> <div class="chat_ib"><h5><b id="Naslov-"' + message.idRazg + '">' + message.popis + '</b> <span class="chat_date" id="DatZadnje-' + message.idRazg + '">' + formatDate(message.when) + ' ' + formatTime(message.when) + '</span></h5> <p><span  id="Sazetak-' + message.idRazg + '">' + getSazetak(userId, message) + '</span><span class="novo" id="Novo-' + message.idRazg + '" style="display:none">Novo!</span></p></div></div ></div>';
     $("#lista").prepend(newDiv);
     // poruke lijevo
-    var divPoruka = '<div id="Poruke-' + message.idRazg + '" style="display:none" onclick="procitano(\'' + message.idRazg + '\')><div class="headind_name" ><p><span class="editable" data-id="' + message.idRazg + '">' + message.imeRazgovora + ' </span><span>' + message.popis + '</span></p></div><div class="msg_history" id="Chat-' + message.idRazg + '">' + getPoruka(userId, message) + '</div><div class="type_msg"><div class="input_msg_write" ><input id="Poruka-' + message.idRazg + '" type="text" class="write_msg" placeholder="Type a message" /><button class="msg_send_btn" type="button" onclick="sendMessage(\'' + message.idRazg + '\', \'' + userId + '\')"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button></div ></div ></div>';
-    bindEdit();
+    var divPoruka = '<div id="Poruke-' + message.idRazg + '" style="display:none" onclick="procitano(\'' + message.idRazg + '\')"><div class="headind_name" ><p><span class="editable" data-id="' + message.idRazg + '">Razgovor </span><span>(' + message.popis + ')</span></p></div><div class="msg_history" id="Chat-' + message.idRazg + '">' + getPoruka(userId, message) + '</div><div class="type_msg"><div class="input_msg_write" ><input id="Poruka-' + message.idRazg + '" type="text" class="write_msg" placeholder="Type a message" /><button class="msg_send_btn" type="button" onclick="sendMessage(\'' + message.idRazg + '\', \'' + userId + '\')"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button></div ></div ></div>';
     $("#poruke").append(divPoruka);
+    bindEdit();
+
     if (userId === message.idUser) { 
         var novo = "#Novo-" + message.idRazg;
         $(novo).show();
@@ -167,7 +167,19 @@ function procitano(id) {
     var element = "#Novo-" + id;
     if ($(element).is(":visible")) {
         //pošalji ajax
+        data = { value: id + '' };
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            contentType: "application/json;charset=utf-8",
+            url: 'Poruke/Procitano',
+            data: JSON.stringify(data),
+            xhrFields: {
+                withCredentials: true
+            }
+        });
         $(element).hide();
+
     }
 
     //pošalji ajax
