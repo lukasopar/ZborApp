@@ -42,6 +42,8 @@ namespace ZborData.Model
         public virtual DbSet<PrijavaZaZbor> PrijavaZaZbor { get; set; }
         public virtual DbSet<Projekt> Projekt { get; set; }
         public virtual DbSet<Razgovor> Razgovor { get; set; }
+        public virtual DbSet<RepozitorijKorisnik> RepozitorijKorisnik { get; set; }
+
         public virtual DbSet<Tema> Tema { get; set; }
         public virtual DbSet<Trosak> Trosak { get; set; }
         public virtual DbSet<Voditelj> Voditelj { get; set; }
@@ -640,6 +642,25 @@ namespace ZborData.Model
                 entity.Property(e => e.Naslov)
                     .IsRequired()
                     .HasMaxLength(50);
+            });
+            modelBuilder.Entity<RepozitorijKorisnik>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.DatumPostavljanja).HasColumnType("datetime");
+
+                entity.Property(e => e.Naziv)
+                    .IsRequired()
+                    .HasMaxLength(400);
+                entity.Property(e => e.Url)
+                                    .IsRequired()
+                                    .HasMaxLength(400);
+                entity.HasOne(d => d.IdKorisnikNavigation)
+                    .WithMany(p => p.RepozitorijKorisnik)
+                    .HasForeignKey(d => d.IdKorisnik)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_RepozitorijKorisnik_Korisnik");
+
             });
 
             modelBuilder.Entity<Tema>(entity =>

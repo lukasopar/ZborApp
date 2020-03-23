@@ -27,6 +27,7 @@ namespace ZborData.Model
             PretplataNaProjekt = new HashSet<PretplataNaProjekt>();
             PrijavaZaProjekt = new HashSet<PrijavaZaProjekt>();
             PrijavaZaZbor = new HashSet<PrijavaZaZbor>();
+            RepozitorijKorisnik = new HashSet<RepozitorijKorisnik>();
             Tema = new HashSet<Tema>();
             Voditelj = new HashSet<Voditelj>();
             Zapis = new HashSet<Zapis>();
@@ -60,6 +61,8 @@ namespace ZborData.Model
         public virtual ICollection<PretplataNaProjekt> PretplataNaProjekt { get; set; }
         public virtual ICollection<PrijavaZaProjekt> PrijavaZaProjekt { get; set; }
         public virtual ICollection<PrijavaZaZbor> PrijavaZaZbor { get; set; }
+        public virtual ICollection<RepozitorijKorisnik> RepozitorijKorisnik { get; set; }
+
         public virtual ICollection<Tema> Tema { get; set; }
         public virtual ICollection<Voditelj> Voditelj { get; set; }
         public virtual ICollection<Zapis> Zapis { get; set; }
