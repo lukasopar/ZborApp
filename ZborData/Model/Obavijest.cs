@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace ZborData.Model
 {
@@ -15,8 +16,10 @@ namespace ZborData.Model
         public Guid Id { get; set; }
         public Guid IdKorisnik { get; set; }
         public Guid IdZbor { get; set; }
+        [Required]
         public string Tekst { get; set; }
         public DateTime DatumObjave { get; set; }
+        [Required]
         public string Naslov { get; set; }
 
         public virtual Korisnik IdKorisnikNavigation { get; set; }

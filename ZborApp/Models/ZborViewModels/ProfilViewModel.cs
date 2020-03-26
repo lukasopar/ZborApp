@@ -14,6 +14,8 @@ namespace ZborApp.Models.ZborViewModels
         public Zbor Zbor { get; set; }
         public Obavijest NovaObavijest { get; set; }
         public IEnumerable<Obavijest> Obavijesti { get; set; }
+        public IList<Projekt> Projekti { get; set; }
+        public string OdabraniProjekti { get; set; }
         public bool Admin { get; set; }
 
     }

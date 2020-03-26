@@ -124,7 +124,7 @@ namespace ZborApp.Controllers
             if (!CheckRights(id, user.Id))
                 return RedirectToAction("Prava");
             var korisnik = _ctx.Korisnik.Where(k => k.Id == user.Id).SingleOrDefault();
-            Zbor zbor = _ctx.Zbor.Where(z => z.Id == id).Include(z => z.Voditelj).SingleOrDefault();
+            Zbor zbor = _ctx.Zbor.Where(z => z.Id == id).Include(z => z.Voditelj).Include(z => z.Projekt).SingleOrDefault();
             if (zbor == null)
                 return Error();
             IEnumerable<Obavijest> obavijesti = _ctx.Obavijest.Where(o => o.IdZbor == id)
@@ -138,6 +138,9 @@ namespace ZborApp.Controllers
             ProfilViewModel model = new ProfilViewModel { Zbor = zbor, Obavijesti = obavijesti, IdKorisnik = user.Id, ImeIPrezime = korisnik.Ime + " " + korisnik.Prezime, Slika = korisnik.Slika };
             var admin = zbor.Voditelj.OrderByDescending(z => z.DatumPostanka).First();
             model.Admin = IsAdmin(id, user.Id);
+            model.Projekti = zbor.Projekt.ToList();
+            ViewData["zborId"] = id;
+            ViewData["zborIme"] = zbor.Naziv;
             return View(model);
         }
 
@@ -171,6 +174,20 @@ namespace ZborApp.Controllers
                 model.NovaObavijest.Id = Guid.NewGuid();
                 model.NovaObavijest.IdZbor = id;
                 model.NovaObavijest.IdKorisnik = user.Id;
+                if(model.OdabraniProjekti != null)
+                {
+                    var projekti = model.OdabraniProjekti.Split(",");
+                    foreach(var projektId in projekti)
+                    {
+                        var ob = new ObavijestVezanaUzProjekt
+                        {
+                            Id = Guid.NewGuid(),
+                            IdProjekt = Guid.Parse(projektId),
+                            IdObavijest = model.NovaObavijest.Id
+                        };
+                        model.NovaObavijest.ObavijestVezanaUzProjekt.Add(ob);
+                    }
+                }
                 _ctx.Add(model.NovaObavijest);
                 _ctx.SaveChanges();
                 return RedirectToAction("Profil", new { id = id });
@@ -194,6 +211,17 @@ namespace ZborApp.Controllers
             _ctx.SaveChanges();
             return Ok();
         }
+        [HttpPost]
+        public async Task<IActionResult> UnlajkObavijesti([FromBody] LajkModel lajk)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+
+            var l = _ctx.LajkObavijesti.Where(l => l.IdKorisnik == user.Id && l.IdObavijest == Guid.Parse(lajk.IdCilj)).SingleOrDefault();
+            _ctx.LajkObavijesti.Remove(l);
+            _ctx.SaveChanges();
+            return Ok();
+            
+        }
 
         [HttpPost]
         public async Task<IActionResult> LajkKomentara([FromBody] LajkModel lajk)
@@ -209,6 +237,17 @@ namespace ZborApp.Controllers
             _ctx.LajkKomentara.Add(l);
             _ctx.SaveChanges();
             return Ok();
+        }
+        [HttpPost]
+        public async Task<IActionResult> UnlajkKomentara([FromBody] LajkModel lajk)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+
+            var l = _ctx.LajkKomentara.Where(l => l.IdKorisnik == user.Id && l.IdKomentar == Guid.Parse(lajk.IdCilj)).SingleOrDefault();
+            _ctx.LajkKomentara.Remove(l);
+            _ctx.SaveChanges();
+            return Ok();
+
         }
         [HttpPost]
         public async Task<IActionResult> NoviKomentar([FromBody] NoviKomentarModel komentar)
@@ -230,9 +269,12 @@ namespace ZborApp.Controllers
         [HttpGet]
         public async Task<IActionResult> NovaAnketa(Guid id)
         {
+            var zbor = _ctx.Zbor.Find(id);
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
             if (!CheckRights(id, user.Id))
                 return RedirectToAction("Prava");
+            ViewData["zborId"] = id;
+            ViewData["zborIme"] = zbor.Naziv;
             return View();
         }
 

@@ -86,3 +86,7 @@ body {
     .magicsearch:focus {
         background-color: #fff;
     }
+
+.hoverable:hover{
+    cursor:pointer;
+}
