@@ -17,6 +17,9 @@ namespace ZborApp.Models.ZborViewModels
         public ICollection<ClanZbora> Basi { get; set; }
 
         public ICollection<ClanZbora> Nerazvrstani { get; set; }
+        public Guid IdBrisanje { get; set; }
+        public ICollection<ModeratorZbora> Moderatori { get; set; }
+
 
     }
 }

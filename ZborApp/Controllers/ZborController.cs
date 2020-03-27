@@ -147,18 +147,45 @@ namespace ZborApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Pitanja(Guid id)
         {
+            Zbor zbor = _ctx.Zbor.Where(z => z.Id == id).Include(z => z.Voditelj).Include(z => z.Projekt).SingleOrDefault();
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
             if (!CheckRights(id, user.Id))
                 return RedirectToAction("Prava");
-            var aktivna = _ctx.Anketa.Where(a => a.IdZbor == id && a.DatumKraja >= DateTime.Now).OrderBy(a => a.DatumKraja);
-            var prosla = _ctx.Anketa.Where(a => a.IdZbor == id && a.DatumKraja < DateTime.Now).OrderByDescending(a => a.DatumKraja);
+            var aktivna = _ctx.Anketa.Where(a => a.IdZbor == id && a.DatumKraja >= DateTime.Now).Include(a=>a.IdKorisnikNavigation).Include(a => a.OdgovorAnkete).ThenInclude(o => o.OdgovorKorisnikaNaAnketu).OrderBy(a => a.DatumKraja);
+            var prosla = _ctx.Anketa.Where(a => a.IdZbor == id && a.DatumKraja < DateTime.Now).Include(a => a.IdKorisnikNavigation).Include(a => a.OdgovorAnkete).ThenInclude(o => o.OdgovorKorisnikaNaAnketu).OrderByDescending(a => a.DatumKraja);
+            Dictionary<Guid, List<int>> korisnickiOdgovori = new Dictionary<Guid, List<int>>();
+            foreach(var anketa in aktivna) 
+            { 
+                List<int> odg = new List<int>();
+                foreach (var odgovor in anketa.OdgovorAnkete)
+                {
+                    OdgovorKorisnikaNaAnketu odgovorNaPitanje = odgovor.OdgovorKorisnikaNaAnketu.Where(o => o.IdOdgovor == odgovor.Id && o.IdKorisnik == user.Id).FirstOrDefault();
+                    if (odgovorNaPitanje != null)
+                        odg.Add(odgovor.Redoslijed);
+                }
+                korisnickiOdgovori.Add(anketa.Id, odg);
+            }
+            foreach (var anketa in prosla)
+            {
+                List<int> odg = new List<int>();
+                foreach (var odgovor in anketa.OdgovorAnkete)
+                {
+                    OdgovorKorisnikaNaAnketu odgovorNaPitanje = odgovor.OdgovorKorisnikaNaAnketu.Where(o => o.IdOdgovor == odgovor.Id && o.IdKorisnik == user.Id).FirstOrDefault();
+                    if (odgovorNaPitanje != null)
+                        odg.Add(odgovor.Redoslijed);
+                }
+                korisnickiOdgovori.Add(anketa.Id, odg);
+            }
             PitanjaViewModel model = new PitanjaViewModel
             {
                 Admin = IsAdmin(id, user.Id),
                 AktivnaPitanja = aktivna,
                 GotovaPitanja = prosla,
+                KorisnickiOdgovori= korisnickiOdgovori,
                 IdZbor = id
             };
+            ViewData["zborId"] = id;
+            ViewData["zborIme"] = zbor.Naziv;
             return View(model);
         }
 
@@ -353,6 +380,36 @@ namespace ZborApp.Controllers
             return View(model);
         }
         [HttpPost]
+        public async Task<IActionResult> OdgovoriNaPitanje([FromBody] ListaModel model)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            var stariOdgovor = _ctx.OdgovorKorisnikaNaAnketu.Where(o => o.IdOdgovorNavigation.IdAnketa == Guid.Parse(model.Id) && o.IdKorisnik == user.Id).ToList();
+            if (stariOdgovor != null)
+                _ctx.OdgovorKorisnikaNaAnketu.RemoveRange(stariOdgovor);
+            foreach (var odg in model.Lista)
+            {
+                try
+                {
+                    OdgovorKorisnikaNaAnketu odgovor = new OdgovorKorisnikaNaAnketu
+                    {
+                        DatumOdgovora = DateTime.Now,
+                        Id = Guid.NewGuid(),
+                        IdKorisnik = user.Id
+                    };
+                    odgovor.IdOdgovor = _ctx.OdgovorAnkete.Where(o => o.IdAnketa == Guid.Parse(model.Id) && o.Redoslijed == Int32.Parse(odg)).SingleOrDefault().Id;
+                    _ctx.OdgovorKorisnikaNaAnketu.Add(odgovor);
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+            }
+            _ctx.SaveChanges();
+            return Ok();
+        }
+
+
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RijesiAnketu(Guid idZbor, Guid id, PrikazAnketeViewModel model)
         {
@@ -392,6 +449,8 @@ namespace ZborApp.Controllers
                 .Include(z => z.PozivZaZbor).ThenInclude(p => p.IdKorisnikNavigation)
                 .Include(z => z.PrijavaZaZbor).ThenInclude(p => p.IdKorisnikNavigation)
                 .Include(z => z.ClanZbora).ThenInclude(c => c.IdKorisnikNavigation)
+                .Include(z => z.ModeratorZbora).ThenInclude(c => c.IdKorisnikNavigation)
+
                 .SingleOrDefault();
            
             model.Zbor = zbor;
@@ -400,6 +459,8 @@ namespace ZborApp.Controllers
             model.Tenori = zbor.ClanZbora.Where(c => c.Glas.Trim().Equals("tenor")).ToList();
             model.Basi = zbor.ClanZbora.Where(c => c.Glas.Trim().Equals("bas")).ToList();
             model.Nerazvrstani = zbor.ClanZbora.Where(c => c.Glas.Trim().Equals("ne")).ToList();
+            ViewData["zborId"] = id;
+            ViewData["zborIme"] = zbor.Naziv;
             return View(model);
         }
         [HttpPost]
@@ -410,7 +471,7 @@ namespace ZborApp.Controllers
             {
                 Id = Guid.NewGuid(),
                 DatumPridruzivanja = DateTime.Now,
-                Glas = "Ne",
+                Glas = "ne",
                 IdZbor = prijava.IdZbor,
                 IdKorisnik = prijava.IdKorisnik
             };
@@ -418,7 +479,7 @@ namespace ZborApp.Controllers
             _ctx.PrijavaZaZbor.Remove(prijava);
             _ctx.SaveChanges();
             var m = new StringModel { Value = prijava.IdKorisnikNavigation.Ime + ' ' + prijava.IdKorisnikNavigation.Prezime };
-            return Ok(m);
+            return Ok(new { ImeIPrezime = prijava.IdKorisnikNavigation.ImeIPrezime(), id=clan.Id });
         }
 
         [HttpPost]
@@ -430,6 +491,38 @@ namespace ZborApp.Controllers
             var m = new StringModel { Value = "OKje" };
 
             return Ok(m);
+        }
+        [HttpPost]
+        public IActionResult NoviModerator([FromBody] LajkModel model)
+        {
+            ModeratorZbora mod = new ModeratorZbora
+            {
+                Id = Guid.NewGuid(),
+                IdKorisnik = Guid.Parse(model.IdKorisnik),
+                IdZbor = Guid.Parse(model.IdCilj)
+
+            };
+            _ctx.ModeratorZbora.Add(mod);
+            _ctx.SaveChanges();
+            return Ok(new {id=mod.Id, ImeIPrezime= _ctx.Korisnik.Find(Guid.Parse(model.IdKorisnik)).ImeIPrezime() });
+        }
+        [HttpPost]
+        public IActionResult ObrisiModeratora([FromBody] StringModel model)
+        {
+            ModeratorZbora mod = _ctx.ModeratorZbora.Find(Guid.Parse(model.Value));
+            _ctx.ModeratorZbora.Remove(mod);
+            _ctx.SaveChanges();
+            var m = new StringModel { Value = "OKje" };
+
+            return Ok(m);
+        }
+        [HttpPost]
+        public IActionResult ObrisiClana(AdministracijaViewModel model)
+        {
+            var clan = _ctx.ClanZbora.Find(model.IdBrisanje);
+            _ctx.ClanZbora.Remove(clan);
+            _ctx.SaveChanges();
+            return RedirectToAction("Administracija", new { id = clan.IdZbor });
         }
 
         [HttpPost]
@@ -636,6 +729,7 @@ namespace ZborApp.Controllers
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
             var id = Guid.Parse(prijava.Id);
             var idZbor = Guid.Parse(prijava.Naziv);
+            var korisnik = _ctx.Korisnik.Find(id);
             var pozivZaZbor = _ctx.PozivZaZbor.Where(p => p.IdKorisnik == id && p.IdZbor == idZbor).SingleOrDefault();
             if (pozivZaZbor != null)
                 return Ok();
@@ -649,7 +743,7 @@ namespace ZborApp.Controllers
             };
             _ctx.PozivZaZbor.Add(pr);
             _ctx.SaveChanges();
-            return Ok();
+            return Ok(new {ImeIPrezime = korisnik.ImeIPrezime(), Datum=pr.DatumPoziva.ToString("dd.MM.yyyy."), Id = pr.Id.ToString() });
         }
 
         [HttpPost]

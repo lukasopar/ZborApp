@@ -40,7 +40,7 @@ function createOptionNode(questionId, optionId) {
 
     // create <label class="radio-inline">
     var labelNode = document.createElement("label");
-    labelNode.setAttribute("class", "radio-inline");
+    labelNode.setAttribute("class", "input-group");
     
     // create radio button node
     /*var radioNode = document.createElement("input");
@@ -52,25 +52,27 @@ function createOptionNode(questionId, optionId) {
     var optionTextNode = document.createElement("input");
     optionTextNode.setAttribute("type", "text");
     optionTextNode.setAttribute("placeholder", "Ovdje unesi odgovor!");
-    optionTextNode.setAttribute("size", "95");
+    optionTextNode.setAttribute("size", "65");
     optionTextNode.setAttribute("class", "form-control input-lg");
 
     // create remove option node
     var removeOptionNode = document.createElement("button");
-    removeOptionNode.setAttribute("class", "btn btn-sm btn-danger");
-    removeOptionNode.setAttribute("value", "Ukloni");
+    removeOptionNode.setAttribute("class", "btn btn-sm btn-outline-danger");
+    removeOptionNode.innerHTML = '<i class="fa fa-times"></i>';
 
     //removeOptionNode.setAttribute("aria-hidden", "true");
     removeOptionNode.addEventListener("click", function () {
         removeOption(this);
     });
+   
 
     // attach to labelNode
     //labelNode.appendChild(radioNode);
-    labelNode.appendChild(document.createTextNode("\u00A0\u00A0"));
+    
     labelNode.appendChild(optionTextNode);
-    //labelNode.appendChild(createNewLineNode());
     labelNode.appendChild(removeOptionNode);
+
+    //labelNode.appendChild(createNewLineNode());
 
     // attach to divNode
     divNode.appendChild(labelNode);

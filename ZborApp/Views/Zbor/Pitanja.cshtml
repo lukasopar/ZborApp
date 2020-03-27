@@ -4,43 +4,279 @@
     ViewData["Title"] = "Pitanja";
 }
 
+<link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
+<link rel="stylesheet" href="~/css/Slider.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
 
 
-<div class="container-wrap">
-    <div class="container-wrap" style="margin-left:50px; padding-top:50px">
-        <h4>
-            <a asp-action="NovaAnketa" asp-route-id="@Model.IdZbor">+ Postavi novo pitanje</a>
-        </h4>
-        <br />
-        <h4>Aktivna pitanja</h4>
-        @if (Model.AktivnaPitanja == null || Model.AktivnaPitanja.Count() == 0)
-        {
-            <p>Nema akttivnih pitanja</p>
-        }
-        @foreach (Anketa a in Model.AktivnaPitanja)
-        {
-            <div class="row">
-                <div>Datum zatvaranja: @a.DatumKraja.ToLongDateString() <a asp-action="RijesiAnketu" asp-route-id="@a.Id" asp-route-idZbor="@a.IdZbor">@a.Pitanje</a>  </div>
-
-            </div>
-
-        }
-        <br />
-
-        <h4>Završena pitanja</h4>
-        @if (Model.AktivnaPitanja == null || Model.AktivnaPitanja.Count() == 0)
-        {
-            <p>Nema zatvorenih pitanja</p>
-        }
-        @foreach (Anketa a in Model.GotovaPitanja)
-        {
-            <div class="row">
-                <div>Datum zatvaranja: @a.DatumKraja.ToLongDateString() <a asp-action="RijesiAnketu" asp-route-id="@a.Id" asp-route-idZbor="@a.IdZbor">@a.Pitanje</a>  </div>
-
-            </div>
-
-        }
-        <br />
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Pitanja</h1>
 </div>
+<h4>
+    <a asp-action="NovaAnketa" asp-route-id="@Model.IdZbor">+ Postavi novo pitanje</a>
+</h4>
 
-</div>
+
+<script>
+    var dict = {};
+    var charts = [];
+</script>
+@{ var counter = 0;}
+@foreach (Anketa a in Model.AktivnaPitanja)
+{
+    <div class="row">
+
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <div>
+                        <img src="@a.IdKorisnikNavigation.Slika" alt="profpic" style="border-radius:50%; width:30px; height:30px">
+                        @a.IdKorisnikNavigation.Ime @a.IdKorisnikNavigation.Prezime  <text class="small text-muted"> | @a.DatumPostavljanja</text>
+                    </div>                    <div>
+                        <a style="right:0px;"><i class="fa fa-trash-o"></i></a>
+                    </div>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="card-title">@a.Pitanje</div>
+                    <div class="card-text">
+                        @foreach (var odg in a.OdgovorAnkete)
+                        {
+                            if (a.VisestrukiOdgovor)
+                            {
+                                <div class="form-check" id="form-@a.Id">
+                                    <input class="form-check-input" value="@odg.Redoslijed" type="checkbox" name="box" @if (Model.KorisnickiOdgovori[a.Id].Contains(odg.Redoslijed)) { <text> checked</text> }>
+                                    <label class="form-check-label">
+                                        @odg.Odgovor
+                                    </label>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="form-check" id="form-@a.Id">
+                                    <input class="form-check-input" value="@odg.Redoslijed" type="radio" name="box" @if (Model.KorisnickiOdgovori[a.Id].Contains(odg.Redoslijed)) { <text> checked</text> }>
+                                    <label class="form-check-label">
+                                        @odg.Odgovor
+                                    </label>
+                                </div>
+                            }
+                        }
+                        <br />
+                        <div  class="d-flex flex-row align-items-center justify-content-between" >
+                            <span>Otvoreno do @a.DatumKraja.ToString("dd.MM.yyyy")</span>
+                            <button class="btn btn-outline-success" onclick="spremiOdgovor('@a.Id', @counter)">Spremi</button>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pie Chart -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Rezultati</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body" style="margin-bottom:0px; margin-top:0px; padding-bottom: 0px; padding-top:0px">
+                    <div class="chart-pie pt-4 pb-2" style="padding-top:0px; padding-bottom:0px">
+                        <canvas id="graf-@a.Id"></canvas>
+                    </div>
+                    <script>
+
+                        var odgovori = [];
+                        var boje = [];
+                        var borderi = [];
+                        var data = [];
+                        dict['@a.Id'] = @Model.OdgovoriUListu(a.Id);
+                    </script>
+                    @foreach (var odgovor in a.OdgovorAnkete)
+                    {
+                        <script>
+
+                        odgovori.push('@odgovor.Odgovor');
+                        var boja = "rgba(" + Math.floor(Math.random()*256) + ", " + Math.floor(Math.random()*256) + ", " + Math.floor(Math.random() * 256) + ", ";
+                        boje.push(boja + "0.2)");
+                        borderi.push(boja + "1)");
+                        data.push(@odgovor.OdgovorKorisnikaNaAnketu.Count);
+
+
+                        </script>
+                    }
+                    <script>
+                        var ctx = document.getElementById("graf-@a.Id").getContext('2d');
+
+                            var myChart_@counter = new Chart(ctx, {
+                            type: 'pie',
+                            data: {
+                               labels: odgovori,
+                               datasets: [{
+                                    label: 'Broj odgovora',
+                                    data: data,
+                                    backgroundColor: boje,
+                                    borderColor: borderi,
+                                    borderWidth: 1
+                                 }]
+                            },
+                            options: {
+                                responsive: true
+                                }
+                            });
+                        charts.push(myChart_@counter);
+
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+    counter++;
+
+}
+
+@foreach (Anketa a in Model.GotovaPitanja)
+{
+    <div class="row">
+
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <div>
+                        <img src="@a.IdKorisnikNavigation.Slika" alt="profpic" style="border-radius:50%; width:30px; height:30px">
+                        @a.IdKorisnikNavigation.Ime @a.IdKorisnikNavigation.Prezime  <text class="small text-muted"> | @a.DatumPostavljanja</text>
+                    </div>                    <div>
+                        <a style="right:0px;"><i class="fa fa-trash-o"></i></a>
+                    </div>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="card-title">@a.Pitanje</div>
+                    <div class="card-text">
+                        @foreach (var odg in a.OdgovorAnkete)
+                        {
+                            if (a.VisestrukiOdgovor)
+                            {
+                                <div class="form-check" id="form-@a.Id">
+                                    <input disabled class="form-check-input" value="@odg.Redoslijed" type="checkbox" name="box" @if (Model.KorisnickiOdgovori[a.Id].Contains(odg.Redoslijed)) { <text> checked</text> }>
+                                    <label class="form-check-label">
+                                        @odg.Odgovor
+                                    </label>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="form-check" id="form-@a.Id">
+                                    <input disabled class="form-check-input" value="@odg.Redoslijed" type="radio" name="box" @if (Model.KorisnickiOdgovori[a.Id].Contains(odg.Redoslijed)) { <text> checked</text> }>
+                                    <label class="form-check-label">
+                                        @odg.Odgovor
+                                    </label>
+                                </div>
+                            }
+                        }
+                        <br />
+                        <div>Zatvoreno @a.DatumKraja.ToString("dd.MM.yyyy")</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pie Chart -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Rezultati</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body" style="margin-bottom:0px; margin-top:0px; padding-bottom: 0px; padding-top:0px">
+                    <div class="chart-pie pt-4 pb-2" style="padding-top:0px; padding-bottom:0px">
+                        <canvas id="graf-@a.Id"></canvas>
+                    </div>
+                    <script>
+
+                        var odgovori = [];
+                        var boje = [];
+                        var borderi = [];
+                        var data = [];
+                        dict['@a.Id'] = @Model.OdgovoriUListu(a.Id);
+                    </script>
+                    @foreach (var odgovor in a.OdgovorAnkete)
+                    {
+                        <script>
+
+                        odgovori.push('@odgovor.Odgovor');
+                        var boja = "rgba(" + Math.floor(Math.random()*256) + ", " + Math.floor(Math.random()*256) + ", " + Math.floor(Math.random() * 256) + ", ";
+                        boje.push(boja + "0.2)");
+                        borderi.push(boja + "1)");
+                        data.push(@odgovor.OdgovorKorisnikaNaAnketu.Count);
+
+
+                        </script>
+                    }
+                    <script>
+                        var ctx = document.getElementById("graf-@a.Id").getContext('2d');
+
+                            var myChart_@counter = new Chart(ctx, {
+                            type: 'pie',
+                            data: {
+                               labels: odgovori,
+                               datasets: [{
+                                    label: 'Broj odgovora',
+                                    data: data,
+                                    backgroundColor: boje,
+                                    borderColor: borderi,
+                                    borderWidth: 1
+                                 }]
+                            },
+                            options: {
+                                responsive: true
+                                }
+                            });
+                        charts.push(myChart_@counter);
+
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+    counter++;
+
+}
+
+
+
+
+<script>
+    function spremiOdgovor(id, count) {
+        var form = "#form-" + id;
+        var arr = [];
+        $(form + ' input[name=box]:checked').each(function () { arr.push($(this).val())});
+        console.log(arr);
+        data = { Id: id + '', Lista: arr }
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json;charset=utf-8",
+                url: '@Url.Action("OdgovoriNaPitanje", "Zbor")',
+                data: JSON.stringify(data),
+                xhrFields: {
+                    withCredentials: true
+                }
+
+            })
+        var i;
+        for (i = 0; i < dict[id].length; i++) {
+            charts[count].data.datasets[0].data[dict[id][i]] -= 1;
+
+        }
+        var arr2 = []
+        for (i = 0; i < arr.length; i++) {
+            charts[count].data.datasets[0].data[Number(arr[i])] += 1;
+            arr2.push(Number(arr[i]));
+        }
+        dict[id] = arr2;
+        charts[count].update();
+    }
+</script>

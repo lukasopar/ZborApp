@@ -11,8 +11,19 @@ namespace ZborApp.Models.ZborViewModels
         public Guid IdZbor { get; set; }
         public IEnumerable<Anketa> AktivnaPitanja { get; set; }
         public IEnumerable<Anketa> GotovaPitanja { get; set; }
+        public Dictionary<Guid, List<int>> KorisnickiOdgovori = new Dictionary<Guid, List<int>>();
 
         public bool Admin { get; set; }
 
+        public string OdgovoriUListu(Guid id)
+        {
+            string rez = "[";
+            foreach(var ko in KorisnickiOdgovori[id])
+            {
+                rez += ko + ",";
+            }
+            rez += "]";
+            return rez;
+        }
     }
 }
