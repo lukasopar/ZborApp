@@ -450,7 +450,7 @@ namespace ZborApp.Controllers
                 .Include(z => z.PrijavaZaZbor).ThenInclude(p => p.IdKorisnikNavigation)
                 .Include(z => z.ClanZbora).ThenInclude(c => c.IdKorisnikNavigation)
                 .Include(z => z.ModeratorZbora).ThenInclude(c => c.IdKorisnikNavigation)
-
+                .Include(z => z.Voditelj).ThenInclude(c => c.IdKorisnikNavigation)
                 .SingleOrDefault();
            
             model.Zbor = zbor;
@@ -459,6 +459,7 @@ namespace ZborApp.Controllers
             model.Tenori = zbor.ClanZbora.Where(c => c.Glas.Trim().Equals("tenor")).ToList();
             model.Basi = zbor.ClanZbora.Where(c => c.Glas.Trim().Equals("bas")).ToList();
             model.Nerazvrstani = zbor.ClanZbora.Where(c => c.Glas.Trim().Equals("ne")).ToList();
+            model.Voditelj = zbor.Voditelj.OrderByDescending(z => z.DatumPostanka).First().IdKorisnikNavigation;
             ViewData["zborId"] = id;
             ViewData["zborIme"] = zbor.Naziv;
             return View(model);
@@ -479,7 +480,20 @@ namespace ZborApp.Controllers
             _ctx.PrijavaZaZbor.Remove(prijava);
             _ctx.SaveChanges();
             var m = new StringModel { Value = prijava.IdKorisnikNavigation.Ime + ' ' + prijava.IdKorisnikNavigation.Prezime };
-            return Ok(new { ImeIPrezime = prijava.IdKorisnikNavigation.ImeIPrezime(), id=clan.Id });
+            return Ok(new { ImeIPrezime = prijava.IdKorisnikNavigation.ImeIPrezime(), id=clan.Id, idZbor = clan.IdZbor });
+        }
+        [HttpPost]
+        public IActionResult PromjenaGlasa([FromBody] PrijavaModel model)
+        {
+            var id = Guid.Parse(model.Id);
+            string glas = "";
+            if (model.Poruka.Equals("1")) glas = "sopran";
+            else if (model.Poruka.Equals("2")) glas = "alt";
+            else if (model.Poruka.Equals("3")) glas = "tenor";
+            else if (model.Poruka.Equals("4")) glas = "bas";
+            var clan = _ctx.ClanZbora.Find(id).Glas = glas;
+            _ctx.SaveChanges();
+            return Ok(new { val = "ok"});
         }
 
         [HttpPost]

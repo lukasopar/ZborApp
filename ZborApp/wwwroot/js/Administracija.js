@@ -15,7 +15,7 @@
 
         $(prijava).remove();
         if ($("#listaPrijava").children().length === 1) $("#nemaPrijava").show();
-        newDiv = '<div style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between"><a href="#">' + response.imeIPrezime + '</a><div class="dropdown no-arrow"><a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-v"></i> </a><div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink"><div class="dropdown-header">Mogućnosti</div><a class="dropdown-item" href="#">Promjena glasa</a><form action="/Zbor/ObrisiClana" method="post"><input id="IdBrisanje" name="IdBrisanje" value="' + response.id + '" hidden style="display:none"/><button class="dropdown-item" type="submit">Izbaci</button></form></div></div></div>';
+        newDiv = '<div id="Clan-' + response.id + '" style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between"><a href="#">' + response.imeIPrezime + '</a><div class="dropdown no-arrow"><a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-v"></i> </a><div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink"><div class="dropdown-header">Mogućnosti</div><button id="Promjena-' + response.id + '" class="dropdown-item" data-toggle="modal" data-target="#promjenaGlasa" data-ime="' + response.imeIPrezime + '" data-id="' + response.id + '" data-glas="1">Promjena glasa</button><button class="dropdown-item" onclick="moderiraj(\'' + response.id + '\', \'' + response.idZbor + '\')">Postavi za moderatora</button><form action=" / Zbor / ObrisiClana" method="post"><input id="IdBrisanje" name="IdBrisanje" value="' + response.id + '" hidden style="display: none"/><button class="dropdown - item" type="submit">Izbaci</button></form></div></div></div>';
         $("#Nerazvrstani").append(newDiv);
 
     })
@@ -172,15 +172,15 @@ function pretraga(ele, id) {
         });
 
 }
-function prijavaAjax() {
+function prijavaAjax(idZbor) {
     modal = $('#exampleModal')
-    data = { Id: modal.find('#id').text() + '', Naziv: '@Model.Zbor.Id.ToString()', Poruka: modal.find('#poruka').val() + '' }
+    data = { Id: modal.find('#id').text() + '', Naziv: idZbor+'', Poruka: modal.find('#poruka').val() + '' }
     console.log(data)
     $.ajax({
         type: "POST",
         dataType: "json",
         contentType: "application/json;charset=utf-8",
-        url: '@Url.Action("PozivZaZbor", "Zbor")',
+        url: '/Zbor/PozivZaZbor',
         data: JSON.stringify(data),
         xhrFields: {
             withCredentials: true
@@ -200,6 +200,36 @@ function prijavaAjax() {
         $("#listaPoziva").append(newDiv);
 
         $('[data-toggle="tooltip"]').tooltip();
+    });
+}
+function promjenaGlasa() {
+    modal = $('#promjenaGlasa')
+    data = { Id: modal.find('#id').text() + '', Poruka: modal.find('#selectGlasa').val() + '' };
+    console.log(data);
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json;charset=utf-8",
+        url: '/Zbor/PromjenaGlasa',
+        data: JSON.stringify(data),
+        xhrFields: {
+            withCredentials: true
+        }
+    }).done(function (response) {
+        modal.modal('toggle');
+        id = modal.find('#id').text() + '';
+        clan = '#Clan-' + id;
+        promjena = '#Promjena-' + id;
+
+        idGlas = "#" + data.Poruka;
+        $(clan).detach().appendTo(idGlas);
+        $(promjena).attr("data-glas", data.Poruka);
+        $(promjena).data("glas", data.Poruka)   ;
+
+
+    }).always(function () {
+
+        g = 2
     });
 
 

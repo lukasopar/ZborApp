@@ -20,6 +20,6 @@ namespace ZborApp.Models.ZborViewModels
         public Guid IdBrisanje { get; set; }
         public ICollection<ModeratorZbora> Moderatori { get; set; }
 
-
+        public Korisnik Voditelj { get; set; }
     }
 }

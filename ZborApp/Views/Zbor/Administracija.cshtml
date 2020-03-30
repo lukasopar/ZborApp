@@ -36,12 +36,12 @@
                     </div>
                 </div>
                 <div class="card-text d-flex flex-row align-items-start justify-content-between">
-                    <div class="col-md-2" style="padding-right:0px">
+                    <div class="col-md-2" style="padding-right:0px" id="1">
                         @if (Model.Soprani.Count > 0)
                         {
                             @foreach (var clan in Model.Soprani)
                             {
-                                <div style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between">
+                                <div id="Clan-@clan.Id"  style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between">
                                     <a href="#">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>
                                     <div class="dropdown no-arrow">
                                         <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -49,7 +49,9 @@
                                         </a>
                                         <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
                                             <div class="dropdown-header">@Html.Raw("Mogućnosti")</div>
-                                            <a class="dropdown-item" href="#">Promjena glasa</a>
+                                            <button id="Promjena-@clan.Id" class="dropdown-item" data-toggle="modal" data-target="#promjenaGlasa" data-ime="@clan.IdKorisnikNavigation.ImeIPrezime()" data-id="@clan.Id" data-glas="1">Promjena glasa</button>
+                                            <button class="dropdown-item" onclick="moderiraj('@clan.IdKorisnik', '@Model.Zbor.Id')">Postavi za moderatora</button>
+
                                             <form asp-action="ObrisiClana"><input asp-for="IdBrisanje" value="@clan.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Izbaci</button></form>
                                         </div>
                                     </div>
@@ -58,12 +60,12 @@
                             }
                         }
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-2" id="2">
                         @if (Model.Alti.Count > 0)
                         {
                             @foreach (var clan in Model.Alti)
                             {
-                                <div style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between">
+                                <div id="Clan-@clan.Id" style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between">
                                     <a href="#">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>
                                     <div class="dropdown no-arrow">
                                         <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -71,7 +73,8 @@
                                         </a>
                                         <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
                                             <div class="dropdown-header">@Html.Raw("Mogućnosti")</div>
-                                            <a class="dropdown-item" href="#">Promjena glasa</a>
+                                            <button id="Promjena-@clan.Id" class="dropdown-item" data-toggle="modal" data-target="#promjenaGlasa" data-ime="@clan.IdKorisnikNavigation.ImeIPrezime()" data-id="@clan.Id" data-glas="2">Promjena glasa</button>
+                                            <button class="dropdown-item" onclick="moderiraj('@clan.IdKorisnik', '@Model.Zbor.Id')">Postavi za moderatora</button>
                                             <form asp-action="ObrisiClana"><input asp-for="IdBrisanje" value="@clan.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Izbaci</button></form>
                                         </div>
                                     </div>
@@ -79,12 +82,12 @@
                             }
                         }
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-2" id="3">
                         @if (Model.Tenori.Count > 0)
                         {
                             @foreach (var clan in Model.Tenori)
                             {
-                                <div style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between">
+                                <div id="Clan-@clan.Id" style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between">
                                     <a href="#">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>
                                     <div class="dropdown no-arrow">
                                         <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -92,7 +95,7 @@
                                         </a>
                                         <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
                                             <div class="dropdown-header">@Html.Raw("Mogućnosti")</div>
-                                            <a class="dropdown-item" href="#">Promjena glasa</a>
+                                            <button id="Promjena-@clan.Id" class="dropdown-item" data-toggle="modal" data-target="#promjenaGlasa" data-ime="@clan.IdKorisnikNavigation.ImeIPrezime()" data-id="@clan.Id" data-glas="3">Promjena glasa</button>
                                             <button class="dropdown-item" onclick="moderiraj('@clan.IdKorisnik', '@Model.Zbor.Id')">Postavi za moderatora</button>
                                             <form asp-action="ObrisiClana"><input asp-for="IdBrisanje" value="@clan.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Izbaci</button></form>
                                         </div>
@@ -102,12 +105,12 @@
                             }
                         }
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-2" id="4">
                         @if (Model.Basi.Count > 0)
                         {
                             @foreach (var clan in Model.Basi)
                             {
-                                <div style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between">
+                                <div id="Clan-@clan.Id"  style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between">
                                     <a href="#">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>
                                     <div class="dropdown no-arrow">
                                         <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -115,7 +118,9 @@
                                         </a>
                                         <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
                                             <div class="dropdown-header">@Html.Raw("Mogućnosti")</div>
-                                            <a class="dropdown-item" href="#">Promjena glasa</a>
+                                            <button id="Promjena-@clan.Id" class="dropdown-item" data-toggle="modal" data-target="#promjenaGlasa" data-ime="@clan.IdKorisnikNavigation.ImeIPrezime()" data-id="@clan.Id" data-glas="4">Promjena glasa</button>
+                                            <button class="dropdown-item" onclick="moderiraj('@clan.IdKorisnik', '@Model.Zbor.Id')">Postavi za moderatora</button>
+
                                             <form asp-action="ObrisiClana"><input asp-for="IdBrisanje" value="@clan.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Izbaci</button></form>
                                         </div>
                                     </div>
@@ -129,7 +134,7 @@
                         {
                             @foreach (var clan in Model.Nerazvrstani)
                             {
-                                <div style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between">
+                                <div id="Clan-@clan.Id" style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between">
                                     <a href="#">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>
                                     <div class="dropdown no-arrow">
                                         <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -137,7 +142,8 @@
                                         </a>
                                         <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
                                             <div class="dropdown-header">@Html.Raw("Mogućnosti")</div>
-                                            <a class="dropdown-item" href="#">Promjena glasa</a>
+                                            <button id="Promjena-@clan.Id" class="dropdown-item" data-toggle="modal" data-target="#promjenaGlasa" data-ime="@clan.IdKorisnikNavigation.ImeIPrezime()" data-id="@clan.Id" data-glas="1">Promjena glasa</button>
+                                            <button class="dropdown-item" onclick="moderiraj('@clan.IdKorisnik', '@Model.Zbor.Id')">Postavi za moderatora</button>
                                             <form asp-action="ObrisiClana"><input asp-for="IdBrisanje" value="@clan.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Izbaci</button></form>
                                         </div>
                                     </div>
@@ -147,6 +153,10 @@
                         }
                     </div>
                 </div>
+            </div>
+            <div class="card-footer">
+                Voditelj: <a href="#">@Model.Voditelj.ImeIPrezime()</a>
+
             </div>
         </div>
     </div>
@@ -316,7 +326,40 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Zatvori</button>
-                <button type="button" class="btn btn-primary" onclick="prijavaAjax()">Pozovi</button>
+                <button type="button" class="btn btn-primary" onclick="prijavaAjax('@Model.Zbor.Id')">Pozovi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="promjenaGlasa" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Promjena glasa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <span><text id="ime"></text></span>
+                    <p id="id" hidden></p>
+                    <div class="form-group">
+                        <label for="message-text" class="col-form-label">Glas:</label>
+                        <select class="form-control" id="selectGlasa">
+                            <option value="1">Sopran</option>
+                            <option value="2">Alt</option>
+                            <option value="3">Tenor</option>
+                            <option value="4">Bas</option>
+
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Zatvori</button>
+                <button type="button" class="btn btn-primary" onclick="promjenaGlasa()">Promijeni</button>
             </div>
         </div>
     </div>
@@ -340,6 +383,21 @@
             var modal = $(this)
             modal.find('#ime').text(ime)
             modal.find('#id').text(id)
+        })
+        $('#promjenaGlasa').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget) // Button that triggered the modal
+            var ime = button.data('ime') // Extract info from data-* attributes
+            var id = button.data('id')
+            var glas = button.data('glas')
+
+
+            // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+            // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+            var modal = $(this)
+            modal.find('#ime').text(ime);
+            modal.find('#id').text(id);
+             modal.find('#selectGlasa').val(glas);
+
         })
     </script>
     <script>
