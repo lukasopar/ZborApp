@@ -1,0 +1,169 @@
+﻿@model ZborApp.Models.ZborViewModels.DogadjajViewModel;
+@using ZborData.Model
+@{
+    ViewData["Title"] = "Događaj";
+}
+<link href="~/css/site.css" rel="stylesheet" />
+<link href="~/css/jquery.magicsearch.min.css" type="text/css" rel="stylesheet" />
+
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">@Html.Raw("Događaj")</h1>
+</div>
+
+
+<div class="row">
+
+    <!-- Area Chart -->
+    <div class="col-xl-8 col-lg-7">
+        <div class="card shadow mb-4">
+            <!-- Card Header - Dropdown -->
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">@Model.Dogadjaj.Naziv</h6>
+            </div>
+            <!-- Card Body -->
+            <div class="card-body">
+                <div class="card-text col-12">
+                    <div class="row">
+                        <label>Vrsta: @Model.Dogadjaj.IdProjekt1.Naziv</label>
+                    </div>
+                    <div class="row">
+                        <label>Lokacija: @Model.Dogadjaj.Lokacija</label>
+                    </div>
+
+                    <div class="row">
+                        <label>Vrijeme početka: @Model.Dogadjaj.DatumIvrijeme.ToString("dd.MM.yyyy. hh:mm")</label>
+                    </div>
+                    <div class="row">
+                        <label>Vrijeme početka: @Model.Dogadjaj.DatumIvrijemeKraja.ToString("dd.MM.yyyy. hh:mm")</label>
+                    </div>
+                    <div class="row">
+                        <label>Opis: @Model.Dogadjaj.DodatanOpis</label>
+                    </div>
+                    <div class="row">
+                        <label>Najave dolaska: <i data-toggle="modal" data-target="#exampleModal" class="fa fa-exclamation-circle hoverable"></i></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Najave dolaska</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+           
+                    <div class="d-flex flex-row align-items-start justify-content-between">
+                        @foreach (var glas in Model.Dogadjaj.IdProjektNavigation.IdVrstePodjeleNavigation.Glasovi())
+                        {
+                            <div class="@glas">
+                                <div>@glas:  @Model.Clanovi[glas].Count</div>
+                                <div>
+                                    @foreach (var clan in Model.Clanovi[glas])
+                                    {
+                                        <div id="Clan-@clan.Id" style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between">
+                                            <a href="#">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        <div >
+                            <div>Nerazvrstani:  @Model.Nerazvrstani.Count</div>
+                            <div>
+                                @foreach (var clan in Model.Nerazvrstani)
+                                {
+                                    <div id="Clan-@clan.Id" style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between">
+                                        <a href="#">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Zatvori</button>
+            </div>
+        </div>
+    </div>
+</div>
+    </div>
+    <div class="row">
+        <div class="col-xl-12 col-lg-12">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Evidencija dolazaka</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+
+                    <form method="post" asp-action="Evidentiraj">
+                        <input asp-for="IdDogadjaj" value="@Model.Dogadjaj.Id" hidden/>
+                        <div class=" d-flex flex-row align-items-start justify-content-between">
+                            @foreach (var glas in Model.Dogadjaj.IdProjektNavigation.IdVrstePodjeleNavigation.Glasovi())
+                            {
+                                <div>
+                                    <div class="card-title">@glas</div>
+                                    <div class="card-text">
+                                        @foreach (var clan in Model.ClanoviProjekta[glas])
+                                        {
+                                            <div id="Clan-@clan.Id" style="width:100%; padding-top:7px" >
+                                                <input name="Evidencija" type="checkbox" value="@clan.IdKorisnik" @if (Model.Evidencija.Contains(clan.IdKorisnik)) { <text> checked</text> } />
+                                                <a href="#">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>
+
+                                                <br />
+
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            <div id="Nerazvrstani">
+                                <div class="card-title">Nerazvrstani</div>
+                                <div class="card-text"></div>
+                                @if (Model.NerazvrstaniClanovi.Count > 0)
+                                {
+                                    @foreach (var clan in Model.NerazvrstaniClanovi)
+                                    {
+                                        <div id="Clan-@clan.Id" style="width:100%; padding-top:7px" >
+                                            <input name="Evidencija" type="checkbox" value="@clan.IdKorisnik" @if (Model.Evidencija.Contains(clan.IdKorisnik)) { <text> checked</text> } />
+
+                                            <a href="#">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>
+
+                                        </div>
+
+                                    }
+                                }
+                            </div>
+
+
+                        </div>
+                        <div class=" d-flex flex-row align-items-start justify-content-between">
+                            &nbsp;
+                            <button type="submit" class="btn btn-outline-secondary">Spremi</button>
+                        </div>
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+@section Scripts{ 
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+}

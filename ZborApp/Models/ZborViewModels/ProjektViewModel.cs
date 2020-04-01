@@ -14,9 +14,11 @@ namespace ZborApp.Models.ZborViewModels
         public IEnumerable<Dogadjaj> AktivniDogadjaji { get; set; }
         public IEnumerable<Dogadjaj> ProsliDogadjaji { get; set; }
 
-
+        public IEnumerable<Obavijest> Obavijesti { get; set; }
+        public Guid IdKorisnik { get; set; }
         public bool Admin { get; set; }
         
-
+        public string Slika { get; set; }
+        public string ImeIPrezime { get; set; }
     }
 }

@@ -495,6 +495,15 @@ namespace ZborApp.Controllers
             _ctx.SaveChanges();
             return Ok(new { val = "ok"});
         }
+        [HttpPost]
+        public IActionResult PromjenaUloge([FromBody] PrijavaModel model)
+        {
+            var id = Guid.Parse(model.Id);
+            string glas = model.Poruka.Trim();
+            var clan = _ctx.ClanNaProjektu.Find(id).Uloga = glas;
+            _ctx.SaveChanges();
+            return Ok(new { val = "ok" });
+        }
 
         [HttpPost]
         public IActionResult OdbijPrijavu([FromBody] StringModel model)
@@ -537,6 +546,23 @@ namespace ZborApp.Controllers
             _ctx.ClanZbora.Remove(clan);
             _ctx.SaveChanges();
             return RedirectToAction("Administracija", new { id = clan.IdZbor });
+        }
+        [HttpPost]
+        public IActionResult ObrisiClanaProjekta(AdministracijaProjektaViewModel model)
+        {
+            var clan = _ctx.ClanNaProjektu.Find(model.IdBrisanje);
+            _ctx.ClanNaProjektu.Remove(clan);
+            _ctx.SaveChanges();
+            return RedirectToAction("AdministracijaProjekta", new { id = clan.IdProjekt });
+        }
+        [HttpPost]
+        public IActionResult ObrisiProjekt(AdministracijaProjektaViewModel model)
+        {
+            var projekt = _ctx.Projekt.Find(model.IdBrisanje);
+            _ctx.Remove(projekt);
+            _ctx.SaveChanges();
+
+            return RedirectToAction("Projekti", new { id = projekt.IdZbor });
         }
 
         [HttpPost]
@@ -614,9 +640,11 @@ namespace ZborApp.Controllers
                 VrstePodjele = _ctx.VrstaPodjele.Select(v => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem { Value = v.Id.ToString(), Text = v.Podjela }).ToList()
                 
             };
-
+            ViewData["zborId"] = id;
+            ViewData["zborIme"] = _ctx.Zbor.Find(id).Naziv;
             return View(model);
         }
+  
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -667,13 +695,82 @@ namespace ZborApp.Controllers
                 .Include(z => z.PozivZaProjekt).ThenInclude(p => p.IdKorisnikNavigation)
                 .Include(z => z.PrijavaZaProjekt).ThenInclude(p => p.IdKorisnikNavigation)
                 .Include(z => z.ClanNaProjektu).ThenInclude(c => c.IdKorisnikNavigation)
+                .Include(z => z.IdVrstePodjeleNavigation)
                 .SingleOrDefault();
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
             if (!IsAdmin(projekt.IdZbor, user.Id)) 
                 return RedirectToAction("Prava");
             model.Projekt = projekt;
-            
+            foreach(var glas in projekt.IdVrstePodjeleNavigation.Glasovi())
+            {
+                model.Clanovi[glas] = new List<ClanNaProjektu>();
+            }
+            foreach(var clan in projekt.ClanNaProjektu)
+            {
+                if (!clan.Uloga.Equals("Nema"))
+                {
+                   
+                    model.Clanovi[clan.Uloga].Add(clan);
+                }
+                else
+                    model.Nerazvrstani.Add(clan);
+            }
+            ViewData["zborId"] = projekt.IdZbor;
+            ViewData["zborIme"] = _ctx.Zbor.Find(projekt.IdZbor).Naziv;
             return View(model);
+        }
+        [HttpGet]
+        public IActionResult Dogadjaj(Guid id)
+        {
+            var dog = _ctx.Dogadjaj.Where(d => d.Id == id)
+                .Include(d => d.NajavaDolaska).ThenInclude(n => n.IdKorisnikNavigation)
+                .Include(d => d.IdProjektNavigation).ThenInclude(p => p.IdVrstePodjeleNavigation).SingleOrDefault();
+            dog.IdProjekt1 = _ctx.VrstaDogadjaja.Find(dog.IdVrsteDogadjaja);
+            DogadjajViewModel model = new DogadjajViewModel();
+            model.Dogadjaj = dog;
+            foreach (var glas in dog.IdProjektNavigation.IdVrstePodjeleNavigation.Glasovi())
+            {
+                model.Clanovi[glas] = new List<NajavaDolaska>();
+                model.ClanoviProjekta[glas] = new List<ClanNaProjektu>();
+
+            }
+            foreach (var najava in dog.NajavaDolaska)
+            {
+                var clan = _ctx.ClanNaProjektu.Where(c => c.IdKorisnik == najava.IdKorisnik && c.IdProjekt == dog.IdProjekt).SingleOrDefault();
+                if (clan == null) continue;
+                if (!clan.Uloga.Equals("Nema"))
+                {
+
+                    model.Clanovi[clan.Uloga].Add(najava);
+                }
+                else
+                    model.Nerazvrstani.Add(najava);
+
+            }
+            foreach (var clan in _ctx.ClanNaProjektu.Where(p => p.IdProjekt == dog.IdProjekt).Include(c => c.IdKorisnikNavigation).AsEnumerable())
+            {
+                if (!clan.Uloga.Equals("Nema"))
+                {
+
+                    model.ClanoviProjekta[clan.Uloga].Add(clan);
+                }
+                else
+                    model.NerazvrstaniClanovi.Add(clan);
+            }
+            model.Evidencija = _ctx.EvidencijaDolaska.Where(e => e.IdDogadjaj == id).Select(e => e.IdKorisnik).ToList();
+            ViewData["zborId"] = dog.IdProjektNavigation.IdZbor;
+            ViewData["zborIme"] = _ctx.Zbor.Find(dog.IdProjektNavigation.IdZbor).Naziv;
+            return View(model);
+        }
+        [HttpPost]
+        public IActionResult Evidentiraj(DogadjajViewModel model)
+        {
+            var stare = _ctx.EvidencijaDolaska.Where(d => d.IdDogadjaj == model.IdDogadjaj).ToList();
+            _ctx.EvidencijaDolaska.RemoveRange(stare);
+            var nove = model.Evidencija.Select(e => new EvidencijaDolaska { Id = Guid.NewGuid(), IdDogadjaj = model.IdDogadjaj, IdKorisnik = e }).ToList();
+            _ctx.EvidencijaDolaska.AddRange(nove);
+            _ctx.SaveChanges();
+            return RedirectToAction("Dogadjaj", new { id = model.IdDogadjaj });
         }
         [HttpPost]
         public IActionResult PrihvatiPrijavuProjekt([FromBody] StringModel model)
@@ -691,6 +788,24 @@ namespace ZborApp.Controllers
             _ctx.SaveChanges();
             var m = new StringModel { Value = prijava.IdKorisnikNavigation.Ime + ' ' + prijava.IdKorisnikNavigation.Prezime };
             return Ok(m);
+        }
+
+        [HttpPost]
+        public IActionResult DohvatiStatistiku([FromBody] LajkModel model)
+        {
+            var idKorisnik = Guid.Parse(model.IdKorisnik);
+            var idProjekt = Guid.Parse(model.IdCilj);
+            var dogadaji = _ctx.Dogadjaj.Where(d => d.IdProjekt == idProjekt)
+                .Include(d => d.EvidencijaDolaska).OrderByDescending(d => d.DatumIvrijeme);
+            var ev = dogadaji.Where(d => d.EvidencijaDolaska.Select(e => e.IdKorisnik).Contains(idKorisnik)).Select(d => new { Id = d.Id, Datum = d.DatumIvrijeme.ToString("dd.MM.yyyy. hh:mm"), Naziv = d.Naziv }).ToList();
+            double postotak = 1.0* ev.Count / (dogadaji.Count()) * 100;
+            var response = new
+            {
+                Evidentirani = ev,
+                Neevidentirani = dogadaji.Where(d => !d.EvidencijaDolaska.Select(e => e.IdKorisnik).Contains(idKorisnik)).Select(d => new { Id = d.Id, Datum = d.DatumIvrijeme.ToString("dd.MM.yyyy. hh:mm"), Naziv = d.Naziv }).ToList(),
+                Postotak = postotak
+            };
+            return Ok(response);
         }
 
         [HttpPost]
@@ -761,25 +876,24 @@ namespace ZborApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PozivZaProjekt([FromBody] PrijavaModel prijava)
+        public async Task<IActionResult> DodajClanProjekt([FromBody] LajkModel model)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            var id = Guid.Parse(prijava.Id);
-            var idProjekt = Guid.Parse(prijava.Id);
-            var pozivZaZbor = _ctx.PozivZaProjekt.Where(p => p.IdKorisnik == user.Id && p.IdProjekt == idProjekt).SingleOrDefault();
-            if (pozivZaZbor != null)
+            var id = Guid.Parse(model.IdKorisnik);
+            var idProjekt = Guid.Parse(model.IdCilj);
+            var clan = _ctx.ClanNaProjektu.Where(p => p.IdKorisnik == id && p.IdProjekt == idProjekt).SingleOrDefault();
+            if (clan != null)
                 return Ok();
-            var pr = new PozivZaProjekt
+            var c = new ClanNaProjektu
             {
                 Id = Guid.NewGuid(),
-                IdKorisnik = user.Id,
+                IdKorisnik = id,
                 IdProjekt = idProjekt,
-                Poruka = prijava.Poruka,
-                DatumPoziva = DateTime.Now
+                Uloga = "Nema"
             };
-            _ctx.PozivZaProjekt.Add(pr);
+            _ctx.ClanNaProjektu.Add(c);
             _ctx.SaveChanges();
-            return Ok();
+            return Ok(new { id = c.Id, ImeIPrezime= _ctx.Korisnik.Find(id).ImeIPrezime()});
         }
 
         [HttpPost]
@@ -825,6 +939,32 @@ namespace ZborApp.Controllers
             model.VrsteDogadjaja = _ctx.VrstaDogadjaja.Select(v => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem { Value = v.Id.ToString(), Text = v.Naziv }).ToList();
 
             return View(model);
+        }
+        [HttpPost]
+        public async Task<IActionResult> NajavaDolaska([FromBody] LajkModel lajk)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            var l = new NajavaDolaska
+            {
+                Id = Guid.NewGuid(),
+                IdKorisnik = user.Id,
+                IdDogadjaj = Guid.Parse(lajk.IdCilj)
+
+            };
+            _ctx.NajavaDolaska.Add(l);
+            _ctx.SaveChanges();
+            return Ok();
+        }
+        [HttpPost]
+        public async Task<IActionResult> ObrisiNajavuDolaska([FromBody] LajkModel lajk)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+
+            var l = _ctx.NajavaDolaska.Where(l => l.IdKorisnik == user.Id && l.IdDogadjaj == Guid.Parse(lajk.IdCilj)).SingleOrDefault();
+            _ctx.NajavaDolaska.Remove(l);
+            _ctx.SaveChanges();
+            return Ok();
+
         }
 
         [HttpGet]
@@ -960,11 +1100,24 @@ namespace ZborApp.Controllers
         public async Task<IActionResult> Projekt(Guid id)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            var projekt = _ctx.Projekt.Where(p => p.Id == id).Include(p => p.IdVrstePodjeleNavigation).Include(p => p.Dogadjaj).SingleOrDefault();
+            var kor = _ctx.Korisnik.Find(user.Id);
+            var projekt = _ctx.Projekt.Where(p => p.Id == id).Include(p => p.IdVrstePodjeleNavigation).Include(p => p.Dogadjaj).ThenInclude(d => d.NajavaDolaska).SingleOrDefault();
             var model = new ProjektViewModel { Admin = IsAdmin(projekt.IdZbor, user.Id), Projekt = projekt };
             model.AktivniDogadjaji = projekt.Dogadjaj.Where(d => d.DatumIvrijeme > DateTime.Now).OrderBy(d => d.DatumIvrijeme).AsEnumerable();
-            model.ProsliDogadjaji = projekt.Dogadjaj.Where(d => d.DatumIvrijeme <= DateTime.Now).OrderByDescending(d => d.DatumIvrijeme).AsEnumerable();
-
+            model.ProsliDogadjaji =     projekt.Dogadjaj.Where(d => d.DatumIvrijeme <= DateTime.Now).OrderByDescending(d => d.DatumIvrijeme).AsEnumerable();
+            model.IdKorisnik = user.Id;
+            var obavijesti = _ctx.Obavijest.Where(o => o.ObavijestVezanaUzProjekt.Select(op => op.IdProjekt).Contains(id))
+                .Include(o => o.IdKorisnikNavigation)
+                .Include(o => o.LajkObavijesti)
+                .Include(o => o.KomentarObavijesti).ThenInclude(k => k.LajkKomentara)
+                .Include(o => o.KomentarObavijesti).ThenInclude(k => k.IdKorisnikNavigation)
+                 .Include(o => o.KomentarObavijesti).OrderBy(d => d.DatumObjave)
+                .OrderByDescending(O => O.DatumObjave);
+            model.Obavijesti = obavijesti;
+            model.Slika = kor.Slika;
+            model.ImeIPrezime = kor.ImeIPrezime();
+            ViewData["zborId"] = projekt.IdZbor;
+            ViewData["zborIme"] = _ctx.Zbor.Find(projekt.IdZbor).Naziv;
 
 
             return View(model);

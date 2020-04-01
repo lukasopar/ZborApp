@@ -3,259 +3,299 @@
     ViewData["Title"] = "Administracija";
 }
 
-<h2>Administracija projekta</h2>
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Administracija projekta @Model.Projekt.Naziv</h1>
+        <div>
+            <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fa fa-trash-o"></i>Završi projekt</a>
+            <button asp-controller="Zbor" asp-action="ObrisiProjekt" class="d-none d-sm-inline-block btn btn-sm btn-danger shadow-sm"><i class="fa fa-key"></i>Obriši projekt</button>
+            <form asp-action="ObrisiProjekt"><input asp-for="IdBrisanje" value="@Model.Projekt.Id" hidden style="display:none" /><button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-danger shadow-sm"><i class="fa fa-key"></i>Obriši projekt</button></form>
 
+        </div>
+    </div>
+@{ var brojGlasova = Model.Projekt.IdVrstePodjeleNavigation.Podjela.Length + 1;
+    var brojStupaca = 12 / brojGlasova;}
 
 <div class="row">
-    <div class="col-md-3" id="Clanovi">
-        <h5>Članovi na projektu</h5>
-
-        @if (Model.Projekt.ClanNaProjektu == null || Model.Projekt.ClanNaProjektu.Count() == 0)
-        {<p>Trenutno nema aktivnih članova na projektu.</p>}
-        @foreach (var clan in Model.Projekt.ClanNaProjektu)
-        {
-            <p><a href="#">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a></p>
-        }
-
-    </div>
-
-    <div class="col-md-5">
-
-        <h5>Prijave za projekt</h5>
-        @if (Model.Projekt.PrijavaZaProjekt == null || Model.Projekt.PrijavaZaProjekt.Count() == 0)
-        {<p>Trenutno nema prijava za projekt.</p>}
-        <div>
-            @foreach (var prijava in Model.Projekt.PrijavaZaProjekt)
-            {
-
-                <p id="Prijava-@prijava.Id">
-                    <a href="#">@prijava.IdKorisnikNavigation.Ime @prijava.IdKorisnikNavigation.Prezime</a> <text> @prijava.DatumPrijave.ToLongDateString() </text>   <button class="btn btn-sm btn-outline-success" onclick="prihvati('@prijava.Id')">Prihvati</button> <button class="btn btn-sm btn-outline-danger" onclick="odbij('@prijava.Id')">Odbij</button>
-                </p>
-            }
-
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <h5>Pozivi za projekt</h5>
-        @if (Model.Projekt.PozivZaProjekt == null || Model.Projekt.PozivZaProjekt.Count() == 0)
-        {<p>Nema aktivnih poziva.</p>}
-        <div>
-            @foreach (var poziv in Model.Projekt.PozivZaProjekt)
-            {
-                <p  id="Poziv-@poziv.Id">
-                    <a href="#">@poziv.IdKorisnikNavigation.Ime @poziv.IdKorisnikNavigation.Prezime</a> <text>@poziv.DatumPoziva.Date.ToLongDateString() </text>  <button class="btn btn-sm btn-outline-danger" onclick="odbaci('@poziv.Id')">Obriši</button>
-                </p>
-            }
-
-        </div>
-    </div>
-</div>
-
-<hr />
-
-<h5>Pretraga korisnika</h5>
-<div>
-    <form>
-        <input class="form-control" id="pret" type="text" onkeydown="pretraga(this, '@Model.Projekt.Id')">
-    </form>
-</div>
-<div id="rezultati">
-
-</div>
-
-
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Poziv</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+    <div class="col-xl-12 col-lg-12">
+        <div class="card shadow mb-4">
+            <!-- Card Header - Dropdown -->
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Članovi</h6>
             </div>
-            <div class="modal-body">
-                <form>
-                    <span><text>Poziv na projekt </text><text id="ime"></text></span>
-                    <p id="id" hidden></p>
-                    <div class="form-group">
-                        <label for="message-text" class="col-form-label">Poruka za korisnika:</label>
-                        <textarea class="form-control" id="poruka"></textarea>
+            <!-- Card Body -->
+            <div class="card-body">
+               
+
+                <div class=" d-flex flex-row align-items-start justify-content-between">
+                    @foreach (var glas in Model.Projekt.IdVrstePodjeleNavigation.Glasovi())
+                    {
+                    <div class="@glas col-@brojStupaca">
+                        <div class="card-title">@glas</div>
+                        <div class="card-text">
+                            @foreach (var clan in Model.Clanovi[glas])
+                            {
+                                <div id="Clan-@clan.Id" style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between">
+                                    <a class="hoverable" data-id="@clan.IdKorisnik" data-toggle="modal" data-target="#statistika">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>
+                                    <div class="dropdown no-arrow">
+                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fa fa-ellipsis-v"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                                            <div class="dropdown-header">@Html.Raw("Mogućnosti")</div>
+                                            <button id="Promjena-@clan.Id" class="dropdown-item" data-toggle="modal" data-target="#promjenaGlasa" data-ime="@clan.IdKorisnikNavigation.ImeIPrezime()" data-id="@clan.Id" data-glas="@glas">Promjena glasa</button>
+                                            <form asp-action="ObrisiClanaProjekta"><input asp-for="IdBrisanje" value="@clan.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Ukloni iz projekta</button></form>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
                     </div>
-                </form>
+                    }
+                    <div id="Nerazvrstani" class="col-@brojStupaca">
+                        <div class="card-title">Nerazvrstani</div>
+                        <div class="card-text"></div>
+                        @if (Model.Nerazvrstani.Count > 0)
+                        {
+                            @foreach (var clan in Model.Nerazvrstani)
+                            {
+                                <div id="Clan-@clan.Id" style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between">
+                                    <a class="hoverable" data-id="@clan.IdKorisnik" data-toggle="modal" data-target="#statistika">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>
+                                    <div class="dropdown no-arrow">
+                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fa fa-ellipsis-v"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                                            <div class="dropdown-header">@Html.Raw("Mogućnosti")</div>
+                                            <button id="Promjena-@clan.Id" class="dropdown-item" data-toggle="modal" data-target="#promjenaGlasa" data-ime="@clan.IdKorisnikNavigation.ImeIPrezime()" data-id="@clan.Id" data-glas="@Model.Projekt.IdVrstePodjeleNavigation.Glasovi().First()">Promjena glasa</button>
+                                            <form asp-action="ObrisiClanaProjekta"><input asp-for="IdBrisanje" value="@clan.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Ukloni iz projekta</button></form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            }
+                        }
+                    </div>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Zatvori</button>
-                <button type="button" class="btn btn-primary" onclick="prijavaAjax()">Prijavi se</button>
+          
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+            <!-- Card Header - Dropdown -->
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Prijave za zbor</h6>
+            </div>
+            <!-- Card Body -->
+            <div class="card-body">
+                <div class="card-text">
+                    <div id="listaPrijava">
+                        @if (Model.Projekt.PrijavaZaProjekt == null || Model.Projekt.PrijavaZaProjekt.Count() == 0)
+                        {<p id="nemaPrijava">Nema prijava za zbor.</p>}
+                        else
+                        {<p id="nemaPrijava" style="display:none">Nema prijava za zbor.</p>}
+
+                        @foreach (var prijava in Model.Projekt.PrijavaZaProjekt)
+                        {
+                            <div id="Prijava-@prijava.Id" style="width:100%; padding-bottom:7px" class="d-flex flex-row align-items-center justify-content-between">
+                                <div> <a href="#" data-toggle="tooltip" data-placement="left" title="@prijava.Poruka">@prijava.IdKorisnikNavigation.ImeIPrezime()</a> <text>@prijava.DatumPrijave.Date.ToLongDateString()</text></div>
+                                <div>
+                                    <span class="hoverable"><i onclick="prihvati('@prijava.Id')" class="fa fa-check"></i></span>
+                                    <span class="hoverable"><i onclick="odbij('@prijava.Id')" class="fa fa-times"></i></span>
+                                </div>
+                            </div>
+
+                        }
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-lg-4">
+        <div class="card shadow mb-4">
+            <!-- Card Header - Dropdown -->
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Pretraga korisnika</h6>
+            </div>
+            <!-- Card Body -->
+            <div class="card-body">
+                <div class="card-text">
+                    <div>
+                        <form>
+                            <input class="form-control" id="pret" type="text" onkeydown="pretraga(this, '@Model.Projekt.Id')">
+                        </form>
+                    </div>
+                    <div id="rezultati">
+
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 
-@section Scripts {
-    <script>
-        function prihvati(id) {
-            data = { Value: id + '' }
-            $.ajax({
-                type: "POST",
-                dataType: "json",
-                contentType: "application/json;charset=utf-8",
-                url: '@Url.Action("PrihvatiPrijavuProjekt", "Zbor")',
-                data: JSON.stringify(data),
-                xhrFields: {
-                    withCredentials: true
-                }
-            }).done(function (response) {
-                console.log(response)
-                idDiv = "#Clanovi";
-                var $newdiv1 = $('<a href="#">' + response.value + '</a>')
-                $(idDiv).append($newdiv1);
-                prijava = '#Prijava-' + id
-                $(prijava).hide();
+    <div class="modal fade" id="promjenaGlasa" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Promjena glasa</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <span><text id="ime"></text></span>
+                        <p id="id" hidden></p>
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Glas:</label>
+                            <select class="form-control" id="selectGlasa">
+                                @foreach (var glas in Model.Projekt.IdVrstePodjeleNavigation.Glasovi())
+                                {
+                                    <option value="@glas">@glas</option>
 
-            })
-            .always(function () {
-                g = 2;
-            });
+                                }
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Zatvori</button>
+                    <button type="button" class="btn btn-primary" onclick="promjenaGlasa()">Promijeni</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        }
+    <div class="modal fade" id="statistika" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Statistika</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="loadano">
+                        <span><text id="ime"></text></span>
+                        <p id="id" hidden></p>
+                        <div id="dolasci"></div>
+                        <div id="evidentirano">
+                            <p>Evidentirano:</p>
+                        </div>
+                        <div id="neevidentirano">
+                            <p>Neevidentirano:</p>
+                        </div>
+                    </div>
+                    <div id="loading" style="display:none">
+                        <img src="https://i.gifer.com/4V0b.gif" alt="loading"/>
+                    </div>
+                        
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Zatvori</button>
+                    <button type="button" class="btn btn-primary" onclick="promjenaGlasa()">Promijeni</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        function odbij(id) {
-            data = { Value: id + '' }
-            $.ajax({
-                type: "POST",
-                dataType: "json",
-                contentType: "application/json;charset=utf-8",
-                url: '@Url.Action("OdbijPrijavuProjekt", "Zbor")',
-                data: JSON.stringify(data),
-                xhrFields: {
-                    withCredentials: true
-                }
-            }).done(function (response) {
-                console.log(id);
-                console.log(response);
-                prijava = '#Prijava-' + id;
-                $(prijava).hide();
-
-            })
-            .always(function () {
-                g = 2;
-            });
-
-        }
-
-        function obrisi(id) {
-            data = { Value: id + '' }
-            $.ajax({
-                type: "POST",
-                dataType: "json",
-                contentType: "application/json;charset=utf-8",
-                url: '@Url.Action("ObrisiPozivProjekt", "Zbor")',
-                data: JSON.stringify(data),
-                xhrFields: {
-                    withCredentials: true
-                }
-            }).done(function (response) {
-                poziv = '#Poziv-' + id
-                $(poziv).hide();
-
-            })
-            .always(function () {
-                g = 2;
-            });
-
-        }
-
-        function pretraga(ele, id) {
-            if(event.keyCode != 13) {
-                return;
+    @section Scripts {
+        <script src="~/js/AdministracijaProjekta.js"></script>
+        
+        <script>
+            function dodajClan(idKorisnik) {
+                data = { IdCilj: '@Model.Projekt.Id', IdKorisnik: idKorisnik }
+                console.log(data)
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    contentType: "application/json;charset=utf-8",
+                    url: '@Url.Action("DodajClanProjekt", "Zbor")',
+                    data: JSON.stringify(data),
+                    xhrFields: {
+                        withCredentials: true
+                    }
+                }).done(function (response) {
+                    newDiv = '<div id="Clan-' + response.id + '" style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between"><a href="#">' + response.imeIPrezime + '</a><div class="dropdown no-arrow"><a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-v"></i> </a><div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink"><div class="dropdown-header">Mogućnosti</div><button id="Promjena-' + response.id + '" class="dropdown-item" data-toggle="modal" data-target="#promjenaGlasa" data-ime="' + response.imeIPrezime + '" data-id="' + response.id + '" data-glas="1">Promjena glasa</button><form action="/Zbor/ObrisiClanaProjekta" method="post"><input id="IdBrisanje" name="IdBrisanje" value="' + response.id + '" hidden style="display: none"/><button class="dropdown - item" type="submit">Ukloni s projekta</button></form></div></div></div>';
+                    $("#Nerazvrstani").append(newDiv);
+                    testB = '#B-' + idKorisnik;
+                    console.log(testB);
+                    testC = '#T-' + idKorisnik;
+                    $(testB).hide();
+                    $(testC).show("slow");
+                })
+                    .always(function () {
+                        var g = 0;
+                    });
             }
-            inputPolje = '#pret';
-            $(inputPolje).prop('disabled', true)
-            data = { Tekst: ele.value + '', Id : id+'' }
-            $.ajax({
-                type: "POST",
-                dataType: "json",
-                contentType: "application/json;charset=utf-8",
-                url: '@Url.Action("PretragaKorisnikaProjekt", "Zbor")',
-                data: JSON.stringify(data),
-                xhrFields: {
-                    withCredentials: true
-                }
-            }).done(function (response) {
-                console.log(response)
-                $("#rezultati").empty();
-                var i;
-                for (i = 0; i < response.length; i++) {
-                    var $newdiv = $('<div class="row"></div>');
-                    var $divcol1 = $('<div class="col-md-3"></div>');
-                    var $link = $('<a href="#">' + response[i].imeIPrezime + '</a>');
-                    $divcol1.append($link);
-                    $newdiv.append($divcol1);
 
-                    
-                    var $divcol2 = $('<div class="col-md-3" id="B-' + response[i].id +'" ></div>');
-                    var $button = ('<button type="button"  class="btn btn-sm btn-outline-secondary" data-toggle="modal" data-target="#exampleModal" data-ime="' + response[i].imeIPrezime + '" data-id="' + response[i].id + '">Pozovi</button>');
-                    $divcol2.append($button);
-                    $newdiv.append($divcol2);
+        </script>
+        <script>
+            $('#promjenaGlasa').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget) // Button that triggered the modal
+                var ime = button.data('ime') // Extract info from data-* attributes
+                var id = button.data('id')
+                var glas = button.data('glas')
 
-                    var $divcol3 = $('<div class="col-md-3" id="T-' + response[i].id +'" style="display: none"></div>');
-                    var $tekst = $('<text   class="text-success">Poziv poslan.</text>');
-                    $divcol3.append($tekst);
-                    $newdiv.append($divcol3);
 
-                    
-                    $("#rezultati").append($newdiv);
-
-                }
+                // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+                // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+                var modal = $(this)
+                modal.find('#ime').text(ime);
+                modal.find('#id').text(id);
+                modal.find('#selectGlasa').val(glas);
 
             })
-            .always(function () {
 
-                $(inputPolje).prop('disabled', false)
-            });
+            $('#statistika').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget) // Button that triggered the modal
+                var ime = button.text(); // Extract info from data-* attributes
+                var id = button.data('id');
+                var glas = button.data('glas')
 
-        }
+                $("#loadano").hide();
+                $("#loading").show()
+                data = { IdCilj: '@Model.Projekt.Id', IdKorisnik: id }
+                console.log(data)
+                $.ajax({
+                    type: "POSt",
+                    dataType: "json",
+                    contentType: "application/json;charset=utf-8",
+                    url: '@Url.Action("DohvatiStatistiku", "Zbor")',
+                    data: JSON.stringify(data),
+                    xhrFields: {
+                        withCredentials: true
+                    }
+                }).done(function (response) {
+                    console.log(response);
+                    console.log(response.evidentirani);
+                    $("#dolasci").text("Dolazak na " + response.evidentirani.length + " od " + (response.neevidentirani.length + response.evidentirani.length) + " (" + response.postotak.toFixed(2) + "%).");
+                    var i = 0;
+                    for (i = 0; i < response.evidentirani.length; i++) {
+                        var newP = '<div class="row d-flex justify-content-between align-items-center " style="padding-left:15px;padding-bottom:7px"><a href="/Zbor/Dogadjaj/' + response.evidentirani[i].id + '">' + response.evidentirani[i].naziv + '</a> ' + response.evidentirani[i].datum + '</div>';
+                        $("#evidentirano").append(newP);
+                    }
+                    for (i = 0; i < response.neevidentirani.length; i++) {
+                        var newP = '<div class="row d-flex justify-content-between align-items-center " style="padding-left:15px;padding-bottom:7px"><a href="/Zbor/Dogadjaj/' + response.neevidentirani[i].id + '">' + response.neevidentirani[i].naziv + '</a> ' + response.neevidentirani[i].datum + '</div>';
+                        $("#neevidentirano").append(newP);
+                    }
+                    $("#loading").hide()
 
-    </script>
-
-    <script>
-        $('#exampleModal').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget) // Button that triggered the modal
-            var ime = button.data('ime') // Extract info from data-* attributes
-            var id = button.data('id')
-
-            // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
-            // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
-            var modal = $(this)
-            modal.find('#ime').text(ime)
-            modal.find('#id').text(id)
-        })
-    </script>
-    <script>
-        function prijavaAjax() {
-            modal = $('#exampleModal')
-            data = { Id: '@Model.Projekt.Id', Naziv: modal.find('#ime').text() + '', Poruka: modal.find('#poruka').val() + '' }
-            console.log(data)
-             $.ajax({
-                 type: "POST",
-                 dataType: "json",
-                contentType: "application/json;charset=utf-8",
-                 url: '@Url.Action("PozivZaProjekt", "Zbor")',
-                 data: JSON.stringify(data),
-                xhrFields: {
-                    withCredentials: true
-                }
-             });
-            modal.modal('toggle')
-            id = modal.find('#id').text() + ''
-            testB = '#B-' + id
-            testC = '#T-' + id
-            $(testB).hide();
-            $(testC).show("slow")
-        }
-
-
-    </script>
-}
+                    $("#loadano").show();
+                })
+                    .always(function () {
+                        var g = 0;
+                    });
+             
+            })
+        </script>
+    }

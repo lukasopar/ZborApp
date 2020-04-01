@@ -9,8 +9,8 @@ namespace ZborApp.Models.ZborViewModels
     public class AdministracijaProjektaViewModel
     {
         public Projekt Projekt { get; set; }
-        public ICollection<ClanNaProjektu> Clanovi { get; set; }
-
-
+        public Dictionary<string, List<ClanNaProjektu>> Clanovi { get; set; } = new Dictionary<string, List<ClanNaProjektu>>();
+        public List<ClanNaProjektu> Nerazvrstani { get; set; } = new List<ClanNaProjektu>();
+        public Guid IdBrisanje { get; set; }
     }
 }

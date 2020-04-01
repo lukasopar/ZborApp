@@ -187,7 +187,7 @@ function prijavaAjax(idZbor) {
         }
     }).done(function (response) {
         modal.modal('toggle')
-        id = modal.find('#id').text() + ''
+        id = modal.find('#id').text() + '';
         testB = '#B-' + id
         testC = '#T-' + id
         $(testB).hide();
