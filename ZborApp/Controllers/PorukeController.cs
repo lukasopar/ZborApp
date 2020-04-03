@@ -44,6 +44,7 @@ namespace ZborApp.Controllers
         }
         public async Task<IActionResult> Index()
         {
+            ViewData["id"] = TempData["id"]; 
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
             var korisnik = _ctx.Korisnik.Where(k => k.Id == user.Id).SingleOrDefault();
             var razg = _ctx.Razgovor.Where(r => r.KorisnikUrazgovoru.Select(kr => kr.IdKorisnik).Contains(korisnik.Id))
@@ -55,7 +56,7 @@ namespace ZborApp.Controllers
                 IdKorisnik = user.Id,
                 Korisnici = _ctx.Korisnik.ToList()
             };
-            return View(model);
+                return View(model);
         }
 
         [HttpPost]
@@ -76,6 +77,47 @@ namespace ZborApp.Controllers
             _ctx.SaveChanges();
             var m = new StringModel { Value = "Ok" };
             return Ok(m);
+        }
+        [HttpGet]
+        public IActionResult Poruka(Guid id)
+        {
+            TempData["id"] = id;
+            return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DohvatiPoruke()
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            var poruke = _ctx.Razgovor.Where(r => r.KorisnikUrazgovoru.Select(k => k.IdKorisnik).Contains(user.Id)).OrderByDescending(r => r.DatumZadnjePoruke).Take(3)
+                .Include(r => r.Poruka).ThenInclude(p => p.IdKorisnikNavigation)
+                .Include(r => r.KorisnikUrazgovoru).ToList();
+            int neprocitane = _ctx.Razgovor.Where(r => r.KorisnikUrazgovoru.Where(k => k.IdKorisnik == user.Id && k.Procitano == false).Count() > 0).Count();
+            poruke.ForEach(r => r.Poruka = r.Poruka.OrderByDescending(p => p.DatumIvrijeme).ToList());
+            var response = new
+            {
+                poruke = poruke.Select(r => new
+                {
+                    Id = r.Id,
+                    Naziv = r.Naslov + " (" + r.Poruka.First().IdKorisnikNavigation.ImeIPrezime() + ")",
+                    Datum = r.Poruka.First().DatumIvrijeme.ToString("dd.MM.yyyy. hh:mm"),
+                    Slika = r.Poruka.First().IdKorisnikNavigation.Slika,
+                    Poruka = r.Poruka.First().Poruka1,
+                    Procitano = r.KorisnikUrazgovoru.Where(k => k.IdKorisnik == user.Id).SingleOrDefault().Procitano,
+                }),
+                Neprocitane = neprocitane
+
+            };
+            return Ok(response);
+        }
+        [HttpGet]
+        public async Task<IActionResult> DohvatiNeprocitano()
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            
+            int neprocitane = _ctx.Razgovor.Where(r => r.KorisnikUrazgovoru.Where(k => k.IdKorisnik == user.Id && k.Procitano == false).Count() > 0).Count();
+           
+            return Ok(neprocitane);
         }
     }
 }

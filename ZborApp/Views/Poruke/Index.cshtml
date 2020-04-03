@@ -56,15 +56,15 @@
 
                                     <div class="chat_img"><img src="@slika" alt="profpic"> </div>
                                     <div class="chat_ib">
-                                        <h5><b id="Naslov-@razg.Id">
-                                        @if(razg.GetNaslov() == null)
+                                        <h5><text >
+                                        @if(razg.KorisnikUrazgovoru.Count < 3)
                                         {
-                                            <text>@razg.GetPopisKorisnika(Model.IdKorisnik)</text>
+                                            <b>@razg.GetPopisKorisnika(Model.IdKorisnik)</b>
                                         }
                                         else
                                         {
-                                            <text>@razg.GetNaslov()</text>
-                                        }</b>
+                                            <b id="Naslov-@razg.Id">@razg.GetNaslov()</b>
+                                        }</text>
                                         <span class="chat_date" id="DatZadnje-@razg.Id">@razg.DatumZadnjePoruke.ToString("dd.MM.yyyy HH:mm")</span></h5>
                                         <p>
                                             <span id="Sazetak-@razg.Id">@if (razg.Poruka.First().IdKorisnik == Model.IdKorisnik)
@@ -97,7 +97,13 @@
                         <div class="headind_name" >
                                 <p><span class="editable" data-id="@razg.Id">@if (razg.GetNaslov() == null)
                                 {<text>Razgovor </text>}
-                                else {@razg.GetNaslov() }</span><span>(@razg.GetPopisKorisnika(Model.IdKorisnik))</span></p>                
+                                else {@razg.GetNaslov() }</span>
+                                   <span>
+                                       @if (razg.KorisnikUrazgovoru.Count < 3)
+                                       {<text>(@razg.GetPopisKorisnika(Model.IdKorisnik))</text>}
+                                   else
+                                   { <i class="fa fa-user hoverable" data-toggle="tooltip" data-title="@razg.GetPopisKorisnika(Model.IdKorisnik)"></i>}
+                                   </span></p>                
                         </div>
                         <div class="msg_history" id="Chat-@razg.Id">
                             @foreach (Poruka poruka in razg.Poruka)
@@ -133,8 +139,8 @@
                         </div>
                         <div class="type_msg">
                             <div class="input_msg_write">
-                                <input id="Poruka-@razg.Id" type="text" class="write_msg" placeholder="Type a message" />
-                                <button class="msg_send_btn" type="button" onclick="sendMessage('@razg.Id', '@Model.IdKorisnik')"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
+                                <textarea id="Poruka-@razg.Id" type="text" class="write_msg form-control"  style="resize:vertical" onkeydown="enter('@razg.Id')" placeholder="Unesi poruku" ></textarea>
+                                <button id="Gumb-@razg.Id" class="msg_send_btn" type="button" onclick="sendMessage('@razg.Id', '@Model.IdKorisnik')" style="padding-right:5px; padding-bottom:5px"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
                             </div>
                         </div>
                     </div>
@@ -183,20 +189,39 @@
 
 @section Scripts{
     <script>
-        $(document).ready(function() {
 
-            $('#Poruke-@Model.Razgovori.First().Id').show();
-            $('#Razg-@Model.Razgovori.First().Id').addClass("active_chat");
-            $('#Chat-@Model.Razgovori.First().Id').scrollTop($('#Chat-@Model.Razgovori.First().Id')[0].scrollHeight - $('#Chat-@Model.Razgovori.First().Id')[0].clientHeight);
+        $(document).ready(function () {
+            
+            @{ string id = "";
+                if (Model.Razgovori.Count == 0) { id = ""; } else { id = Model.Razgovori.FirstOrDefault().Id.ToString();  }
+                if (ViewData["id"] != null) { id = ViewData["id"].ToString(); <text>console.log('@id'); procitano('@id');</text>}
+                }
+            $('#Poruke-@id').show();
+            $('#Razg-@id').addClass("active_chat");
+            $('#Chat-@id').scrollTop($('#Chat-@id')[0].scrollHeight - $('#Chat-@id')[0].clientHeight);
+            
 
 
-        });
+
+                });
     </script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.js"></script>
     <script src="~/js/chatcontrol.js"></script>
-    <script src="~/js/signalr/dist/browser/signalr.js"></script>
     <script src="~/js/chat.js"></script>
     <script src="~/js/jquery.magicsearch.js"></script>
+
+    <script>
+        function enter(id) {
+            if(event.keyCode != 13) {
+                return;
+            }
+            if (event.keyCode == 13 && event.shiftKey) {
+                return;
+            }
+            gumb = '#Gumb-' + id;
+            $(gumb).click();
+        }
+    </script>
 
     <script>
         var dataSource = [
@@ -232,7 +257,7 @@
 
        
     </script>
-
+    
     <script>
         function bindEdit() {
             $('.editable').bind('click', function () {
@@ -241,8 +266,9 @@
                 function () {
                     console.log($(this).text());
                     let id = $(this).attr('data-id');
+                    let tekst = $(this).text();
                     //Zove se ajax i mijenja se u sazetku.
-                    data = { id: id + '', tekst : $(this).text() };
+                    data = { id: id + '', tekst : tekst };
 
                     $.ajax({
                         type: "POST",
@@ -254,11 +280,19 @@
                             withCredentials: true
                         }
 
+                    }).done(function () {
+                        var nas = "#Naslov-" + id;
+                        $(nas).text(tekst);
                     });
                     $(this).attr('contentEditable', false);
         });
         };
         bindEdit();
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
     </script>
 }
 

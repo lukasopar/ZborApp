@@ -1153,7 +1153,7 @@ namespace ZborApp.Controllers
             };
             return View(model);
         }
-
+        
         [HttpGet("download")]
         public async Task<IActionResult> SkiniKalendar(Guid id)
         {

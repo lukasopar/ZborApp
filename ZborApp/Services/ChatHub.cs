@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using ZborApp.Models.JSONModels;
@@ -23,18 +24,20 @@ namespace ZborApp.Services
         public async Task SendMessage(PorukaModel poruka)
         {
             var razg = _ctx.Razgovor.Where(razg => razg.Id == Guid.Parse(poruka.IdRazg)).Include(razg => razg.KorisnikUrazgovoru).SingleOrDefault();
+            poruka.Message.Replace("\n", "<br />");
             var user = _ctx.Korisnik.Where(k => k.Id == Guid.Parse(poruka.IdUser)).SingleOrDefault();
             poruka.Slika = user.Slika;
             poruka.Ime = user.Ime;
+            var when = DateTime.ParseExact(poruka.When, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
             Poruka novaPoruka = new Poruka
             {
-                DatumIvrijeme = poruka.When,
+                DatumIvrijeme =when,
                 Id = Guid.NewGuid(),
                 IdKorisnik = Guid.Parse(poruka.IdUser),
                 IdRazgovor = Guid.Parse(poruka.IdRazg),
                 Poruka1 = poruka.Message
             };
-            razg.DatumZadnjePoruke = poruka.When;
+            razg.DatumZadnjePoruke = when;
             _ctx.Add(novaPoruka);
             foreach (KorisnikUrazgovoru k in razg.KorisnikUrazgovoru)
             {
@@ -42,9 +45,25 @@ namespace ZborApp.Services
                     k.Procitano = false;
                 else
                     k.Procitano = true;
-                await Clients.User(k.IdKorisnik.ToString()).SendAsync("ReceiveMessage", k.IdKorisnik, poruka);
+               
+
             }
             _ctx.SaveChanges();
+            foreach (KorisnikUrazgovoru k in razg.KorisnikUrazgovoru)
+            {
+            
+                await Clients.User(k.IdKorisnik.ToString()).SendAsync("ReceiveMessage", k.IdKorisnik, poruka);
+                await Clients.User(k.IdKorisnik.ToString()).SendAsync("ChangeHeader", new
+                {
+                    Id = novaPoruka.IdRazgovor,
+                    Naziv = razg.Naslov + " (" + user.ImeIPrezime() + ")",
+                    Datum = novaPoruka.DatumIvrijeme.ToString("dd.MM.yyyy. hh:mm"),
+                    Slika = user.Slika,
+                    Poruka = novaPoruka.Poruka1,
+                    Procitano = k.Procitano
+                });
+
+            }
         }
 
         public async Task NewConversation(PorukaModel poruka)
@@ -53,6 +72,7 @@ namespace ZborApp.Services
             listaId.Add(Guid.Parse(poruka.IdUser));
             //glupi uvjet, treba bolji napisat
             var razg = _ctx.Razgovor.Where(razg => razg.KorisnikUrazgovoru.Select(k => k.IdKorisnik).All(id => listaId.Contains(id)) && razg.KorisnikUrazgovoru.Count() == listaId.Count()).Include(k=>k.KorisnikUrazgovoru).SingleOrDefault();
+            var when = DateTime.ParseExact(poruka.When, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
 
             if (razg != null)
             {
@@ -62,13 +82,13 @@ namespace ZborApp.Services
                 poruka.IdRazg = razg.Id.ToString();
                 Poruka novaPoruka = new Poruka
                 {
-                    DatumIvrijeme = poruka.When,
+                    DatumIvrijeme = when,
                     Id = Guid.NewGuid(),
                     IdKorisnik = Guid.Parse(poruka.IdUser),
                     IdRazgovor = Guid.Parse(poruka.IdRazg),
                     Poruka1 = poruka.Message
                 };
-                razg.DatumZadnjePoruke = poruka.When;
+                razg.DatumZadnjePoruke = when;
                 _ctx.Add(novaPoruka);
                 foreach (KorisnikUrazgovoru k in razg.KorisnikUrazgovoru)
                 {
@@ -77,6 +97,15 @@ namespace ZborApp.Services
                     else
                         k.Procitano = true;
                     await Clients.User(k.IdKorisnik.ToString()).SendAsync("ReceiveMessage", k.IdKorisnik, poruka);
+                    await Clients.User(k.IdKorisnik.ToString()).SendAsync("ChangeHeader", new
+                    {
+                        Id = novaPoruka.IdRazgovor,
+                        Naziv = razg.Naslov + " (" + user.ImeIPrezime() + ")",
+                        Datum = novaPoruka.DatumIvrijeme.ToString("dd.MM.yyyy. hh:mm"),
+                        Slika = user.Slika,
+                        Poruka = novaPoruka.Poruka1,
+                        Procitano = k.Procitano
+                    });
                 }
                 _ctx.SaveChanges();
 
@@ -89,7 +118,7 @@ namespace ZborApp.Services
                 poruka.Ime = user.Ime;
                 Poruka novaPoruka = new Poruka
                 {
-                    DatumIvrijeme = poruka.When,
+                    DatumIvrijeme = when,
                     Id = Guid.NewGuid(),
                     IdKorisnik = Guid.Parse(poruka.IdUser),
                     Poruka1 = poruka.Message
@@ -98,7 +127,7 @@ namespace ZborApp.Services
                 {
                     Id = Guid.NewGuid(),
                     Naslov = "",
-                    DatumZadnjePoruke = poruka.When,
+                    DatumZadnjePoruke = when,
 
                 };
                 novaPoruka.IdRazgovor = noviRazg.Id;
@@ -126,6 +155,17 @@ namespace ZborApp.Services
                 foreach (var id in listaId)
                 {
                     await Clients.User(id.ToString()).SendAsync("ReceiveNewConversation", id, poruka);
+                    bool flag = false;
+                    if (id == user.Id) flag = true;
+                    await Clients.User(id.ToString()).SendAsync("ChangeHeader", new
+                    {
+                        Id = novaPoruka.IdRazgovor,
+                        Naziv = noviRazg.Naslov + " (" + user.ImeIPrezime() + ")",
+                        Datum = novaPoruka.DatumIvrijeme.ToString("dd.MM.yyyy. hh:mm"),
+                        Slika = user.Slika,
+                        Poruka = novaPoruka.Poruka1,
+                        Procitano = flag
+                    });
                 }
                 _ctx.Add(noviRazg);
                 _ctx.SaveChanges();

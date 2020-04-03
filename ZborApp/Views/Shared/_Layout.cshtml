@@ -18,7 +18,7 @@
             font-family: 'Montserrat', sans-serif;
         }
     </style>
-    
+
     <body id="page-top">
 
         <!-- Page Wrapper -->
@@ -68,11 +68,11 @@
                                 <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <i class="fa fa-bell"></i>
                                     <!-- Counter - Alerts -->
-                                    <span id ="notificationCounter" class="badge badge-danger badge-counter">3+</span>
+                                    <span id="notificationCounter" class="badge badge-danger badge-counter">3+</span>
                                 </a>
                                 <!-- Dropdown - Alerts -->
                                 <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
-                                    
+
                                 </div>
                             </li>
 
@@ -81,11 +81,22 @@
                                 <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <i class="fa fa-envelope-o"></i>
                                     <!-- Counter - Messages -->
-                                    <span id ="messageCounter" class="badge badge-danger badge-counter">7</span>
+                                    <span id="messageCounter" class="badge badge-danger badge-counter"></span>
                                 </a>
                                 <!-- Dropdown - Messages -->
                                 <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="messagesDropdown">
-                                   </div>
+                                    <h6 class="dropdown-header">
+                                        Poruke
+                                    </h6>
+                                    <div id="poruke_layout">
+
+                                    </div>
+
+
+
+                                    <a class="dropdown-item text-center small text-gray-500" asp-action="Index" asp-controller="Poruke">Više poruka</a>
+                                </div>
+                            </li>
                             </li>
 
                             <div class="topbar-divider d-none d-sm-block"></div>
@@ -108,7 +119,7 @@
             </div>
         </div>
     </body>
-    
+
 
     <footer class="border-top footer text-muted">
         <div class="container">
@@ -119,6 +130,11 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/signalr/dist/browser/signalr.js"></script>
+
+    <script src="~/js/chat_layout.js"></script>
+
+    <script>renderChat()</script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

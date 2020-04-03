@@ -25,7 +25,7 @@ namespace ZborData.Model
                 return "Grupa";
             else if (Naslov != null && !Naslov.Equals(""))
                 return Naslov;
-            else return null;
+            else return "Razgovor";
         }
 
         public string GetPopisKorisnika(Guid id)
@@ -35,9 +35,20 @@ namespace ZborData.Model
             {
                 if (k.IdKorisnik == id)
                     continue;
-                popis += k.IdKorisnikNavigation.ImeIPrezime() + ",";
+                popis += k.IdKorisnikNavigation.ImeIPrezime() + ", ";
             }
-            popis = popis.Remove(popis.Length - 1);
+            popis = popis.Remove(popis.Length - 2);
+            return popis;
+        }
+        public string GetPopisKorisnikaEnter(Guid id)
+        {
+            string popis = "";
+            foreach (var k in KorisnikUrazgovoru)
+            {
+                if (k.IdKorisnik == id)
+                    continue;
+                popis += k.IdKorisnikNavigation.ImeIPrezime() + "\n";
+            }
             return popis;
         }
 

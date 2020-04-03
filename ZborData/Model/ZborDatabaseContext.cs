@@ -21,6 +21,8 @@ namespace ZborData.Model
         public virtual DbSet<Dogadjaj> Dogadjaj { get; set; }
         public virtual DbSet<EvidencijaDolaska> EvidencijaDolaska { get; set; }
         public virtual DbSet<Forum> Forum { get; set; }
+        public virtual DbSet<KategorijaForuma> KategorijaForuma { get; set; }
+
         public virtual DbSet<KomentarObavijesti> KomentarObavijesti { get; set; }
         public virtual DbSet<Korisnik> Korisnik { get; set; }
         public virtual DbSet<KorisnikUrazgovoru> KorisnikUrazgovoru { get; set; }
@@ -194,6 +196,19 @@ namespace ZborData.Model
             });
 
             modelBuilder.Entity<Forum>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.Naziv)
+                    .IsRequired()
+                    .HasMaxLength(100);
+                entity.HasOne(d => d.IdKategorijaForumaNavigation)
+                    .WithMany(p => p.Forum)
+                    .HasForeignKey(d => d.IdKategorijaForuma)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Forum_KategorijaForuma");
+            });
+            modelBuilder.Entity<KategorijaForuma>(entity =>
             {
                 entity.Property(e => e.Id).ValueGeneratedNever();
 

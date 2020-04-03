@@ -12,7 +12,8 @@ namespace ZborData.Model
 
         public Guid Id { get; set; }
         public string Naziv { get; set; }
-
+        public Guid IdKategorijaForuma { get; set; }
+        public virtual KategorijaForuma IdKategorijaForumaNavigation {get; set;}
         public virtual ICollection<ModeratorForuma> ModeratorForuma { get; set; }
     }
 }
