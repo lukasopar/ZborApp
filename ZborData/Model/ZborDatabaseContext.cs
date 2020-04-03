@@ -202,11 +202,14 @@ namespace ZborData.Model
                 entity.Property(e => e.Naziv)
                     .IsRequired()
                     .HasMaxLength(100);
+                entity.Property(e => e.Opis)
+                    .IsRequired()
+                    .HasMaxLength(200);
                 entity.HasOne(d => d.IdKategorijaForumaNavigation)
                     .WithMany(p => p.Forum)
                     .HasForeignKey(d => d.IdKategorijaForuma)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Forum_KategorijaForuma");
+                    .HasConstraintName("FK_Forum_IdKategor_1F63A897");
             });
             modelBuilder.Entity<KategorijaForuma>(entity =>
             {
@@ -693,6 +696,11 @@ namespace ZborData.Model
                     .HasForeignKey(d => d.IdKorisnik)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__Tema__IdKorisnik__3587F3E0");
+                entity.HasOne(d => d.IdForumNavigation)
+                   .WithMany(p => p.Tema)
+                   .HasForeignKey(d => d.IdForum)
+                   .OnDelete(DeleteBehavior.ClientSetNull)
+                   .HasConstraintName("FK_Tema_IdForum_2057CCD0");
             });
 
             modelBuilder.Entity<Trosak>(entity =>
@@ -777,11 +785,11 @@ namespace ZborData.Model
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Zapis_Korisnik");
 
-                entity.HasOne(d => d.IdZapisNavigation)
-                    .WithMany(p => p.InverseIdZapisNavigation)
-                    .HasForeignKey(d => d.IdZapis)
+                entity.HasOne(d => d.IdTemaNavigation)
+                    .WithMany(p => p.Zapis)
+                    .HasForeignKey(d => d.IdTema)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Zapis_Zapis");
+                    .HasConstraintName("FK_Zapis_IdTema_214BF109");
             });
 
             modelBuilder.Entity<Zbor>(entity =>

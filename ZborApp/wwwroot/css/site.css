@@ -1,6 +1,16 @@
 ﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
 for details on configuring this project to bundle and minify static web assets. */
+.pagebox {
+    width: 40px;
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+    cursor: pointer;
+}
 
+    .pagebox::selection {
+        background-color: grey;
+    }
 a.navbar-brand {
   white-space: normal;
   text-align: center;
@@ -89,4 +99,9 @@ body {
 
 .hoverable:hover{
     cursor:pointer;
+}
+
+blockquote {
+    background-color: antiquewhite;
+    border: inset;
 }

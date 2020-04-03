@@ -1,0 +1,155 @@
+﻿@model ZborApp.Models.ForumViewModels.ZapisVIewModel
+@using ZborData.Model;
+@{
+    ViewData["Title"] = "Rasprava";
+}
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote.min.css" rel="stylesheet">
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">NASdlobfaabfdb</h1>
+</div>
+
+<body>
+
+    <div class="d-flex flex-row align-items-center justify-content-between">
+        &nbsp;
+        <pager page-info="@Model.PagingInfo" page-action="Zapis" page-title="Unesite željenu stranicu">
+        </pager>
+    </div>
+
+
+
+    @foreach (var zapis in Model.Zapisi)
+    {
+        <div class="row">
+            <div class="col-10">
+                <div class="card shadow mb-4">
+
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            @zapis.DatumIvrijeme.ToString("dd.MM.yyyy. HH:mm")
+                        </div>
+                        <div>
+
+                            <button id="Uredi-@zapis.Id" class="btn btn-outline-secondary" onclick="edit('@zapis.Id')" type="button">Uredi</button>
+                            <button id="Spremi-@zapis.Id" class="btn btn-outline-secondary" onclick="save('@zapis.Id')" type="button" style="display:none">Spremi</button>
+                        </div>
+                    </div>
+
+
+
+                    <div class="card-body">
+                        <div class="row">
+
+                            <div class="col-3">
+                                <div class="card-title"><a href="#">@zapis.IdKorisnikNavigation.ImeIPrezime()</a></div>
+                                <p><img alt="profpic" style="border-radius:50%; width:30px; height:30px" src="@zapis.IdKorisnikNavigation.Slika"></p>
+                            </div>
+                            <div class="col-9"> <div id="Zapis-@zapis.Id" class="summernote">@Html.Raw(zapis.Tekst)</div></div>
+                        </div>
+
+
+
+
+                    </div>
+                    <div class="card-footer"><button class="btn btn-outline-secondary" onclick="Citiraj('@zapis.IdKorisnikNavigation.ImeIPrezime()', '@zapis.Id')">Citiraj</button></div>
+
+                </div>
+            </div>
+        </div>
+                                    }
+        <div class="row">
+
+            <!-- Area Chart -->
+            <div class="col-xl-8 col-lg-7">
+                <div class="card shadow mb-4">
+                    <!-- Card Header - Dropdown -->
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Novi zapis</h6>
+                    </div>
+                    <!-- Card Body -->
+                    <div class="card-body">
+                        <div class="card-text">
+                            <form id="formy" style="width:100%" asp-route-returnUrl="@ViewData["ReturnUrl"]" asp-action="Zapis" method="post">
+                                <div asp-validation-summary="All" class="text-danger"></div>
+                                <div class="row">
+
+                                        <label asp-for="Novi.Tekst"></label>
+                                        <textarea class="col-md-12 form-control" asp-for="Novi.Tekst" id="summernote"></textarea>
+                                        <span asp-validation-for="Novi.Tekst" class="text-danger"></span>
+                                        <input asp-for="Novi.IdTema" value="@Model.IdTema" style="display:none" />
+                                </div>
+
+
+                                <div class="row">
+                                    <div class="col-md-6 d-flex flex-row align-items-center justify-content-between">
+                                        &nbsp;
+                                        <button type="submit" class="btn btn-outline-info">Dodaj</button>
+                                    </div>
+                                </div>
+
+
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </body>
+@section Scripts {
+    <script src="~/js/gotopage.js">
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#summernote').summernote();
+    });
+
+    function Citiraj(ime, id) {
+        var zapis = "#Zapis-" + id;
+        var citat = '<blockquote><b>' + ime + '</b> kaže:<p>' + $(zapis).html() + '</p></blockquote><br />'
+        $('#summernote').summernote('pasteHTML', citat);
+        $("html, body").animate({ scrollTop: $(document).height() }, 1000);
+    }
+
+
+    function edit(id) {
+        var spremi = "#Spremi-" + id;
+        var uredi = "#Uredi-" + id;
+        var zapis = "#Zapis-" + id;
+
+        $(zapis).summernote({ focus: true });
+        $(uredi).hide();
+        $(spremi).show();
+    };
+
+    function save(id) {
+        var spremi = "#Spremi-" + id;
+        var uredi = "#Uredi-" + id;
+        var zapis = "#Zapis-" + id;
+        var markup = $(zapis).summernote('code');
+        $(zapis).summernote('destroy');
+
+        data = { Id: id + '', Tekst: $(zapis).html() };
+        $.ajax({
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json;charset=utf-8",
+                url: '@Url.Action("Uredi", "Forum")',
+                data: JSON.stringify(data),
+                xhrFields: {
+                    withCredentials: true
+                }
+            }).done(function (response) {
+      
+            })
+            .always(function () {
+               
+            });
+          $(spremi).hide();
+        $(uredi).show();
+};
+</script>
+}

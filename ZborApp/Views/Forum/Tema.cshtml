@@ -1,0 +1,113 @@
+﻿@model ZborApp.Models.ForumViewModels.TemeViewModel
+@using ZborData.Model;
+@{
+    ViewData["Title"] = "Teme";
+}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">NASdlobfaabfdb</h1>
+</div>
+
+<body>
+    <div class="row">
+
+        <!-- Area Chart -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Nova tema</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="card-text">
+                        <form id="formy" style="width:100%" asp-route-returnUrl="@ViewData["ReturnUrl"]" asp-action="Tema" method="post">
+                            <div asp-validation-summary="All" class="text-danger"></div>
+                            <div class="row">
+
+                                <div class="form-group col-md-6">
+                                    <label asp-for="Nova.Naslov"></label>
+                                    <input asp-for="Nova.Naslov" class="form-control" />
+                                    <span asp-validation-for="Nova.Naslov" class="text-danger"></span>
+                                    <input asp-for="IdForum" value="@Model.IdForum" style="display:none" />
+                                </div>
+                            </div>
+
+                            <label asp-for="Tekst">Opis:</label>
+                            <span asp-validation-for="Tekst" class="text-danger"></span>
+
+
+                            <textarea class="col-md-12 form-control" asp-for="Tekst" style="resize:none; height: 300px; width:500px"></textarea>
+
+                            <div class="row">
+                                <div class="col-md-6 d-flex flex-row align-items-center justify-content-between">
+                                    &nbsp;
+                                    <button type="submit" class="btn btn-outline-info">Dodaj</button>
+                                </div>
+                            </div>
+
+
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="d-flex flex-row align-items-center justify-content-between">
+        &nbsp;
+        <pager page-info="@Model.PagingInfo" page-action="Tema" page-title="Unesite željenu stranicu">
+        </pager>
+    </div>
+
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-8">
+                            Naslov teme
+                        </div>
+                        <div class="col-2">Broj zapisa</div>
+                        <div class="col-2">Zadnji zapis</div>
+                    </div>
+                </div>
+
+
+
+                <div class="card-body">
+                    @foreach (var tema in Model.Teme)
+                    {
+                        <div class="row">
+
+                            <div class="col-8">
+                                <div class="card-title"><a asp-action="Zapis" asp-route-id="@tema.Id">@tema.Naslov</a></div>
+                                <p>Korisnik @tema.IdKorisnikNavigation.ImeIPrezime(), @tema.DatumPocetka.ToString("dd.MM.yyyy. HH:mm")</p>
+                            </div>
+                            <div class="col-2"> @tema.Zapis.Count</div>
+                            <div class="col-2">
+                                @{ var zadnja = tema.Zadnji();}
+                                @if (zadnja == null)
+                                {<text>Nema</text> }
+                            else
+                            { <a href="#">@zadnja.IdKorisnikNavigation.ImeIPrezime()</a> <p>@zadnja.DatumIvrijeme.ToString("dd.MM.yyyy. HH:mm") 
+                                </p>}
+                            </div>
+                        </div>
+
+                    }
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+@section Scripts {
+    <script src="~/js/gotopage.js">
+
+    </script>
+}
