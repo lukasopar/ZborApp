@@ -32,6 +32,7 @@
 
                             <button id="Uredi-@zapis.Id" class="btn btn-outline-secondary" onclick="edit('@zapis.Id')" type="button">Uredi</button>
                             <button id="Spremi-@zapis.Id" class="btn btn-outline-secondary" onclick="save('@zapis.Id')" type="button" style="display:none">Spremi</button>
+                            <form asp-action="ObrisiZapis" asp-route-page="@Model.PagingInfo.CurrentPage"><input asp-for="IdBrisanje" value="@zapis.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Obriši</button></form>
                         </div>
                     </div>
 

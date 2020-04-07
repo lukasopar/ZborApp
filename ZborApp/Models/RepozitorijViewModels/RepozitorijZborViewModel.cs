@@ -7,12 +7,10 @@ using ZborData.Model;
 
 namespace ZborApp.Models.RepozitorijViewModels
 {
-    public class RepozitorijZborViewModel
+    public class RepozitorijViewModel
     {
-        public IList<RepozitorijZbor> Datoteke { get; set; }
+        public IList<RepozitorijKorisnik> Datoteke { get; set; }
         public Guid IdKorisnik { get; set; }
-        public Guid IdZbor { get; set; }
-
         public Guid IdTrazeni { get; set; }
         public IList<IFormFile> FormFiles { get; set; }
     }

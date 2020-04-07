@@ -6,7 +6,9 @@ namespace ZborData.Model
     public partial class OsobneObavijesti
     {
         public Guid Id { get; set; }
-        public string Naslov { get; set; }
+        public string Poveznica { get; set; }
+        public string Slika { get; set; }
+
         public string Tekst { get; set; }
         public bool Procitano { get; set; }
         public Guid IdKorisnik { get; set; }

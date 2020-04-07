@@ -1,0 +1,150 @@
+﻿@model ZborApp.Models.ForumViewModels.AdministracijaViewModel
+@using ZborData.Model;
+@{
+    ViewData["Title"] = "Administracija foruma";
+}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Administracija foruma</h1>
+</div>
+
+<body>
+    @if (ViewData["alert"] != null)
+    {
+        <p class="alert">@ViewData["alert"]</p>
+    }
+    <div class="row">
+
+        <!-- Area Chart -->
+        <div class="col-4">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Novi podforum</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="card-text">
+                        @foreach (var admin in Model.Administratori)
+                        {
+                            <div class="d-flex flex-row align-items-center justify-content-between">
+                                <div>
+                                    <a href="#">@admin.IdKorisnikNavigation.ImeIPrezime()</a>
+                                </div>
+                                <div>
+                                    <form asp-action="ObrisiAdministratora"><input asp-for="IdCilj" value="@admin.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Obriši</button></form>
+
+                                </div>
+
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <div class="col-4">
+        <div class="card shadow mb-4">
+            <!-- Card Header - Dropdown -->
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Moderatori</h6>
+            </div>
+            <!-- Card Body -->
+            <div class="card-body">
+                <div class="card-text">
+                    @foreach (var mod in Model.Moderatori)
+                    {
+                        <div class="d-flex flex-row align-items-center justify-content-between">
+                            <div>
+                                <a href="#">@mod.IdKorisnikNavigation.ImeIPrezime()</a>
+                            </div>
+                            <div>
+                                <form asp-action="ObrisiModeratora"><input asp-for="IdCilj" value="@mod.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Obriši</button></form>
+
+                            </div>
+
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-4">
+        <div class="card shadow mb-4">
+            <!-- Card Header - Dropdown -->
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Pretraga korisnika</h6>
+            </div>
+            <!-- Card Body -->
+            <div class="card-body">
+                <div class="card-text">
+                    <div>
+                        <form>
+                            <input class="form-control" id="pret" type="text" onkeydown="pretraga(this)">
+                        </form>
+                    </div>
+                    <div id="rezultati">
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+
+@section Scripts{ 
+    <script>
+        function pretraga(ele, id) {
+            if (event.keyCode != 13) {
+                return;
+            }
+            inputPolje = '#pret';
+            $(inputPolje).prop('disabled', true)
+            data = { Tekst: ele.value + '', Id: id + '' }
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json;charset=utf-8",
+                url: '/Forum/Pretraga',
+                data: JSON.stringify(data),
+                xhrFields: {
+                    withCredentials: true
+                }
+            }).done(function (response) {
+                console.log(response)
+                $("#rezultati").empty();
+                var i;
+                for (i = 0; i < response.length; i++) {
+
+                    var $newdiv = $('<div class="row d-flex flex-row align-items-center justify-content-between" style="padding-bottom:3px; padding-top:7px"></div>');
+                    var $divcol1 = $('<div ></div>');
+                    var $link = $('<a href="#">' + response[i]['imeIPrezime'] + '</a>');
+                    $divcol1.append($link);
+                    $newdiv.append($divcol1);
+
+
+                    var $divcol2 = $('<div></div>');
+                    var $button = ('<a  class="btn btn-outline-secondary btn-sm" href="/Forum/PostaviAdministratora/' + response[i].id + '">Postavi administratora</button>');
+                    var $button2 = ('<a  class="btn btn-outline-secondary btn-sm" href="/Forum/PostaviModeratora/' + response[i].id + '">Postavi moderatora</button>');
+
+                    $divcol2.append($button);
+                    $divcol2.append($button2);
+
+                    $newdiv.append($divcol2);
+
+                    $("#rezultati").append($newdiv);
+
+                }
+
+            })
+                .always(function () {
+
+                    $(inputPolje).prop('disabled', false)
+                });
+
+        }
+    </script>
+}

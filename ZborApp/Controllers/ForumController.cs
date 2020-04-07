@@ -146,7 +146,10 @@ namespace ZborApp.Controllers
                 ItemsPerPage = pagesize,
                 TotalItems = teme.Count()
             };
-
+            if(page == 0)
+            {
+                return RedirectToAction(nameof(Zapis), new {id=id, page = pagingInfo.TotalPages });
+            }
             if (page > pagingInfo.TotalPages && pagingInfo.TotalItems != 0)
             {
                 return RedirectToAction(nameof(Index), new { page = pagingInfo.TotalPages });
@@ -200,6 +203,107 @@ namespace ZborApp.Controllers
             _ctx.Zapis.Find(Guid.Parse(model.Id)).Tekst = model.Tekst;
             _ctx.SaveChanges();
             return Ok();
+        }
+        [HttpPost]
+        public IActionResult ObrisiZapis(ZapisVIewModel model, int page = 1)
+        {
+            var zap = _ctx.Zapis.Find(model.IdBrisanje);
+            _ctx.Zapis.Remove(zap);
+            _ctx.SaveChanges();
+            return RedirectToAction("Zapis", new { id = zap.IdTema, page = page });
+        }
+        [HttpPost]
+        public IActionResult ObrisiTema(TemeViewModel model, int page = 1)
+        {
+            var zap = _ctx.Tema.Find(model.IdBrisanje);
+            _ctx.Tema.Remove(zap);
+            _ctx.SaveChanges();
+            return RedirectToAction("Tema", new { id = zap.IdForum, page = page });
+        }
+        [HttpGet]
+        public IActionResult Administracija()
+        {
+            AdministracijaViewModel model = new AdministracijaViewModel
+            {
+
+                Administratori = _ctx.AdministratorForuma.Include(a => a.IdKorisnikNavigation).ToList(),
+                Moderatori = _ctx.ModForum.Include(a => a.IdKorisnikNavigation).ToList()
+            };
+            return View(model);
+        }
+        [HttpPost]
+        public IActionResult Pretraga([FromBody] PretragaModel model)
+        {
+            var korisnici = _ctx.Korisnik.Where(k => (k.Ime.Trim().ToLower() + ' ' + k.Prezime.Trim().ToLower()).Contains(model.Tekst))
+                .Select(k => new { Id = k.Id, ImeIPrezime = k.Ime.Trim() + ' ' + k.Prezime.Trim() })
+                .ToList();
+
+            return Ok(korisnici);
+        }
+        [HttpGet]
+        public IActionResult PostaviAdministratora(Guid id)
+        {
+            var admin = _ctx.AdministratorForuma.Find(id);
+            if(admin != null)
+            {
+                ViewData["alert"] = "Korisnik već je administrator";
+                
+            }
+            else
+            {
+                _ctx.AdministratorForuma.Add(new AdministratorForuma { Id = id });
+                ViewData["alert"] = "Dodan administrator";
+                _ctx.SaveChanges();
+
+            }
+
+            AdministracijaViewModel model = new AdministracijaViewModel
+            {
+
+                Administratori = _ctx.AdministratorForuma.Include(a => a.IdKorisnikNavigation).ToList(),
+                Moderatori = _ctx.ModForum.Include(a => a.IdKorisnikNavigation).ToList()
+            };
+            return View("Administracija", model);
+        }
+        [HttpGet]
+        public IActionResult PostaviModeratora(Guid id)
+        {
+            var mod = _ctx.ModForum.Find(id);
+            if (mod != null)
+            {
+                ViewData["alert"] = "Korisnik već je moderator";
+
+            }
+            else
+            {
+                _ctx.ModForum.Add(new ModForum { Id = id });
+                ViewData["alert"] = "Dodan moderator";
+                _ctx.SaveChanges();
+            }
+            
+            AdministracijaViewModel model = new AdministracijaViewModel
+            {
+
+                Administratori = _ctx.AdministratorForuma.Include(a => a.IdKorisnikNavigation).ToList(),
+                Moderatori = _ctx.ModForum.Include(a => a.IdKorisnikNavigation).ToList()
+            };
+            return View("Administracija", model);
+        }
+        [HttpPost]
+        public IActionResult ObrisiAdministratora(AdministracijaViewModel model)
+        {
+            var zap = _ctx.AdministratorForuma.Find(model.IdCilj);
+            _ctx.AdministratorForuma.Remove(zap);
+            _ctx.SaveChanges();
+            return RedirectToAction("Administracija");
+        }
+        [HttpPost]
+        public IActionResult ObrisiModeratora(AdministracijaViewModel model)
+        {
+            var zap = _ctx.ModForum.Find(model.IdCilj);
+            _ctx.ModForum.Remove(zap);
+            _ctx.SaveChanges();
+            return RedirectToAction("Administracija");
         }
     }
 }

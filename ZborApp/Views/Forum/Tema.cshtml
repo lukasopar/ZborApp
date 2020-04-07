@@ -84,16 +84,24 @@
 
                             <div class="col-8">
                                 <div class="card-title"><a asp-action="Zapis" asp-route-id="@tema.Id">@tema.Naslov</a></div>
-                                <p>Korisnik @tema.IdKorisnikNavigation.ImeIPrezime(), @tema.DatumPocetka.ToString("dd.MM.yyyy. HH:mm")</p>
+                                <p>Korisnik @tema.IdKorisnikNavigation.ImeIPrezime(), @tema.DatumPocetka.ToString("dd.MM.yyyy. HH:mm") <a  asp-action="Zapis" asp-route-id="@tema.Id">Prva</a>...<a  asp-action="Zapis" asp-route-id="@tema.Id" asp-route-page="0">Zadnja</a></p>
                             </div>
                             <div class="col-2"> @tema.Zapis.Count</div>
                             <div class="col-2">
                                 @{ var zadnja = tema.Zadnji();}
-                                @if (zadnja == null)
-                                {<text>Nema</text> }
-                            else
-                            { <a href="#">@zadnja.IdKorisnikNavigation.ImeIPrezime()</a> <p>@zadnja.DatumIvrijeme.ToString("dd.MM.yyyy. HH:mm") 
-                                </p>}
+                                <div>
+                                    @if (zadnja == null)
+                                    {<text>Nema</text> }
+                                else
+                                {
+                                    <div>
+                                        <a href="#">@zadnja.IdKorisnikNavigation.ImeIPrezime()</a>
+                                        <p>@zadnja.DatumIvrijeme.ToString("dd.MM.yyyy. HH:mm")</p>
+                                    </div>
+                                }
+                                    <form asp-action="ObrisiTema" asp-route-page="@Model.PagingInfo.CurrentPage"><input asp-for="IdBrisanje" value="@tema.Id" hidden style="display:none" /><button class="btn btn-outline-warning" type="submit">Obriši</button></form>
+
+                                </div>
                             </div>
                         </div>
 

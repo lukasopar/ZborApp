@@ -3,14 +3,16 @@ using System.Collections.Generic;
 
 namespace ZborData.Model
 {
-    public partial class PretplataNaProjekt
+    public partial class PretplataNaZbor
     {
         public Guid Id { get; set; }
-        public Guid IdProjekt { get; set; }
+        public Guid IdZbor { get; set; }
         public Guid IdKorisnik { get; set; }
-        public bool Dogadjaji { get; set; }
+        public bool Pitanja { get; set; }
         public bool Obavijesti { get; set; }
+        public bool Repozitorij { get; set; }
         public virtual Korisnik IdKorisnikNavigation { get; set; }
-        public virtual Projekt IdProjektNavigation { get; set; }
+        public virtual Zbor IdZborNavigation { get; set; }
+
     }
 }

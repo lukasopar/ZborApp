@@ -1,0 +1,74 @@
+﻿@model ZborApp.Models.ZborViewModels.PretplateViewModel;
+@using ZborData.Model
+@{
+    ViewData["Title"] = "Pretplate";
+}
+
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Pretplate</h1>
+</div>
+
+
+<div class="row">
+
+    <!-- Area Chart -->
+    <div class="col-xl-8 col-lg-7">
+        <div class="card shadow mb-4">
+            <!-- Card Header - Dropdown -->
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Napiši obavijest</h6>
+            </div>
+            <!-- Card Body -->
+            <div class="card-body">
+                <div class="card-text">
+                    <form id="formy" style="width:100%" asp-route-returnUrl="@ViewData["ReturnUrl"]" asp-route-id="@Model.Zbor.Id" method="post">
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" asp-for="PretplataZbor.Obavijesti"  />
+                                    <label class="form-check-label">Obavijesti</label>
+                                </div>
+                                &nbsp;
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" asp-for="PretplataZbor.Pitanja" />
+                                    <label class="form-check-label">Nova pitanja</label>
+                                </div>
+                                &nbsp;
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" asp-for="PretplataZbor.Repozitorij" />
+                                    <label class="form-check-label">Nove datoteke</label>
+                                </div>
+                            </div>
+                        </div>
+                        @for (int i = 0; i < Model.Projekti.Count; i++)
+                        {
+                        <div class="col-12">
+                            <p>Projekt @Model.Projekti[i].Naziv</p>
+                            <div class="row">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" asp-for="PretplataProjekt[i].Obavijesti">
+                                    <label class="form-check-label">Obavijesti</label>
+                                </div>
+                                &nbsp;
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" asp-for="PretplataProjekt[i].Dogadjaji">
+                                    <label class="form-check-label">Događaji</label>
+                                </div>
+                            </div>
+                            
+                            <input asp-for="PretplataProjekt[i].IdProjekt" style="display:none" value="@Model.Projekti[i].Id" />
+                        </div>
+                        }
+                        <button class="btn btn-outline-secondary" type="submit">Spremi</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+

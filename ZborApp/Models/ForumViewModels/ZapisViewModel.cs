@@ -12,5 +12,6 @@ namespace ZborApp.Models.ForumViewModels
         public PagingInfo PagingInfo { get; set; }
         public Zapis Novi { get; set; }
         public Guid IdTema { get; set; }
+        public Guid IdBrisanje { get; set; }
     }
 }

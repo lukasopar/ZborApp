@@ -1182,5 +1182,116 @@ namespace ZborApp.Controllers
 
             return File(bytes, "text/calendar", "kalendar.ical");
         }
+        [HttpGet]
+        public async Task<IActionResult> JavniProfil(Guid id)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            var zbor = _ctx.Zbor.Where(z => z.Id == id).Include(z => z.ProfilZbor)
+                .Include(z => z.Voditelj).ThenInclude(v => v.IdKorisnikNavigation).SingleOrDefault();
+            JavniProfilViewModel model = new JavniProfilViewModel
+            {
+                Zbor = zbor
+            };
+            return View(model);
+        }
+        [HttpPost]
+        public async Task<IActionResult> Urediozboru([FromBody] PretragaModel model)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            _ctx.ProfilZbor.Find(Guid.Parse(model.Id)).OZboru = model.Tekst;
+            _ctx.SaveChanges();
+            return Ok();
+        }
+        [HttpPost]
+        public async Task<IActionResult> Urediovoditeljima([FromBody] PretragaModel model)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            _ctx.ProfilZbor.Find(Guid.Parse(model.Id)).OVoditeljima = model.Tekst;
+            _ctx.SaveChanges();
+            return Ok();
+        }
+        [HttpPost]
+        public async Task<IActionResult> Uredirepertoar([FromBody] PretragaModel model)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            _ctx.ProfilZbor.Find(Guid.Parse(model.Id)).Repertoar = model.Tekst;
+            _ctx.SaveChanges();
+            return Ok();
+        }
+        [HttpPost]
+        public async Task<IActionResult> Uredireprezentacija([FromBody] PretragaModel model)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            _ctx.ProfilZbor.Find(Guid.Parse(model.Id)).Reprezentacija = model.Tekst;
+            _ctx.SaveChanges();
+            return Ok();
+        }
+        [HttpGet]
+        public async Task<IActionResult> Pretplate(Guid id)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            var zbor = _ctx.Zbor.Where(z => z.Id == id).Include(z => z.PretplataNaZbor).Include(z => z.Projekt).ThenInclude(p => p.PretplataNaProjekt).SingleOrDefault();
+            PretplateViewModel model = new PretplateViewModel
+            {
+                Zbor = zbor,
+                Projekti = zbor.Projekt.ToList(),
+                PretplataZbor = zbor.PretplataNaZbor.Where(p => p.IdKorisnik == user.Id).SingleOrDefault(),
+                PretplataProjekt = zbor.Projekt.Select(p => p.PretplataNaProjekt.Where(p => p.IdKorisnik == user.Id).FirstOrDefault()).ToList()
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Pretplate(Guid id, PretplateViewModel model)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            var pretplataZbor = _ctx.PretplataNaZbor.Where(z => z.IdZbor == id && z.IdKorisnik == user.Id).SingleOrDefault();
+             if(pretplataZbor == null)
+            {
+                pretplataZbor = new PretplataNaZbor
+                {
+                    Id = Guid.NewGuid(),
+                    IdKorisnik = user.Id,
+                    IdZbor = id,
+                    Obavijesti = model.PretplataZbor.Obavijesti,
+                    Repozitorij = model.PretplataZbor.Repozitorij,
+                    Pitanja = model.PretplataZbor.Pitanja
+                };
+                _ctx.PretplataNaZbor.Add(pretplataZbor);
+            }
+            else
+            {
+                pretplataZbor.Obavijesti = model.PretplataZbor.Obavijesti;
+                pretplataZbor.Pitanja = model.PretplataZbor.Pitanja;
+                pretplataZbor.Repozitorij = model.PretplataZbor.Repozitorij;
+
+            }
+            foreach(var pretplata in model.PretplataProjekt)
+            {
+                var pretplataProjekt = _ctx.PretplataNaProjekt.Where(z => z.IdProjekt == pretplata.Id && z.IdKorisnik == user.Id).SingleOrDefault();
+                if (pretplataProjekt == null)
+                {
+                    pretplataProjekt = new PretplataNaProjekt
+                    {
+                        Id = Guid.NewGuid(),
+                        IdKorisnik = user.Id,
+                        IdProjekt = pretplata.IdProjekt,
+                        Obavijesti =pretplata.Obavijesti,
+                        Dogadjaji =pretplata.Dogadjaji
+                    };
+                    _ctx.PretplataNaProjekt.Add(pretplataProjekt);
+                }
+                else
+                {
+                    pretplataProjekt.Obavijesti = pretplata.Obavijesti;
+                    pretplataProjekt.Dogadjaji = pretplata.Dogadjaji;
+
+                }
+                _ctx.SaveChanges();
+            }
+
+
+            return RedirectToAction("Pretplate", new { id = id });
+        }
     }
 }

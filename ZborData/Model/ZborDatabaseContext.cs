@@ -14,7 +14,7 @@ namespace ZborData.Model
             : base(options)
         {
         }
-
+        public virtual DbSet<AdministratorForuma> AdministratorForuma { get; set; }
         public virtual DbSet<Anketa> Anketa { get; set; }
         public virtual DbSet<ClanNaProjektu> ClanNaProjektu { get; set; }
         public virtual DbSet<ClanZbora> ClanZbora { get; set; }
@@ -22,13 +22,13 @@ namespace ZborData.Model
         public virtual DbSet<EvidencijaDolaska> EvidencijaDolaska { get; set; }
         public virtual DbSet<Forum> Forum { get; set; }
         public virtual DbSet<KategorijaForuma> KategorijaForuma { get; set; }
-
         public virtual DbSet<KomentarObavijesti> KomentarObavijesti { get; set; }
         public virtual DbSet<Korisnik> Korisnik { get; set; }
         public virtual DbSet<KorisnikUrazgovoru> KorisnikUrazgovoru { get; set; }
         public virtual DbSet<LajkKomentara> LajkKomentara { get; set; }
         public virtual DbSet<LajkObavijesti> LajkObavijesti { get; set; }
-        public virtual DbSet<ModeratorForuma> ModeratorForuma { get; set; }
+        public virtual DbSet<ModForum> ModForum { get; set; }
+
         public virtual DbSet<ModeratorZbora> ModeratorZbora { get; set; }
         public virtual DbSet<NajavaDolaska> NajavaDolaska { get; set; }
         public virtual DbSet<Obavijest> Obavijest { get; set; }
@@ -39,12 +39,15 @@ namespace ZborData.Model
         public virtual DbSet<Poruka> Poruka { get; set; }
         public virtual DbSet<PozivZaProjekt> PozivZaProjekt { get; set; }
         public virtual DbSet<PozivZaZbor> PozivZaZbor { get; set; }
+        public virtual DbSet<ProfilZbor> ProfilZbor { get; set; }
+        public virtual DbSet<PretplataNaZbor> PretplataNaZbor { get; set; }
         public virtual DbSet<PretplataNaProjekt> PretplataNaProjekt { get; set; }
         public virtual DbSet<PrijavaZaProjekt> PrijavaZaProjekt { get; set; }
         public virtual DbSet<PrijavaZaZbor> PrijavaZaZbor { get; set; }
         public virtual DbSet<Projekt> Projekt { get; set; }
         public virtual DbSet<Razgovor> Razgovor { get; set; }
         public virtual DbSet<RepozitorijKorisnik> RepozitorijKorisnik { get; set; }
+        public virtual DbSet<RepozitorijZbor> RepozitorijZbor { get; set; }
 
         public virtual DbSet<Tema> Tema { get; set; }
         public virtual DbSet<Trosak> Trosak { get; set; }
@@ -65,6 +68,18 @@ namespace ZborData.Model
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<AdministratorForuma>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+
+
+                entity.HasOne(d => d.IdKorisnikNavigation)
+                    .WithMany(p => p.AdministratorForuma)
+                    .HasForeignKey(d => d.Id)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_AdministratorForuma_Korisnik");
+            });
             modelBuilder.Entity<Anketa>(entity =>
             {
                 entity.Property(e => e.Id).ValueGeneratedNever();
@@ -321,23 +336,19 @@ namespace ZborData.Model
                     .HasConstraintName("FK_LajkObavijesti_Obavijest");
             });
 
-            modelBuilder.Entity<ModeratorForuma>(entity =>
+
+            modelBuilder.Entity<ModForum>(entity =>
             {
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
-                entity.HasOne(d => d.IdForumNavigation)
-                    .WithMany(p => p.ModeratorForuma)
-                    .HasForeignKey(d => d.IdForum)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ModeratorForuma_Forum");
+
 
                 entity.HasOne(d => d.IdKorisnikNavigation)
-                    .WithMany(p => p.ModeratorForuma)
-                    .HasForeignKey(d => d.IdKorisnik)
+                    .WithMany(p => p.ModForum)
+                    .HasForeignKey(d => d.Id)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ModeratorForuma_Korisnik");
+                    .HasConstraintName("FK_ModForum_Korisnik");
             });
-
             modelBuilder.Entity<ModeratorZbora>(entity =>
             {
                 entity.HasIndex(e => new { e.IdZbor, e.IdKorisnik })
@@ -466,9 +477,7 @@ namespace ZborData.Model
             {
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
-                entity.Property(e => e.Naslov)
-                    .IsRequired()
-                    .HasMaxLength(70);
+               
 
                 entity.Property(e => e.Tekst)
                     .IsRequired()
@@ -480,7 +489,16 @@ namespace ZborData.Model
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_OsobneObavijesti_Korisnik");
             });
+            modelBuilder.Entity<ProfilZbor>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
 
+                entity.HasOne(d => d.IdZborNavigation)
+                    .WithOne(p => p.ProfilZbor)
+                    .HasForeignKey<ProfilZbor>(d => d.Id)
+                    .HasConstraintName("FK_ProfilZbor_Zbor");
+
+            });
             modelBuilder.Entity<Poruka>(entity =>
             {
                 entity.Property(e => e.Id).ValueGeneratedNever();
@@ -572,6 +590,22 @@ namespace ZborData.Model
                     .HasForeignKey(d => d.IdProjekt)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_PretplataNaProjekt_Projekt");
+            });
+            modelBuilder.Entity<PretplataNaZbor>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.HasOne(d => d.IdKorisnikNavigation)
+                    .WithMany(p => p.PretplataNaZbor)
+                    .HasForeignKey(d => d.IdKorisnik)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_PretplataNaZbor_Korisnik");
+
+                entity.HasOne(d => d.IdZborNavigation)
+                    .WithMany(p => p.PretplataNaZbor)
+                    .HasForeignKey(d => d.IdZbor)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_PretplataNaZbor_Zbor");
             });
 
             modelBuilder.Entity<PrijavaZaProjekt>(entity =>
@@ -678,6 +712,30 @@ namespace ZborData.Model
                     .HasForeignKey(d => d.IdKorisnik)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_RepozitorijKorisnik_Korisnik");
+
+            });
+            modelBuilder.Entity<RepozitorijZbor>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.DatumPostavljanja).HasColumnType("datetime");
+
+                entity.Property(e => e.Naziv)
+                    .IsRequired()
+                    .HasMaxLength(400);
+                entity.Property(e => e.Url)
+                                    .IsRequired()
+                                    .HasMaxLength(400);
+                entity.HasOne(d => d.IdKorisnikNavigation)
+                    .WithMany(p => p.RepozitorijZbor)
+                    .HasForeignKey(d => d.IdKorisnik)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_RepozitorijZbor_Korisnik");
+                entity.HasOne(d => d.IdZborNavigation)
+                   .WithMany(p => p.RepozitorijZbor)
+                   .HasForeignKey(d => d.IdZbor)
+                   .OnDelete(DeleteBehavior.ClientSetNull)
+                   .HasConstraintName("FK_RepozitorijZbor_Zbor");
 
             });
 
@@ -788,7 +846,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdTemaNavigation)
                     .WithMany(p => p.Zapis)
                     .HasForeignKey(d => d.IdTema)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Zapis_IdTema_214BF109");
             });
 

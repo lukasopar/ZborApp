@@ -13,7 +13,9 @@ namespace ZborData.Model
             Obavijest = new HashSet<Obavijest>();
             PozivZaZbor = new HashSet<PozivZaZbor>();
             PrijavaZaZbor = new HashSet<PrijavaZaZbor>();
+            PretplataNaZbor = new HashSet<PretplataNaZbor>();
             Projekt = new HashSet<Projekt>();
+            RepozitorijZbor = new HashSet<RepozitorijZbor>();
             Voditelj = new HashSet<Voditelj>();
         }
 
@@ -28,8 +30,11 @@ namespace ZborData.Model
         public virtual ICollection<ModeratorZbora> ModeratorZbora { get; set; }
         public virtual ICollection<Obavijest> Obavijest { get; set; }
         public virtual ICollection<PozivZaZbor> PozivZaZbor { get; set; }
+        public virtual ICollection<PretplataNaZbor> PretplataNaZbor { get; set; }
         public virtual ICollection<PrijavaZaZbor> PrijavaZaZbor { get; set; }
         public virtual ICollection<Projekt> Projekt { get; set; }
+        public virtual ICollection<RepozitorijZbor> RepozitorijZbor { get; set; }
+        public virtual ProfilZbor ProfilZbor { get; set; }
         public virtual ICollection<Voditelj> Voditelj { get; set; }
     }
 }
