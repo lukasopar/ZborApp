@@ -32,9 +32,13 @@
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <div>
                         <img src="@a.IdKorisnikNavigation.Slika" alt="profpic" style="border-radius:50%; width:30px; height:30px">
-                        @a.IdKorisnikNavigation.Ime @a.IdKorisnikNavigation.Prezime  <text class="small text-muted"> | @a.DatumPostavljanja</text>
-                    </div>                    <div>
-                        <a style="right:0px;"><i class="fa fa-trash-o"></i></a>
+                        @a.IdKorisnikNavigation.Ime @a.IdKorisnikNavigation.Prezime  <text class="small text-muted"> | @a.DatumPostavljanja.ToString("dd.MM.yyyy. hh:mm")</text>
+                    </div>                    
+                    <div>
+                        @if (Model.Admin || a.IdKorisnik == Model.IdKorisnik)
+                        {
+                            <form asp-action="ObrisiPitanje" asp-route-id="@a.Id" method="post"><button type="submit" class="btn btn-outline-secondary"><i class="fa fa-trash-o hoverable"></i></button></form>
+                        }
                     </div>
                 </div>
                 <!-- Card Body -->
@@ -46,7 +50,7 @@
                             if (a.VisestrukiOdgovor)
                             {
                                 <div class="form-check" id="form-@a.Id">
-                                    <input class="form-check-input" value="@odg.Redoslijed" type="checkbox" name="box" @if (Model.KorisnickiOdgovori[a.Id].Contains(odg.Redoslijed)) { <text> checked</text> }>
+                                    <input class="form-check-input" value="@odg.Redoslijed" type="checkbox" name="box" @if (Model.KorisnickiOdgovori[a.Id].Contains(odg.Redoslijed)) { <text> checked</text> } onchange="spremiOdgovor('@a.Id', @counter)">
                                     <label class="form-check-label">
                                         @odg.Odgovor
                                     </label>
@@ -55,7 +59,7 @@
                             else
                             {
                                 <div class="form-check" id="form-@a.Id">
-                                    <input class="form-check-input" value="@odg.Redoslijed" type="radio" name="box" @if (Model.KorisnickiOdgovori[a.Id].Contains(odg.Redoslijed)) { <text> checked</text> }>
+                                    <input class="form-check-input" value="@odg.Redoslijed" type="radio" name="box" @if (Model.KorisnickiOdgovori[a.Id].Contains(odg.Redoslijed)) { <text> checked</text> } onchange="spremiOdgovor('@a.Id', @counter)">
                                     <label class="form-check-label">
                                         @odg.Odgovor
                                     </label>
@@ -65,7 +69,7 @@
                         <br />
                         <div  class="d-flex flex-row align-items-center justify-content-between" >
                             <span>Otvoreno do @a.DatumKraja.ToString("dd.MM.yyyy")</span>
-                            <button class="btn btn-outline-success" onclick="spremiOdgovor('@a.Id', @counter)">Spremi</button>
+                            <button class="btn btn-outline-success" >Spremi</button>
 
                         </div>
                     </div>
@@ -81,8 +85,8 @@
                     <h6 class="m-0 font-weight-bold text-primary">Rezultati</h6>
                 </div>
                 <!-- Card Body -->
-                <div class="card-body" style="margin-bottom:0px; margin-top:0px; padding-bottom: 0px; padding-top:0px">
-                    <div class="chart-pie pt-4 pb-2" style="padding-top:0px; padding-bottom:0px">
+                <div class="card-body" style=" margin-top:0px;  padding-top:0px">
+                    <div class="chart-pie pt-4 pb-2" style="padding-top:0px; ">
                         <canvas id="graf-@a.Id"></canvas>
                     </div>
                     <script>
@@ -145,9 +149,13 @@
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <div>
                         <img src="@a.IdKorisnikNavigation.Slika" alt="profpic" style="border-radius:50%; width:30px; height:30px">
-                        @a.IdKorisnikNavigation.Ime @a.IdKorisnikNavigation.Prezime  <text class="small text-muted"> | @a.DatumPostavljanja</text>
-                    </div>                    <div>
-                        <a style="right:0px;"><i class="fa fa-trash-o"></i></a>
+                        @a.IdKorisnikNavigation.Ime @a.IdKorisnikNavigation.Prezime  <text class="small text-muted"> | @a.DatumPostavljanja.ToString("dd.MM.yyyy. HH:mm")</text>
+                    </div>                    
+                    <div>
+                        @if (Model.Admin || a.IdKorisnik == Model.IdKorisnik)
+                        {
+                            <form asp-action="ObrisiPitanje" asp-route-id="@a.Id" method="post"><button type="submit" class="btn btn-outline-secondary"><i class="fa fa-trash-o hoverable"></i></button></form>
+                        }
                     </div>
                 </div>
                 <!-- Card Body -->
@@ -190,8 +198,8 @@
                     <h6 class="m-0 font-weight-bold text-primary">Rezultati</h6>
                 </div>
                 <!-- Card Body -->
-                <div class="card-body" style="margin-bottom:0px; margin-top:0px; padding-bottom: 0px; padding-top:0px">
-                    <div class="chart-pie pt-4 pb-2" style="padding-top:0px; padding-bottom:0px">
+                <div class="card-body" style="padding-top:0px; ">
+                    <div class="chart-pie pt-4 pb-2" style="padding-top:0px;">
                         <canvas id="graf-@a.Id"></canvas>
                     </div>
                     <script>

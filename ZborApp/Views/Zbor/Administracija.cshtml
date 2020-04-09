@@ -169,11 +169,20 @@
             </div>
             <!-- Card Body -->
             <div class="card-body">
+                @if(ViewData["mess"] != null) { <alert class="alert-danger">@ViewData["mess"]</alert>}
                 <form asp-action="UcitajClanove" asp-route-id="@Model.Zbor.Id" method="post" enctype="multipart/form-data">
-                    <div class="row"><input type="file" name="file" /></div>
+                    <label class="btn btn-outline-secondary hoverable" for="my-file-selector">
+                        <input id="my-file-selector" type="file" name="file" style="display:none"
+                               onchange="$('#upload-file-info').html(this.files[0].name)">
+                        Odaberi
+                    </label>
+                    <span class='label label-info' id="upload-file-info">Učitajte datoteku</span>
+
+
+
                     <div class="row d-flex flex-row align-items-center justify-content-between">
                         &nbsp;
-                        <button class="btn btn-outline-secondary" type="submit">Učitaj članove u xls formatu</button>
+                        <button class="btn btn-outline-secondary" type="submit">Učitaj članove u xlsx formatu</button>
 
                     </div>
                 </form>

@@ -254,7 +254,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdObavijestNavigation)
                     .WithMany(p => p.KomentarObavijesti)
                     .HasForeignKey(d => d.IdObavijest)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_KomentarObavijesti_Obavijest");
             });
 
@@ -305,7 +305,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdKomentarNavigation)
                     .WithMany(p => p.LajkKomentara)
                     .HasForeignKey(d => d.IdKomentar)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_LajkKomentara_KomentarObavijesti");
 
                 entity.HasOne(d => d.IdKorisnikNavigation)
@@ -332,7 +332,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdObavijestNavigation)
                     .WithMany(p => p.LajkObavijesti)
                     .HasForeignKey(d => d.IdObavijest)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_LajkObavijesti_Obavijest");
             });
 
@@ -429,7 +429,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdObavijestNavigation)
                     .WithMany(p => p.ObavijestVezanaUzProjekt)
                     .HasForeignKey(d => d.IdObavijest)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_ObavijestVezanaUzProjekt_Obavijest");
 
                 entity.HasOne(d => d.IdProjektNavigation)
@@ -450,7 +450,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdAnketaNavigation)
                     .WithMany(p => p.OdgovorAnkete)
                     .HasForeignKey(d => d.IdAnketa)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_OdgovorAnkete_Anketa");
             });
 
@@ -469,7 +469,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdOdgovorNavigation)
                     .WithMany(p => p.OdgovorKorisnikaNaAnketu)
                     .HasForeignKey(d => d.IdOdgovor)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_OdgovorKorisnikaNaAnketu_OdgovorAnkete");
             });
 

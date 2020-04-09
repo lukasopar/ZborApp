@@ -3,7 +3,9 @@
     ViewData["Title"] = "Novo pitanje";
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Novo pitanje</h1>
+</div>
 
 <head>
     <meta charset="UTF-8">
@@ -16,15 +18,19 @@
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css" />
 </head>
 <body>
-    <div >
+    <div>
         <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary">Postavi pitanje</h6>
             </div>
-            <div class="card-body" >
+            <div class="card-body">
                 <div class="card-text">
+                    @if (ViewData["Model"] != null)
+                    {
+                        <alert class="alert-danger">Ispravno ispunite pitanje</alert>
+                    }
                     <form asp-action="NovaAnketa" method="post" id="formy">
-                        
+
                         <div class="row">
                             <div>
 
@@ -38,15 +44,15 @@
 
 
                                         <textarea asp-for="Json" id="testic" style="display:none"></textarea>
-                                        <h2 id="current-question-title">Pitanje </h2> <!-- Change this when moving to next question (#question-title)-->
-                                        <div class="row d-flex justify-content-between align-items-center" style="padding-left:25px; padding-right:25px">
-                                           
-                                                <label style="float:left" asp-for="DatumKraj"> Datum završetka: &nbsp;</label>
-                                                <span style="width:20%; float:right"class="input-group input-append date" id="datePicker">
-                                                    <input asp-for="DatumKraj" type="text" class="form-control" name="DatumKraj" id="proba" readonly style="background-color:white" /><span asp-validation-for="DatumKraj"></span>
-                                                    <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
-                                                </span>
-                                           
+                                        <h2 id="current-question-title"> </h2> <!-- Change this when moving to next question (#question-title)-->
+                                        <div class="row d-flex justify-content-between align-items-center" style="padding-left:25px; padding-right:25px; padding-bottom:10px">
+
+                                            <label style="float:left" asp-for="DatumKraj"> Rok za odgovaranje: &nbsp;</label>
+                                            <span style="width:20%; float:right" class="input-group input-append date" id="datePicker">
+                                                <input asp-for="DatumKraj" type="text" class="form-control" name="DatumKraj" id="proba" readonly style="background-color:white" /><span asp-validation-for="DatumKraj" class="text-danger"></span>
+                                                <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+                                            </span>
+
 
                                         </div>
                                         <div>
@@ -57,10 +63,10 @@
                                                 <tbody id="quiz-control">
                                                     <tr>
                                                         <td>
-                                                            <button type="button" id="dodaj" class="btn btn-outline-info "> Dodaj odgovor </button>
+                                                            <button type="button" id="dodaj" class="btn btn-outline-secondary "> Dodaj odgovor </button>
                                                         </td>
                                                         <td class="text-right">
-                                                            <button type="button" id="predaj" class="btn btn-outline-success"> Završi! </button>
+                                                            <button type="button" id="predaj" class="btn btn-outline-primary"> Završi! </button>
                                                         </td>
                                                     </tr>
                                                 </tbody>
@@ -83,7 +89,7 @@
 </body>
 @section Scripts {
 
- 
+
     <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/js/bootstrap-datepicker.min.js"></script>
     <script>
         $(document).ready(function () {

@@ -10,5 +10,8 @@ namespace ZborApp.Models.ForumViewModels
     {
         public List<KategorijaForuma> KategorijaForuma { get; set; }
         public Forum Novi { get; set; }
+        public bool Mod { get; set; }
+        public bool Admin { get; set; }
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace ZborData.Model
@@ -13,7 +14,9 @@ namespace ZborData.Model
         }
 
         public Guid Id { get; set; }
+        [Required(ErrorMessage = "Naziv je obavezan.")]
         public string Naziv { get; set; }
+        [Required(ErrorMessage = "Opis je obavezan.")]
         public string Opis { get; set; }
         public Guid IdKategorijaForuma { get; set; }
         public virtual KategorijaForuma IdKategorijaForumaNavigation {get; set;}

@@ -16,7 +16,7 @@ namespace ZborApp.Models.ZborViewModels
         public Dictionary<string, List<ClanNaProjektu>> ClanoviProjekta { get; set; } = new Dictionary<string, List<ClanNaProjektu>>();
         public List<ClanNaProjektu> NerazvrstaniClanovi { get; set; } = new List<ClanNaProjektu>();
         public List<Guid> Evidencija { get; set; }
-
+        public bool isAdmin { get; set; }
         public Guid IdDogadjaj { get; set; }
 
 

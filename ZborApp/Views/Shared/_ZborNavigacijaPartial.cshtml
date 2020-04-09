@@ -1,4 +1,10 @@
 @using ZborData.Account
+@using Microsoft.AspNetCore.Identity
+@using ZborApp.Models
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject ZborData.Model.ZborDatabaseContext ctx
 
 @{
     var zborId = ViewData["zborId"];
@@ -27,18 +33,18 @@
     </div>
     <!-- Nav Item - Dashboard -->
     <li class="nav-item">
-        <a class="nav-link"  asp-controller="Zbor" asp-action="Profil" asp-route-id="@zborId">
+        <a class="nav-link" asp-controller="Zbor" asp-action="Profil" asp-route-id="@zborId">
             <i class="fa fa-folder-o"></i>
             <span>Obavijesti</span>
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link"  asp-controller="Zbor" asp-action="Pitanja" asp-route-id="@zborId">
+        <a class="nav-link" asp-controller="Zbor" asp-action="Pitanja" asp-route-id="@zborId">
             <i class="fa fa-question-circle"></i>
             <span>Pitanja</span>
         </a>
     </li>
-    <li class="nav-item" >
+    <li class="nav-item">
         <a class="nav-link" asp-controller="Zbor" asp-action="Kalendar" asp-route-id="@zborId">
             <i class="fa fa-calendar"></i>
             <span>Kalendar</span>
@@ -50,6 +56,18 @@
             <span>Projekti</span>
         </a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link" asp-controller="Repozitorij" asp-action="Zbor" asp-route-id="@zborId">
+            <i class="fa fa-tasks"></i>
+            <span>Repozitorij</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" asp-controller="Zbor" asp-action="JavniProfil" asp-route-id="@zborId">
+            <i class="fa fa-tasks"></i>
+            <span>Javni profil</span>
+        </a>
+    </li>
 
     <!-- Divider -->
     <hr class="sidebar-divider">
@@ -59,7 +77,7 @@
         Administracija
     </div>
     <li class="nav-item">
-        <a class="nav-link" href="index.html">
+        <a class="nav-link" asp-controller="Zbor" asp-action="Pretplate" asp-route-id="@zborId">
             <i class="fa fa-sticky-note"></i>
             <span>Pretplate</span>
         </a>
@@ -81,4 +99,47 @@
     </div>
 
 
+}
+else
+{
+    <hr class="sidebar-divider my-0" />
+    var kor = ctx.Korisnik.Where(k => k.Id == Guid.Parse(UserManager.GetUserId(User))).SingleOrDefault();
+    
+    <!-- Nav Item - Dashboard -->
+    <li class="nav-item">
+        <a class="nav-link" asp-controller="Korisnik" asp-action="Index" asp-route-id="@kor.Id">
+            <i class="fa fa-home"></i>
+            <span>@kor.ImeIPrezime()</span>
+        </a>
+    </li>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider">
+    <!-- Heading -->
+
+    <!-- Nav Item - Dashboard -->
+    <li class="nav-item">
+        <a class="nav-link" asp-controller="Poruke" asp-action="Index">
+            <i class="fa fa-folder-o"></i>
+            <span>Poruke</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#">
+            <i class="fa fa-folder-o"></i>
+            <span>Obavijesti</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" asp-controller="Repozitorij" asp-action="Korisnik" asp-route-id="@kor.Id">
+            <i class="fa fa-folder-o"></i>
+            <span>Repozitorij</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" asp-controller="Forum" asp-action="Index">
+            <i class="fa fa-folder-o"></i>
+            <span>Forum</span>
+        </a>
+    </li>
 }

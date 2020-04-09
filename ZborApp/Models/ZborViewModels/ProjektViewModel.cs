@@ -17,7 +17,7 @@ namespace ZborApp.Models.ZborViewModels
         public IEnumerable<Obavijest> Obavijesti { get; set; }
         public Guid IdKorisnik { get; set; }
         public bool Admin { get; set; }
-        
+        public bool Clan { get; set; }
         public string Slika { get; set; }
         public string ImeIPrezime { get; set; }
     }

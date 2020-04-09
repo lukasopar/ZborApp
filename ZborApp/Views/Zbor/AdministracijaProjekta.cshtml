@@ -7,8 +7,7 @@
         <h1 class="h3 mb-0 text-gray-800">Administracija projekta @Model.Projekt.Naziv</h1>
         <div>
             <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fa fa-trash-o"></i>Završi projekt</a>
-            <button asp-controller="Zbor" asp-action="ObrisiProjekt" class="d-none d-sm-inline-block btn btn-sm btn-danger shadow-sm"><i class="fa fa-key"></i>Obriši projekt</button>
-            <form asp-action="ObrisiProjekt"><input asp-for="IdBrisanje" value="@Model.Projekt.Id" hidden style="display:none" /><button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-danger shadow-sm"><i class="fa fa-key"></i>Obriši projekt</button></form>
+            <form asp-action="ObrisiProjekt"><input asp-for="IdBrisanje" value="@Model.Projekt.Id" hidden style="display:none" /><button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm"><i class="fa fa-key"></i>Obriši projekt</button></form>
 
         </div>
     </div>
@@ -87,7 +86,7 @@
         <div class="card shadow mb-4">
             <!-- Card Header - Dropdown -->
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">Prijave za zbor</h6>
+                <h6 class="m-0 font-weight-bold text-primary">Prijave za projekt</h6>
             </div>
             <!-- Card Body -->
             <div class="card-body">
@@ -96,7 +95,7 @@
                         @if (Model.Projekt.PrijavaZaProjekt == null || Model.Projekt.PrijavaZaProjekt.Count() == 0)
                         {<p id="nemaPrijava">Nema prijava za zbor.</p>}
                         else
-                        {<p id="nemaPrijava" style="display:none">Nema prijava za zbor.</p>}
+                        {<p id="nemaPrijava" style="display:none">Nema prijava za projekt.</p>}
 
                         @foreach (var prijava in Model.Projekt.PrijavaZaProjekt)
                         {
@@ -120,7 +119,7 @@
         <div class="card shadow mb-4">
             <!-- Card Header - Dropdown -->
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">Pretraga korisnika</h6>
+                <h6 class="m-0 font-weight-bold text-primary">Dodavanje korisnika</h6>
             </div>
             <!-- Card Body -->
             <div class="card-body">
@@ -202,7 +201,6 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Zatvori</button>
-                    <button type="button" class="btn btn-primary" onclick="promjenaGlasa()">Promijeni</button>
                 </div>
             </div>
         </div>
@@ -280,12 +278,15 @@
                     console.log(response.evidentirani);
                     $("#dolasci").text("Dolazak na " + response.evidentirani.length + " od " + (response.neevidentirani.length + response.evidentirani.length) + " (" + response.postotak.toFixed(2) + "%).");
                     var i = 0;
+                    $("#evidentirano").empty();
+                  
                     for (i = 0; i < response.evidentirani.length; i++) {
                         var newP = '<div class="row d-flex justify-content-between align-items-center " style="padding-left:15px;padding-bottom:7px"><a href="/Zbor/Dogadjaj/' + response.evidentirani[i].id + '">' + response.evidentirani[i].naziv + '</a> ' + response.evidentirani[i].datum + '</div>';
                         $("#evidentirano").append(newP);
                     }
+                    $("#neevidentirano").empty();
                     for (i = 0; i < response.neevidentirani.length; i++) {
-                        var newP = '<div class="row d-flex justify-content-between align-items-center " style="padding-left:15px;padding-bottom:7px"><a href="/Zbor/Dogadjaj/' + response.neevidentirani[i].id + '">' + response.neevidentirani[i].naziv + '</a> ' + response.neevidentirani[i].datum + '</div>';
+                        var newP = '<div class="row d-flex justify-content-between align-items-center " style="padding-right:15px;padding-left:15px;padding-bottom:7px"><a href="/Zbor/Dogadjaj/' + response.neevidentirani[i].id + '">' + response.neevidentirani[i].naziv + '</a> ' + response.neevidentirani[i].datum + '</div>';
                         $("#neevidentirano").append(newP);
                     }
                     $("#loading").hide()

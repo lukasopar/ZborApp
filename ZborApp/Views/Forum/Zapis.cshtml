@@ -5,7 +5,7 @@
 }
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote.min.css" rel="stylesheet">
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">NASdlobfaabfdb</h1>
+    <h1 class="h3 mb-0 text-gray-800">@Model.Naslov</h1>
 </div>
 
 <body>
@@ -28,27 +28,33 @@
                         <div>
                             @zapis.DatumIvrijeme.ToString("dd.MM.yyyy. HH:mm")
                         </div>
-                        <div>
+                        @if (Model.Mod || zapis.IdKorisnik == Model.IdKorisnik)
+                        {
+                            <div class="row">
 
-                            <button id="Uredi-@zapis.Id" class="btn btn-outline-secondary" onclick="edit('@zapis.Id')" type="button">Uredi</button>
-                            <button id="Spremi-@zapis.Id" class="btn btn-outline-secondary" onclick="save('@zapis.Id')" type="button" style="display:none">Spremi</button>
-                            <form asp-action="ObrisiZapis" asp-route-page="@Model.PagingInfo.CurrentPage"><input asp-for="IdBrisanje" value="@zapis.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Obriši</button></form>
-                        </div>
+                                <button id="Uredi-@zapis.Id" class="btn btn-outline-secondary btn-sm" onclick="edit('@zapis.Id')" type="button">Uredi</button>
+                                <button id="Spremi-@zapis.Id" class="btn btn-outline-secondary btn-sm" onclick="save('@zapis.Id')" type="button" style="display:none">Spremi</button>
+                                <form asp-action="ObrisiZapis" asp-route-page="@Model.PagingInfo.CurrentPage" style="padding-left:5px"><input asp-for="IdBrisanje" value="@zapis.Id" hidden style="display:none" /><button class="btn btn-outline-secondary btn-sm" type="submit">Obriši</button></form>
+                            </div>
+                        }
+
                     </div>
 
 
 
                     <div class="card-body">
-                        <div class="row">
+                        
+                        <div class="card-text">
+                            <div class="row">
 
-                            <div class="col-3">
-                                <div class="card-title"><a href="#">@zapis.IdKorisnikNavigation.ImeIPrezime()</a></div>
-                                <p><img alt="profpic" style="border-radius:50%; width:30px; height:30px" src="@zapis.IdKorisnikNavigation.Slika"></p>
+                                <div class="col-3 border-right border-dark" >
+                                    <div class="card-title"><a href="#">@zapis.IdKorisnikNavigation.ImeIPrezime()</a></div>
+                                    <p><img alt="profpic" style="border-radius:50%; width:30px; height:30px" src="@zapis.IdKorisnikNavigation.Slika"></p>
+                                </div>
+                                <div class="col-9"> <div id="Zapis-@zapis.Id" class="summernote">@Html.Raw(zapis.Tekst)</div></div>
                             </div>
-                            <div class="col-9"> <div id="Zapis-@zapis.Id" class="summernote">@Html.Raw(zapis.Tekst)</div></div>
+
                         </div>
-
-
 
 
                     </div>
@@ -72,18 +78,15 @@
                         <div class="card-text">
                             <form id="formy" style="width:100%" asp-route-returnUrl="@ViewData["ReturnUrl"]" asp-action="Zapis" method="post">
                                 <div asp-validation-summary="All" class="text-danger"></div>
-                                <div class="row">
 
-                                        <label asp-for="Novi.Tekst"></label>
-                                        <textarea class="col-md-12 form-control" asp-for="Novi.Tekst" id="summernote"></textarea>
-                                        <span asp-validation-for="Novi.Tekst" class="text-danger"></span>
-                                        <input asp-for="Novi.IdTema" value="@Model.IdTema" style="display:none" />
-                                </div>
+                                       
+                                <textarea class=" form-control" asp-for="Novi.Tekst" id="summernote" style="resize:none; height: 300px; width:700px"></textarea>
+                                <span asp-validation-for="Novi.Tekst" class="text-danger"></span>
+                                <input asp-for="Novi.IdTema" value="@Model.IdTema" style="display:none" />
 
-
+                                <br />
                                 <div class="row">
                                     <div class="col-md-6 d-flex flex-row align-items-center justify-content-between">
-                                        &nbsp;
                                         <button type="submit" class="btn btn-outline-info">Dodaj</button>
                                     </div>
                                 </div>

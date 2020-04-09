@@ -32,30 +32,56 @@ namespace ZborApp.Controllers
     {
         private readonly AppSettings appData = new AppSettings();
 
-        private readonly ILogger<ZborController> _logger;
+        private readonly ILogger<ForumController> _logger;
         private readonly ZborDatabaseContext _ctx;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
-        public ForumController(ILogger<ZborController> logger, ZborDatabaseContext ctx, UserManager<ApplicationUser> userManager)
+        public ForumController(ILogger<ForumController> logger, ZborDatabaseContext ctx, UserManager<ApplicationUser> userManager)
         {
             _logger = logger;
             _ctx = ctx;
             _userManager = userManager;
             _emailSender = new EmailSender();
         }
+        private bool isAdmin(Guid id)
+        {
+            return _ctx.AdministratorForuma.Find(id) == null ? false : true;
+        }
+        private bool isMod(Guid id)
+        {
+            return _ctx.AdministratorForuma.Find(id) == null ? false : true || _ctx.ModForum.Find(id) == null?false:true;
+        }
         public async Task<IActionResult> Index()
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            bool mod = isMod(user.Id);
             var model = new IndexViewModel
             {
-                KategorijaForuma = _ctx.KategorijaForuma.Include(k => k.Forum).ThenInclude(f => f.Tema).OrderBy(k => k.Redoslijed).ToList()
+                KategorijaForuma = _ctx.KategorijaForuma.Include(k => k.Forum).ThenInclude(f => f.Tema).OrderBy(k => k.Redoslijed).ToList(),
+                Mod = mod,
+                Admin = isAdmin(user.Id)
             };
             return View(model);
         }
         [HttpPost]
-        public IActionResult Index(IndexViewModel model)
+        public async Task<IActionResult> Index(IndexViewModel model)
         {
-            if(ModelState.IsValid)
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            bool mod = isMod(user.Id);
+            if (!mod)
+            {
+                return RedirectToAction("Prava", "Zbor");
+            }
+            if (model.Novi.Naziv.Trim().Equals(""))
+                ModelState.AddModelError("Naziv", "Naziv je obavezan");
+            if (model.Novi.Opis.Trim().Equals(""))
+                ModelState.AddModelError("Opis", "Opis je obavezan");
+            if(_ctx.Forum.Where(f => f.Naziv.Equals(model.Novi.Naziv)).SingleOrDefault() != null)
+            {
+                ModelState.AddModelError("Opis", "Podforum ovog naziva već postoji.");
+
+            }
+            if (ModelState.IsValid)
             {
                 model.Novi.Id = Guid.NewGuid();
                 _ctx.Forum.Add(model.Novi);
@@ -69,7 +95,10 @@ namespace ZborApp.Controllers
         public async Task<IActionResult> Tema(TemeViewModel model)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-
+            if (model.Nova.Naslov.Trim().Equals(""))
+                ModelState.AddModelError("Naslov", "Naslov je obavezan");
+            if (model.Tekst.Trim().Equals(""))
+                ModelState.AddModelError("Tekst", "Zapis je obavezan");
             if (ModelState.IsValid)
             {
                 model.Nova.Id = Guid.NewGuid();
@@ -94,10 +123,16 @@ namespace ZborApp.Controllers
             return View(model);
         }
         [HttpGet]
-        public IActionResult Tema(Guid id, [FromQuery] int page = 1)
+        public async Task<IActionResult> Tema(Guid id, [FromQuery] int page = 1)
         {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            bool mod = isMod(user.Id);
             int pagesize = appData.PageSize;
-
+            var forum = _ctx.Forum.Find(id);
+            if (forum == null)
+            {
+                return RedirectToAction("Nema", "Greska");
+            }
             var teme = _ctx.Tema.Where(t => t.IdForum == id);
             var pagingInfo = new PagingInfo
             {
@@ -128,17 +163,26 @@ namespace ZborApp.Controllers
             {
                 Teme = trazeneTeme,
                 PagingInfo = pagingInfo,
-                IdForum = id
+                IdForum = id,
+                Mod = mod,
+                IdKorisnik = user.Id,
+                Naslov = forum.Naziv
             };
 
             return View(model);
         }
 
         [HttpGet]
-        public IActionResult Zapis(Guid id, [FromQuery] int page = 1)
+        public async Task<IActionResult> Zapis(Guid id, [FromQuery] int page = 1)
         {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            bool mod = isMod(user.Id);
             int pagesize = appData.PageSize;
-
+            var tema = _ctx.Tema.Find(id);
+            if (tema == null)
+            {
+                return RedirectToAction("Nema", "Greska");
+            }
             var teme = _ctx.Zapis.Where(t => t.IdTema == id);
             var pagingInfo = new PagingInfo
             {
@@ -172,7 +216,10 @@ namespace ZborApp.Controllers
             {
                 Zapisi = trazeniZapis,
                 PagingInfo = pagingInfo,
-                IdTema = id
+                IdTema = id,
+                IdKorisnik = user.Id,
+                Mod = mod,
+                Naslov = tema.Naslov
             };
 
             return View(model);
@@ -181,7 +228,8 @@ namespace ZborApp.Controllers
         public async Task<IActionResult> Zapis(ZapisVIewModel model)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-
+            if (model.Novi.Tekst.Trim().Equals(""))
+                ModelState.AddModelError("Tekst", "Zapis je obavezan");
             if (ModelState.IsValid)
             {
                 model.Novi.Id = Guid.NewGuid();
@@ -200,29 +248,53 @@ namespace ZborApp.Controllers
         public async Task<IActionResult> Uredi([FromBody] PretragaModel model)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            _ctx.Zapis.Find(Guid.Parse(model.Id)).Tekst = model.Tekst;
+            Guid idZapis;
+            var flag = Guid.TryParse(model.Id, out idZapis);
+            if (flag == false)
+                return BadRequest();
+            var zapis = _ctx.Zapis.Find(idZapis);
+            if (zapis == null)
+                return NotFound();
+            if (!isMod(user.Id) && zapis.IdKorisnik != user.Id)
+                return Forbid();
+            zapis.Tekst = model.Tekst;
             _ctx.SaveChanges();
             return Ok();
         }
         [HttpPost]
-        public IActionResult ObrisiZapis(ZapisVIewModel model, int page = 1)
+        public async Task<IActionResult> ObrisiZapis(ZapisVIewModel model, int page = 1)
         {
-            var zap = _ctx.Zapis.Find(model.IdBrisanje);
-            _ctx.Zapis.Remove(zap);
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+
+            var zapis = _ctx.Zapis.Find(model.IdBrisanje);
+            if(zapis == null)
+                return RedirectToAction("Nema", "Greska");
+            if (!isMod(user.Id) && zapis.IdKorisnik != user.Id)
+                return RedirectToAction("Prava", "Zbor");
+            _ctx.Zapis.Remove(zapis);
             _ctx.SaveChanges();
-            return RedirectToAction("Zapis", new { id = zap.IdTema, page = page });
+            return RedirectToAction("Zapis", new { id = zapis.IdTema, page = page });
         }
         [HttpPost]
-        public IActionResult ObrisiTema(TemeViewModel model, int page = 1)
+        public async Task<IActionResult> ObrisiTema(TemeViewModel model, int page = 1)
         {
-            var zap = _ctx.Tema.Find(model.IdBrisanje);
-            _ctx.Tema.Remove(zap);
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            var zapis = _ctx.Tema.Find(model.IdBrisanje);
+            if (zapis == null)
+                return RedirectToAction("Nema", "Greska");
+            if (!isMod(user.Id) && zapis.IdKorisnik != user.Id)
+                return RedirectToAction("Prava", "Zbor");
+            _ctx.Tema.Remove(zapis);
             _ctx.SaveChanges();
-            return RedirectToAction("Tema", new { id = zap.IdForum, page = page });
+            return RedirectToAction("Tema", new { id = zapis.IdForum, page = page });
         }
         [HttpGet]
-        public IActionResult Administracija()
+        public async Task<IActionResult> Administracija()
         {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+
+            if (!isAdmin(user.Id))
+                return RedirectToAction("Prava", "Zbor");
             AdministracijaViewModel model = new AdministracijaViewModel
             {
 
@@ -241,8 +313,12 @@ namespace ZborApp.Controllers
             return Ok(korisnici);
         }
         [HttpGet]
-        public IActionResult PostaviAdministratora(Guid id)
+        public async Task<IActionResult> PostaviAdministratora(Guid id)
         {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+
+            if (!isAdmin(user.Id))
+                return RedirectToAction("Prava", "Zbor");
             var admin = _ctx.AdministratorForuma.Find(id);
             if(admin != null)
             {
@@ -266,8 +342,12 @@ namespace ZborApp.Controllers
             return View("Administracija", model);
         }
         [HttpGet]
-        public IActionResult PostaviModeratora(Guid id)
+        public async Task<IActionResult> PostaviModeratora(Guid id)
         {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+
+            if (!isAdmin(user.Id))
+                return RedirectToAction("Prava", "Zbor");
             var mod = _ctx.ModForum.Find(id);
             if (mod != null)
             {
@@ -290,17 +370,32 @@ namespace ZborApp.Controllers
             return View("Administracija", model);
         }
         [HttpPost]
-        public IActionResult ObrisiAdministratora(AdministracijaViewModel model)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ObrisiAdministratora(AdministracijaViewModel model)
         {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+
+            if (!isAdmin(user.Id))
+                return RedirectToAction("Prava", "Zbor");
             var zap = _ctx.AdministratorForuma.Find(model.IdCilj);
+            if(zap == null)
+                return RedirectToAction("Administracija");
+
             _ctx.AdministratorForuma.Remove(zap);
             _ctx.SaveChanges();
             return RedirectToAction("Administracija");
         }
         [HttpPost]
-        public IActionResult ObrisiModeratora(AdministracijaViewModel model)
+        public async Task<IActionResult> ObrisiModeratora(AdministracijaViewModel model)
         {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+
+            if (!isAdmin(user.Id))
+                return RedirectToAction("Prava", "Zbor");
             var zap = _ctx.ModForum.Find(model.IdCilj);
+            if (zap == null)
+                return RedirectToAction("Administracija");
+
             _ctx.ModForum.Remove(zap);
             _ctx.SaveChanges();
             return RedirectToAction("Administracija");

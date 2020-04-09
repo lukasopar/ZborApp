@@ -28,29 +28,24 @@ using ZborData.Model;
 namespace ZborApp.Controllers
 {
     [Authorize]
-    public class KorisnikController : Controller
+    public class GreskaController : Controller
     {
         private readonly AppSettings appData = new AppSettings();
 
-        private readonly ILogger<KorisnikController> _logger;
+        private readonly ILogger<GreskaController> _logger;
         private readonly ZborDatabaseContext _ctx;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
-        public KorisnikController(ILogger<KorisnikController> logger, ZborDatabaseContext ctx, UserManager<ApplicationUser> userManager)
+        public GreskaController(ILogger<GreskaController> logger, ZborDatabaseContext ctx, UserManager<ApplicationUser> userManager)
         {
             _logger = logger;
             _ctx = ctx;
             _userManager = userManager;
             _emailSender = new EmailSender();
         }
-        public async Task<IActionResult> Index(Guid id)
+        public IActionResult Nema()
         {
-            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            var model = new IndexViewModel
-            {
-                KategorijaForuma = _ctx.KategorijaForuma.Include(k => k.Forum).ThenInclude(f => f.Tema).OrderBy(k => k.Redoslijed).ToList()
-            };
-            return View(model);
+            return View();
         }
     }
 }

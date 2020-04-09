@@ -3,67 +3,15 @@
 @{
     ViewData["Title"] = "Forum";
 }
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Forum</h1>
-</div>
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Forum</h1>
+        @if (Model.Admin)
+        {<a asp-action="Administracija" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Administracija</a>}
+    </div>
 
 <body>
 
-    <div class="row">
 
-        <!-- Area Chart -->
-        <div class="col-xl-8 col-lg-7">
-            <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Novi podforum</h6>
-                </div>
-                <!-- Card Body -->
-                <div class="card-body">
-                    <div class="card-text">
-                        <form id="formy" style="width:100%" asp-route-returnUrl="@ViewData["ReturnUrl"]" asp-action="Index" method="post">
-                            <div asp-validation-summary="All" class="text-danger"></div>
-                            <div class="row">
-
-                                <div class="form-group col-md-6">
-                                    <label asp-for="Novi.Naziv"></label>
-                                    <input asp-for="Novi.Naziv" class="form-control" />
-                                    <span asp-validation-for="Novi.Naziv" class="text-danger"></span>
-                                </div>
-                            </div>
-
-                            <label asp-for="Novi.Opis">Opis:</label>
-                            <span asp-validation-for="Novi.Opis" class="text-danger"></span>
-
-
-                            <textarea class="col-md-12 form-control" asp-for="Novi.Opis" style="resize:none; height: 100px; width:300px"></textarea>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <label>Kategorija:</label>
-
-                                    <select class="form-control" asp-for="Novi.IdKategorijaForuma">
-                                        @foreach (var kat in Model.KategorijaForuma)
-                                        {
-                                            <option value="@kat.Id">@kat.Naziv</option>
-                                        }
-                                    </select>
-                                </div>
-                                <div class="col-md-6 d-flex flex-row align-items-center justify-content-between">
-                                    &nbsp;
-                                    <button type="submit" class="btn btn-outline-info">Dodaj</button>
-                                </div>
-                            </div>
-
-
-
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div>
 
 
     @foreach (var kat in Model.KategorijaForuma)
@@ -85,29 +33,90 @@
 
 
                     <div class="card-body">
-                        @foreach(var forum in kat.Forum.OrderBy(f => f.Naziv))
+                        @foreach (var forum in kat.Forum.OrderBy(f => f.Naziv))
                         {
                             <div class="row">
-                       
+
                                 <div class="col-8">
-                                   
+
                                     <div class="card-title"><a asp-action="Tema" asp-route-id="@forum.Id" asp-route-page="1">@forum.Naziv</a></div>
                                     <p>@forum.Opis</p>
                                 </div>
                                 <div class="col-2"> @forum.Tema.Count</div>
                                 <div class="col-2">
-                                @{ var zadnja = forum.ZadnjaTema();}
-                                @if (zadnja == null) { <text>Nema</text> }
-                                else { <a href="#">@zadnja.Naslov</a> <p>@zadnja.ZadnjiZapis.ToString("dd.MM.yyyy. HH:mm")</p>}
+                                    @{ var zadnja = forum.ZadnjaTema();}
+                                    @if (zadnja == null)
+                                    {<text>Nema</text> }
+                                else
+                                { <a asp-action="Zapis" asp-route-id="@zadnja.Id" asp-route-page="0">@zadnja.Naslov</a> <p>@zadnja.ZadnjiZapis.ToString("dd.MM.yyyy. HH:mm")</p>}
                                 </div>
                             </div>
-                            
+
                         }
-                    
+
 
                     </div>
                 </div>
             </div>
         </div>
     }
-    </body>
+    @if (Model.Mod)
+    {
+        <div class="row">
+
+            <!-- Area Chart -->
+            <div class="col-xl-8 col-lg-7">
+                <div class="card shadow mb-4">
+                    <!-- Card Header - Dropdown -->
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Novi podforum</h6>
+                    </div>
+                    <!-- Card Body -->
+                    <div class="card-body">
+                        <div class="card-text">
+                            <form id="formy" style="width:100%" asp-route-returnUrl="@ViewData["ReturnUrl"]" asp-action="Index" method="post">
+                                <div asp-validation-summary="All" class="text-danger"></div>
+                                <div class="row">
+
+                                    <div class="form-group col-md-6">
+                                        <label asp-for="Novi.Naziv"></label>
+                                        <input asp-for="Novi.Naziv" class="form-control" />
+                                        <span asp-validation-for="Novi.Naziv" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <label asp-for="Novi.Opis">Opis:</label>
+                                <span asp-validation-for="Novi.Opis" class="text-danger"></span>
+
+
+                                <textarea class="col-md-12 form-control" asp-for="Novi.Opis" style="resize:none; height: 100px; width:300px"></textarea>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Kategorija:</label>
+
+                                        <select class="form-control" asp-for="Novi.IdKategorijaForuma">
+                                            @foreach (var kat in Model.KategorijaForuma)
+                                            {
+                                                <option value="@kat.Id">@kat.Naziv</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 d-flex flex-row align-items-center justify-content-between">
+                                        &nbsp;
+                                        <button type="submit" class="btn btn-outline-info">Dodaj</button>
+                                    </div>
+                                </div>
+
+
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    }
+
+</body>

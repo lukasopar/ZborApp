@@ -15,11 +15,11 @@
     <div class="row">
 
         <!-- Area Chart -->
-        <div class="col-4">
+        <div class="col-3">
             <div class="card shadow mb-4">
                 <!-- Card Header - Dropdown -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Novi podforum</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Administratori</h6>
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
@@ -31,7 +31,7 @@
                                     <a href="#">@admin.IdKorisnikNavigation.ImeIPrezime()</a>
                                 </div>
                                 <div>
-                                    <form asp-action="ObrisiAdministratora"><input asp-for="IdCilj" value="@admin.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Obriši</button></form>
+                                    <form asp-action="ObrisiAdministratora"><input asp-for="IdCilj" value="@admin.Id" hidden style="display:none" /><button class="btn btn-outline-secondary btn-sm" type="submit">Obriši</button></form>
 
                                 </div>
 
@@ -42,7 +42,7 @@
             </div>
         </div>
 
-    <div class="col-4">
+    <div class="col-3">
         <div class="card shadow mb-4">
             <!-- Card Header - Dropdown -->
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -58,7 +58,7 @@
                                 <a href="#">@mod.IdKorisnikNavigation.ImeIPrezime()</a>
                             </div>
                             <div>
-                                <form asp-action="ObrisiModeratora"><input asp-for="IdCilj" value="@mod.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Obriši</button></form>
+                                <form asp-action="ObrisiModeratora"><input asp-for="IdCilj" value="@mod.Id" hidden style="display:none" /><button class="btn btn-outline-secondary btn-sm" type="submit">Obriši</button></form>
 
                             </div>
 
@@ -69,7 +69,7 @@
         </div>
     </div>
 
-    <div class="col-4">
+    <div class="col-6">
         <div class="card shadow mb-4">
             <!-- Card Header - Dropdown -->
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -127,8 +127,8 @@
 
 
                     var $divcol2 = $('<div></div>');
-                    var $button = ('<a  class="btn btn-outline-secondary btn-sm" href="/Forum/PostaviAdministratora/' + response[i].id + '">Postavi administratora</button>');
-                    var $button2 = ('<a  class="btn btn-outline-secondary btn-sm" href="/Forum/PostaviModeratora/' + response[i].id + '">Postavi moderatora</button>');
+                    var $button = ('<a  class="btn btn-outline-secondary btn-sm" href="/Forum/PostaviAdministratora/' + response[i].id + '">Administrator</button>');
+                    var $button2 = ('<a class="btn btn-outline-secondary btn-sm" href="/Forum/PostaviModeratora/' + response[i].id + '">Moderator</button>');
 
                     $divcol2.append($button);
                     $divcol2.append($button2);

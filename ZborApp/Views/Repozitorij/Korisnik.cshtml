@@ -12,17 +12,16 @@
         {
             <div class="container">
                 Dodaj datoteku
-                <form enctype="multipart/form-data" method="post">
-                    <dl>
-                        <dt>
-                            <label asp-for="FormFiles"></label>
-                        </dt>
-                        <dd>
-                            <input asp-for="FormFiles" type="file" multiple>
-                            <span asp-validation-for="FormFiles"></span>
-                        </dd>
-                    </dl>
-                    <input asp-action="Upload" class="btn" type="submit" value="Dodaj" />
+                <form enctype="multipart/form-data" method="post" asp-action="Upload">
+                    <label class="btn btn-outline-secondary hoverable" for="my-file-selector">
+                        <input id="my-file-selector" type="file" asp-for="FormFiles" multiple style="display:none"
+                               onchange="$('#upload-file-info').html(this.files[0].name)">
+                        Odaberi
+                    </label>
+                    <span class='label label-info' id="upload-file-info">Učitajte datoteke</span>
+
+
+                    <button class="btn btn-outline-secondary" type="submit">Učitaj</button>
                 </form>
             </div>
         }
@@ -50,30 +49,35 @@
                             <td>@datoteka.DatumPostavljanja.ToString("dd.MM.yyyy hh:mm")</td>
                             @if (Model.IdTrazeni == Model.IdKorisnik)
                             {
-                                <td>
+                                <td >
                                     @if (datoteka.Privatno)
                                     {
-                                        <div id="Privatno-@datoteka.Id">
-                                            <span style="color:blue">Privatno</span> <button class="btn btn-sm btn-outline-info" onclick="objavi('@datoteka.Id')">Objavi</button>
+                                        <div id="Privatno-@datoteka.Id" style="float:right" >
+                                            <span>Privatno</span> <button class="btn btn-sm btn-outline-primary" onclick="objavi('@datoteka.Id')">Objavi</button>
                                         </div>
-                                        <div id="Javno-@datoteka.Id" style="display:none">
-                                            <span style="color:blue">Javno</span> <button class="btn btn-sm btn-outline-info" onclick="privatiziraj('@datoteka.Id')">Sakrij</button>
+                                        <div id="Javno-@datoteka.Id" style="display:none; float:right">
+                                            <span>Javno</span> <button class="btn btn-sm btn-outline-secondary" onclick="privatiziraj('@datoteka.Id')">Sakrij</button>
                                         </div>
                                     }
                                     else
                                     {
-                                        <div id="Privatno-@datoteka.Id" style="display:none">
-                                            <span style="color:blue">Privatno</span> <button class="btn btn-sm btn-outline-info" onclick="objavi('@datoteka.Id')">Objavi</button>
+                                        <div id="Privatno-@datoteka.Id" style="display:none; float:right">
+                                            <span >Privatno</span> <button class="btn btn-sm btn-outline-primary" onclick="objavi('@datoteka.Id')">Objavi</button>
                                         </div>
-                                        <div id="Javno-@datoteka.Id">
-                                            <span style="color:blue">Javno</span> <button class="btn btn-sm btn-outline-info" onclick="privatiziraj('@datoteka.Id')">Sakrij</button>
+                                        <div id="Javno-@datoteka.Id" style="float:right">
+                                            <span>Javno</span> <button class="btn btn-sm btn-outline-secondary" onclick="privatiziraj('@datoteka.Id')">Sakrij</button>
                                         </div>
                                     }
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-outline-info" onclick="getDialog('@datoteka.Id')"><i class="fa fa-link"></i>Podijeli poveznicu</button>
-                                    <button class="btn btn-sm btn-outline-info edit" data-id="@datoteka.Id"><i class="fa fa-pencil-square-o"></i>Preimenuj</button>
-                                    <form asp-action="Delete"><input asp-for="IdTrazeni" style="display:none" value="@datoteka.Id" /><button class="btn btn-sm btn-outline-danger" type="submit"><i class="fa fa-trash-o"></i>Obriši</button></form>
+                                    <div class="row" style="float:right">
+                                        <button class="btn btn-sm btn-outline-secondary" data-id="@datoteka.Id"  data-toggle="modal" data-target="#dialog"><i class="fa fa-link"></i>Podijeli</button>
+                                        <div style="padding-left:7px">
+                                            <button class="btn btn-sm btn-outline-secondary edit" data-id="@datoteka.Id"><i class="fa fa-pencil-square-o"></i>Preimenuj</button>
+                                        </div>                                        
+                                        <form style="padding-left:7px" asp-action="Delete"><input asp-for="IdTrazeni" style="display:none" value="@datoteka.Id" /><button class="btn btn-sm btn-outline-danger" type="submit"><i class="fa fa-trash-o"></i>Obriši</button></form>
+                                    </div>
+                                   
                                 </td>
                             }
 
@@ -84,8 +88,24 @@
                 </tbody>
             </table>
         </div>
-        <div id="dialog" title="Poveznica" style="display:none">
-            <p id="textdialog"></p>
+        <div class="modal fade" id="dialog" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Osobe kojima se sviđa</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="link"></p>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Zatvori</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </body>
@@ -99,5 +119,13 @@
             $('#datoteke').DataTable();
         });
         bindEdit();
+    </script>
+    <script>
+        $('#dialog').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget) // Button that triggered the modal
+            var id = button.data('id');
+            $("#link").html("/Repozitorij/Get/" + id);
+
+        })
     </script>
 }

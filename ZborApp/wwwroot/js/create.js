@@ -117,7 +117,8 @@ function createQuestionNode(questionId) {
     questionTextNode.setAttribute("placeholder", "Unesi pitanje");
     questionTextNode.setAttribute("size", "100");
     questionTextNode.setAttribute("maxlength", "100");
-    questionTextNode.setAttribute("class", "form-control input-lg");
+    questionTextNode.setAttribute("class", "form-control form-control-lg");
+    questionTextNode.setAttribute("style", "height:80px; font-size:40px");
 
     tdNode.appendChild(questionTextNode);
     trNode.appendChild(tdNode);
@@ -224,7 +225,7 @@ function setCurrentQuestionTo(questionId) {
     // Change current question
     currentQuestion = questionId;
     // Update title with current question
-    document.getElementById("current-question-title").innerHTML = "Pitanje";
+    document.getElementById("current-question-title").innerHTML = "";
     // Remove hidden attribute from current question
     var newCurrentQuestionNode = document.getElementById("question-" + currentQuestion + "-section");
     newCurrentQuestionNode.removeAttribute("hidden");
@@ -283,8 +284,8 @@ function addQuestion() {
 
 function removeOption(target) {
     var optionNode = target.parentNode.parentNode;
-    var parentNode = optionNode.parentNode;
-    parentNode.removeChild(optionNode);
+    var parentNode = optionNode.parentNode.parentNode;
+    parentNode.remove();
 }
 
 function saveQuiz() {

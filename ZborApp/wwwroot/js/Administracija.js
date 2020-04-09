@@ -1,5 +1,5 @@
 ﻿function prihvati(id) {
-    data = { Value: id + '' }
+    data = { Value: id + '' };
     $.ajax({
         type: "POST",
         dataType: "json",
@@ -10,7 +10,7 @@
             withCredentials: true
         }
     }).done(function (response) {
-        console.log(response)
+        console.log(response);
         prijava = '#Prijava-' + id;
 
         $(prijava).remove();
@@ -26,7 +26,7 @@
 }
 
 function odbij(id) {
-    data = { Value: id + '' }
+    data = { Value: id + '' };
     $.ajax({
         type: "POST",
         dataType: "json",
@@ -37,7 +37,7 @@ function odbij(id) {
             withCredentials: true
         }
     }).done(function (response) {
-        prijava = '#Prijava-' + id
+        prijava = '#Prijava-' + id;
         $(prijava).remove();
         if ($("#listaPrijava").children().length === 1) $("#nemaPrijava").show();
 
@@ -49,7 +49,7 @@ function odbij(id) {
 }
 
 function odbaci(id) {
-    data = { Value: id + '' }
+    data = { Value: id + '' };
     $.ajax({
         type: "POST",
         dataType: "json",
@@ -74,7 +74,7 @@ function odbaci(id) {
 function moderiraj(id, idZbor) {
    
 
-    data = { IdKorisnik: id + '', idCilj: idZbor + '' }
+    data = { IdKorisnik: id + '', idCilj: idZbor + '' };
     $.ajax({
         type: "POST",
         dataType: "json",
@@ -99,7 +99,7 @@ function moderiraj(id, idZbor) {
         });
 }
 function odmoderiraj(id) {
-    data = { Value: id + '' }
+    data = { Value: id + '' };
     $.ajax({
         type: "POST",
         dataType: "json",
@@ -122,12 +122,12 @@ function odmoderiraj(id) {
 }
 
 function pretraga(ele, id) {
-    if (event.keyCode != 13) {
+    if (event.keyCode !== 13) {
         return;
     }
     inputPolje = '#pret';
-    $(inputPolje).prop('disabled', true)
-    data = { Tekst: ele.value + '', Id: id + '' }
+    $(inputPolje).prop('disabled', true);
+    data = { Tekst: ele.value + '', Id: id + '' };
     $.ajax({
         type: "POST",
         dataType: "json",
@@ -138,7 +138,7 @@ function pretraga(ele, id) {
             withCredentials: true
         }
     }).done(function (response) {
-        console.log(response)
+        console.log(response);
         $("#rezultati").empty();
         var i;
         for (i = 0; i < response.length; i++) {
@@ -151,7 +151,7 @@ function pretraga(ele, id) {
 
 
             var $divcol2 = $('<div class="col-md-3" id="B-' + response[i].id + '" ></div>');
-            var $button = ('<button type="button"  class="btn btn-outline-secondary btn-sm" data-toggle="modal" data-target="#exampleModal" data-ime="' + response[i].imeIPrezime + '" data-id="' + response[i].id + '">Pozovi</button>');
+            var $button = '<button type="button"  class="btn btn-outline-secondary btn-sm" data-toggle="modal" data-target="#exampleModal" data-ime="' + response[i].imeIPrezime + '" data-id="' + response[i].id + '">Pozovi</button>';
             $divcol2.append($button);
             $newdiv.append($divcol2);
 
@@ -168,14 +168,13 @@ function pretraga(ele, id) {
     })
         .always(function () {
 
-            $(inputPolje).prop('disabled', false)
+            $(inputPolje).prop('disabled', false);
         });
 
 }
 function prijavaAjax(idZbor) {
-    modal = $('#exampleModal')
-    data = { Id: modal.find('#id').text() + '', Naziv: idZbor+'', Poruka: modal.find('#poruka').val() + '' }
-    console.log(data)
+    modal = $('#exampleModal');
+    data = { Id: modal.find('#id').text() + '', Naziv: idZbor + '', Poruka: modal.find('#poruka').val() + '' };
     $.ajax({
         type: "POST",
         dataType: "json",
@@ -186,10 +185,10 @@ function prijavaAjax(idZbor) {
             withCredentials: true
         }
     }).done(function (response) {
-        modal.modal('toggle')
+        modal.modal('toggle');
         id = modal.find('#id').text() + '';
-        testB = '#B-' + id
-        testC = '#T-' + id
+        testB = '#B-' + id;
+        testC = '#T-' + id;
         $(testB).hide();
         $(testC).show("slow");
         console.log(response);

@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -34,12 +35,19 @@ namespace ZborApp.Controllers
         private readonly ZborDatabaseContext _ctx;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
-        public ZborController(ILogger<ZborController> logger, ZborDatabaseContext ctx, UserManager<ApplicationUser> userManager)
+        private readonly IHubContext<ChatHub> _hubContext;
+        public ZborController(ILogger<ZborController> logger, ZborDatabaseContext ctx, UserManager<ApplicationUser> userManager, IHubContext<ChatHub> hubContext)
         {
             _logger = logger;
             _ctx = ctx;
             _userManager = userManager;
             _emailSender = new EmailSender();
+            _hubContext = hubContext;
+        }
+        private bool Exists(Guid idZbor)
+        {
+            var zbor = _ctx.Zbor.Find(idZbor);
+            return zbor == null ? false : true;
         }
         private bool CheckRights(Guid idZbor, Guid idKorisnik)
         {
@@ -49,6 +57,14 @@ namespace ZborApp.Controllers
                 return true;
             return false;
         }
+        private bool IsAdmin(Guid idZbor, Guid idKorisnik)
+        {
+            var zbor = _ctx.Zbor.Where(z => z.Id == idZbor).Include(z => z.Voditelj).Include(z => z.ModeratorZbora).SingleOrDefault();
+            var admin = zbor.Voditelj.OrderByDescending(z => z.DatumPostanka).First();
+            var mod = zbor.ModeratorZbora.Where(m => m.IdKorisnik == idKorisnik).SingleOrDefault();
+            return admin.IdKorisnik == idKorisnik || mod != null ? true : false;
+        }
+
         public async Task<IActionResult> Index()
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
@@ -74,6 +90,18 @@ namespace ZborApp.Controllers
         {
             if(ModelState.IsValid)
             {
+                if(model.Novi.Naziv.Trim().Equals(""))
+                {
+                    ModelState.AddModelError("Naziv", "Naziv je obavezan.");
+                }
+                if(model.Novi.Adresa.Trim().Equals(""))
+                {
+                    ModelState.AddModelError("Adresa", "Adresa je obavezna");
+                }
+                if(!ModelState.IsValid)
+                {
+                    return View(model);
+                }
                 model.Novi.Id = Guid.NewGuid();
                 ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
                 Voditelj voditelj = new Voditelj
@@ -84,49 +112,35 @@ namespace ZborApp.Controllers
                     IdZbor = model.Novi.Id,
                     IdKorisnik = user.Id
                 };
+                ClanZbora clan = new ClanZbora
+                {
+                    Id = Guid.NewGuid(),
+                    IdKorisnik = user.Id,
+                    IdZbor = model.Novi.Id,
+                    DatumPridruzivanja = DateTime.Now,
+                    Glas = "ne"
+                };
                 model.Novi.Voditelj.Add(voditelj);
+                model.Novi.ClanZbora.Add(clan);
                 _ctx.Add(model.Novi);
                 _ctx.SaveChanges();
                 return RedirectToAction(nameof(Index));
             }
             return View(model);
         }
-        [HttpPost]
-        public async Task<IActionResult> PrijavaZaZbor([FromBody] PrijavaModel prijava)
-        {
-            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            var idZbor = Guid.Parse(prijava.Id);
-            var prijavaZaZbor = _ctx.PrijavaZaZbor.Where(p => p.IdKorisnik == user.Id && p.IdZbor == idZbor).SingleOrDefault();
-            if (prijavaZaZbor != null)
-                return Ok();
-            var pr = new PrijavaZaZbor
-            {
-                Id = Guid.NewGuid(),
-                IdKorisnik = user.Id,
-                IdZbor = idZbor,
-                Poruka = prijava.Poruka,
-                DatumPrijave = DateTime.Now
-            };
-            _ctx.PrijavaZaZbor.Add(pr);
-            _ctx.SaveChanges();
-            return Ok();
-        }
-        private bool IsAdmin(Guid idZbor, Guid idKorisnik)
-        {
-            var zbor = _ctx.Zbor.Where(z => z.Id == idZbor).Include(z => z.Voditelj).SingleOrDefault();
-            var admin = zbor.Voditelj.OrderByDescending(z => z.DatumPostanka).First();
-            return admin.IdKorisnik == idKorisnik ? true : false;
-        }
+       
+     
+
         [HttpGet]
         public async Task<IActionResult> Profil(Guid id)
         {
+            if (!Exists(id))
+                return RedirectToAction("Nema", "Greska");
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
             if (!CheckRights(id, user.Id))
                 return RedirectToAction("Prava");
-            var korisnik = _ctx.Korisnik.Where(k => k.Id == user.Id).SingleOrDefault();
+            var korisnik = _ctx.Korisnik.Find(user.Id);
             Zbor zbor = _ctx.Zbor.Where(z => z.Id == id).Include(z => z.Voditelj).Include(z => z.Projekt).SingleOrDefault();
-            if (zbor == null)
-                return Error();
             IEnumerable<Obavijest> obavijesti = _ctx.Obavijest.Where(o => o.IdZbor == id)
                 .Include(o => o.IdKorisnikNavigation)
                 .Include(o => o.LajkObavijesti)
@@ -134,28 +148,304 @@ namespace ZborApp.Controllers
                 .Include(o => o.KomentarObavijesti).ThenInclude(k => k.IdKorisnikNavigation)
                   .Include(o => o.KomentarObavijesti).OrderBy(d => d.DatumObjave)
                 .OrderByDescending(O => O.DatumObjave);
-            var ankete = _ctx.Anketa.Where(a => a.IdZbor == id).OrderByDescending(a => a.DatumPostavljanja);
             ProfilViewModel model = new ProfilViewModel { Zbor = zbor, Obavijesti = obavijesti, IdKorisnik = user.Id, ImeIPrezime = korisnik.Ime + " " + korisnik.Prezime, Slika = korisnik.Slika };
             var admin = zbor.Voditelj.OrderByDescending(z => z.DatumPostanka).First();
             model.Admin = IsAdmin(id, user.Id);
             model.Projekti = zbor.Projekt.ToList();
             ViewData["zborId"] = id;
             ViewData["zborIme"] = zbor.Naziv;
+            ViewData["Model"] = TempData["Model"];
             return View(model);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Pitanja(Guid id)
+       
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Profil(Guid id, ProfilViewModel model)
         {
-            Zbor zbor = _ctx.Zbor.Where(z => z.Id == id).Include(z => z.Voditelj).Include(z => z.Projekt).SingleOrDefault();
+            if (!Exists(id))
+                return RedirectToAction("Nema", "Greska");
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
             if (!CheckRights(id, user.Id))
                 return RedirectToAction("Prava");
-            var aktivna = _ctx.Anketa.Where(a => a.IdZbor == id && a.DatumKraja >= DateTime.Now).Include(a=>a.IdKorisnikNavigation).Include(a => a.OdgovorAnkete).ThenInclude(o => o.OdgovorKorisnikaNaAnketu).OrderBy(a => a.DatumKraja);
+            if (ModelState.IsValid)
+            {
+                if (model.NovaObavijest.Naslov.Trim().Equals(""))
+                {
+                    ModelState.AddModelError("Naslov", "Naslov je obavezan.");
+                }
+                if (model.NovaObavijest.Tekst.Trim().Equals(""))
+                {
+                    ModelState.AddModelError("Adresa", "Tekst je obavezan");
+                }
+                if (!ModelState.IsValid)
+                {
+                    TempData["Model"] = "Ispravite greške unutar polja forme.";
+                    return RedirectToAction("Profil", new { id = id });
+                }
+
+
+                model.Zbor = _ctx.Zbor.Find(id);
+                model.NovaObavijest.DatumObjave = DateTime.Now;
+                model.NovaObavijest.Id = Guid.NewGuid();
+                model.NovaObavijest.IdZbor = id;
+                model.NovaObavijest.IdKorisnik = user.Id;
+                if(model.OdabraniProjekti != null)
+                {
+                    var projekti = model.OdabraniProjekti.Split(",");
+                    foreach(var projektId in projekti)
+                    {
+                        var pro = _ctx.Projekt.Find(projektId);
+                        if(pro == null || pro.IdZbor != id)
+                        {
+                            continue;
+                        }
+                        var ob = new ObavijestVezanaUzProjekt
+                        {
+                            Id = Guid.NewGuid(),
+                            IdProjekt = Guid.Parse(projektId),
+                            IdObavijest = model.NovaObavijest.Id
+                        };
+                        model.NovaObavijest.ObavijestVezanaUzProjekt.Add(ob);
+                    }
+                }
+                _ctx.Add(model.NovaObavijest);
+                _ctx.SaveChanges();
+                return RedirectToAction("Profil", new { id = id });
+            }
+            TempData["Model"] = "Ispravite greške unutar polja forme.";
+            return RedirectToAction("Profil", new { id = id });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LajkObavijesti([FromBody] LajkModel lajk)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            Guid idObavijest;
+            var flag = Guid.TryParse(lajk.IdCilj, out idObavijest);
+            if (flag == false)
+                return BadRequest();
+
+            var obavijest = _ctx.Obavijest.Find(idObavijest);
+            if (obavijest == null)
+                return NoContent();
+            if (!CheckRights(obavijest.IdZbor, user.Id))
+                return Forbid();
+            var lajkPostoji = _ctx.LajkObavijesti.Where(l => l.IdObavijest == idObavijest && l.IdKorisnik == user.Id).SingleOrDefault();
+            if (lajkPostoji != null)
+            {
+                return Ok();
+            }
+            var l = new LajkObavijesti
+            {
+                Id = Guid.NewGuid(),
+                IdKorisnik = user.Id,
+                IdObavijest = idObavijest
+
+            };
+            var brojLajkova = _ctx.LajkObavijesti.Where(l => l.IdObavijest == idObavijest).Count();
+            foreach(var clan in _ctx.ClanZbora.Where(c => c.IdZbor == obavijest.IdZbor ).AsEnumerable())
+            {
+                await _hubContext.Clients.User(clan.IdKorisnik.ToString()).SendAsync("LajkObavijesti", new { id = idObavijest, jesamja = user.Id == clan.IdKorisnik ? true : false, lajk=true, brojLajkova=brojLajkova+1 }); ;
+            }
+            _ctx.LajkObavijesti.Add(l);
+            _ctx.SaveChanges();
+            return Ok();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UnlajkObavijesti([FromBody] LajkModel lajk)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            Guid idObavijest;
+            var flag = Guid.TryParse(lajk.IdCilj, out idObavijest);
+            if (flag == false)
+                return BadRequest();
+            var obavijest = _ctx.Obavijest.Find(idObavijest);
+            if (obavijest == null)
+                return NoContent();
+            if (!CheckRights(obavijest.IdZbor, user.Id))
+                return Forbid();
+
+            var l = _ctx.LajkObavijesti.Where(l => l.IdKorisnik == user.Id && l.IdObavijest == Guid.Parse(lajk.IdCilj)).SingleOrDefault();
+            if (l != null)
+            {
+                var brojLajkova = _ctx.LajkObavijesti.Where(l => l.IdObavijest == idObavijest).Count();
+                foreach (var clan in _ctx.ClanZbora.Where(c => c.IdZbor == obavijest.IdZbor).AsEnumerable())
+                {
+                    await _hubContext.Clients.User(clan.IdKorisnik.ToString()).SendAsync("LajkObavijesti", new { id = idObavijest, jesamja = user.Id == clan.IdKorisnik ? true : false, lajk = false, brojLajkova=brojLajkova-1 }); ;
+                }
+                _ctx.LajkObavijesti.Remove(l);
+                _ctx.SaveChanges();
+            }
+            return Ok();
+            
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LajkKomentara([FromBody] LajkModel lajk)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            Guid idKomentar;
+            var flag = Guid.TryParse(lajk.IdCilj, out idKomentar);
+            if (flag == false)
+                return BadRequest();
+
+            var komentar = _ctx.KomentarObavijesti.Where(k => k.Id == idKomentar).Include(k => k.IdObavijestNavigation).SingleOrDefault();
+            if (komentar == null)
+                return NoContent();
+            if (!CheckRights(komentar.IdObavijestNavigation.IdZbor, user.Id))
+                return Forbid();
+            var lajkPostoji = _ctx.LajkKomentara.Where(l => l.IdKomentar == idKomentar && l.IdKorisnik == user.Id).SingleOrDefault();
+            if (lajkPostoji != null)
+            {
+                return Ok();
+            }
+
+            var l = new LajkKomentara
+            {
+                Id = Guid.NewGuid(),
+                IdKorisnik = user.Id,
+                IdKomentar = idKomentar
+
+            };
+            var brojLajkova = _ctx.LajkKomentara.Where(l => l.IdKomentar == idKomentar).Count();
+            foreach (var clan in _ctx.ClanZbora.Where(c => c.IdZbor == komentar.IdObavijestNavigation.IdZbor).AsEnumerable())
+            {
+                await _hubContext.Clients.User(clan.IdKorisnik.ToString()).SendAsync("LajkKomentara", new { id = idKomentar, jesamja = user.Id == clan.IdKorisnik ? true : false, lajk = true, brojLajkova = brojLajkova + 1 }); ;
+            }
+            _ctx.LajkKomentara.Add(l);
+            _ctx.SaveChanges();
+            return Ok();
+        }
+        [HttpPost]
+        public async Task<IActionResult> UnlajkKomentara([FromBody] LajkModel lajk)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            Guid idKomentar;
+            var flag = Guid.TryParse(lajk.IdCilj, out idKomentar);
+            if (flag == false)
+                return BadRequest();
+
+            var komentar = _ctx.KomentarObavijesti.Where(k => k.Id == idKomentar).Include(k => k.IdObavijestNavigation).SingleOrDefault();
+            if (komentar == null)
+                return NoContent();
+            if (!CheckRights(komentar.IdObavijestNavigation.IdZbor, user.Id))
+                return Forbid();
+            var l = _ctx.LajkKomentara.Where(l => l.IdKorisnik == user.Id && l.IdKomentar == idKomentar).SingleOrDefault();
+            if(l!= null)
+            {
+                var brojLajkova = _ctx.LajkKomentara.Where(l => l.IdKomentar == idKomentar).Count();
+                foreach (var clan in _ctx.ClanZbora.Where(c => c.IdZbor == komentar.IdObavijestNavigation.IdZbor).AsEnumerable())
+                {
+                    await _hubContext.Clients.User(clan.IdKorisnik.ToString()).SendAsync("LajkKomentara", new { id = idKomentar, jesamja = user.Id == clan.IdKorisnik ? true : false, lajk = false, brojLajkova = brojLajkova - 1 }); ;
+                }
+                _ctx.LajkKomentara.Remove(l);
+                _ctx.SaveChanges();
+            }
+            
+            return Ok();
+
+        }
+        [HttpPost]
+        public async Task<IActionResult> NoviKomentar([FromBody] NoviKomentarModel komentar)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            Guid idObavijest;
+            var flag = Guid.TryParse(komentar.IdObavijest, out idObavijest);
+            if (flag == false)
+                return BadRequest();
+
+            var obavijest = _ctx.Obavijest.Find(idObavijest);
+            if (obavijest == null)
+                return NoContent();
+            if (!CheckRights(obavijest.IdZbor, user.Id))
+                return Forbid();
+
+            var k = new KomentarObavijesti
+            {
+                DatumObjave = DateTime.Now,
+                Id = Guid.NewGuid(),
+                IdKorisnik = user.Id,
+                IdObavijest = idObavijest,
+                Tekst = komentar.Tekst.Trim()
+            };
+            var korisnik = _ctx.Korisnik.Find(user.Id);
+            var kom = new
+            {
+                Datum = k.DatumObjave.ToString("dd.MM.yyyy. HH:mm"),
+                Id = k.Id,
+                IdKorisnik = k.IdKorisnik,
+                IdObavijest = k.IdObavijest,
+                Tekst = k.Tekst,
+                ImeIPrezime = korisnik.ImeIPrezime(),
+                Slika = korisnik.Slika,
+            };
+            foreach (var clan in _ctx.ClanZbora.Where(c => c.IdZbor == obavijest.IdZbor).AsEnumerable())
+            {
+                await _hubContext.Clients.User(clan.IdKorisnik.ToString()).SendAsync("NoviKomentar", kom); 
+            }
+            _ctx.KomentarObavijesti.Add(k);
+            _ctx.SaveChanges();
+            return Ok(new { id = "kok" });
+        }
+        [HttpPost]
+        public async Task<IActionResult> ObrisiKomentar([FromBody] StringModel model)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            Guid idKomentar;
+            var flag = Guid.TryParse(model.Value, out idKomentar);
+            if (flag == false)
+                return BadRequest();
+
+            var komentar = _ctx.KomentarObavijesti.Where(k => k.Id == idKomentar).Include(k => k.IdObavijestNavigation).SingleOrDefault();
+            if (komentar == null)
+                return NoContent();
+            if (komentar.IdKorisnik != user.Id && !IsAdmin(komentar.IdObavijestNavigation.IdZbor, user.Id))
+                return Forbid();
+            foreach (var clan in _ctx.ClanZbora.Where(c => c.IdZbor == komentar.IdObavijestNavigation.IdZbor).AsEnumerable())
+            {
+                await _hubContext.Clients.User(clan.IdKorisnik.ToString()).SendAsync("ObrisiKomentar", new { id = idKomentar }); ;
+            }
+            _ctx.KomentarObavijesti.Remove(komentar);
+            _ctx.SaveChanges();
+            return Ok("32");
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ObrisiObavijest(Guid id)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            var obavijest = _ctx.Obavijest.Find(id);
+            if (obavijest == null)
+                return RedirectToAction("Nema", "Greska");
+            if (obavijest.IdKorisnik != user.Id && !IsAdmin(obavijest.IdZbor, user.Id))
+                return RedirectToAction("Prava");
+
+            Obavijest o = _ctx.Obavijest.Find(id);
+            _ctx.Obavijest.Remove(o);
+            _ctx.SaveChanges();
+
+            return RedirectToAction("Profil", new { id = obavijest.IdZbor });
+        }
+
+        
+        [HttpGet]
+        public async Task<IActionResult> Pitanja(Guid id)
+        {
+            if (!Exists(id))
+                return RedirectToAction("Nema", "Greska");
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            if (!CheckRights(id, user.Id))
+                return RedirectToAction("Prava");
+
+            Zbor zbor = _ctx.Zbor.Where(z => z.Id == id).Include(z => z.Voditelj).Include(z => z.Projekt).SingleOrDefault();
+            var aktivna = _ctx.Anketa.Where(a => a.IdZbor == id && a.DatumKraja >= DateTime.Now).Include(a => a.IdKorisnikNavigation).Include(a => a.OdgovorAnkete).ThenInclude(o => o.OdgovorKorisnikaNaAnketu).OrderBy(a => a.DatumKraja);
             var prosla = _ctx.Anketa.Where(a => a.IdZbor == id && a.DatumKraja < DateTime.Now).Include(a => a.IdKorisnikNavigation).Include(a => a.OdgovorAnkete).ThenInclude(o => o.OdgovorKorisnikaNaAnketu).OrderByDescending(a => a.DatumKraja);
             Dictionary<Guid, List<int>> korisnickiOdgovori = new Dictionary<Guid, List<int>>();
-            foreach(var anketa in aktivna) 
-            { 
+            foreach (var anketa in aktivna)
+            {
                 List<int> odg = new List<int>();
                 foreach (var odgovor in anketa.OdgovorAnkete)
                 {
@@ -181,130 +471,29 @@ namespace ZborApp.Controllers
                 Admin = IsAdmin(id, user.Id),
                 AktivnaPitanja = aktivna,
                 GotovaPitanja = prosla,
-                KorisnickiOdgovori= korisnickiOdgovori,
-                IdZbor = id
+                KorisnickiOdgovori = korisnickiOdgovori,
+                IdZbor = id,
+                IdKorisnik = user.Id
             };
             ViewData["zborId"] = id;
             ViewData["zborIme"] = zbor.Naziv;
             return View(model);
         }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Profil(Guid id, ProfilViewModel model)
-        {
-            model.Zbor = _ctx.Zbor.Where(z => z.Id == id).SingleOrDefault();
-            if(ModelState.IsValid)
-            {
-                ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-                model.NovaObavijest.DatumObjave = DateTime.Now;
-                model.NovaObavijest.Id = Guid.NewGuid();
-                model.NovaObavijest.IdZbor = id;
-                model.NovaObavijest.IdKorisnik = user.Id;
-                if(model.OdabraniProjekti != null)
-                {
-                    var projekti = model.OdabraniProjekti.Split(",");
-                    foreach(var projektId in projekti)
-                    {
-                        var ob = new ObavijestVezanaUzProjekt
-                        {
-                            Id = Guid.NewGuid(),
-                            IdProjekt = Guid.Parse(projektId),
-                            IdObavijest = model.NovaObavijest.Id
-                        };
-                        model.NovaObavijest.ObavijestVezanaUzProjekt.Add(ob);
-                    }
-                }
-                _ctx.Add(model.NovaObavijest);
-                _ctx.SaveChanges();
-                return RedirectToAction("Profil", new { id = id });
-            }
-
-            return View(model);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> LajkObavijesti([FromBody] LajkModel lajk)
-        {
-            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            var l = new LajkObavijesti
-            {
-                Id = Guid.NewGuid(),
-                IdKorisnik = user.Id,
-                IdObavijest = Guid.Parse(lajk.IdCilj)
-
-            };
-            _ctx.LajkObavijesti.Add(l);
-            _ctx.SaveChanges();
-            return Ok();
-        }
-        [HttpPost]
-        public async Task<IActionResult> UnlajkObavijesti([FromBody] LajkModel lajk)
-        {
-            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-
-            var l = _ctx.LajkObavijesti.Where(l => l.IdKorisnik == user.Id && l.IdObavijest == Guid.Parse(lajk.IdCilj)).SingleOrDefault();
-            _ctx.LajkObavijesti.Remove(l);
-            _ctx.SaveChanges();
-            return Ok();
-            
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> LajkKomentara([FromBody] LajkModel lajk)
-        {
-            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            var l = new LajkKomentara
-            {
-                Id = Guid.NewGuid(),
-                IdKorisnik = user.Id,
-                IdKomentar = Guid.Parse(lajk.IdCilj)
-
-            };
-            _ctx.LajkKomentara.Add(l);
-            _ctx.SaveChanges();
-            return Ok();
-        }
-        [HttpPost]
-        public async Task<IActionResult> UnlajkKomentara([FromBody] LajkModel lajk)
-        {
-            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-
-            var l = _ctx.LajkKomentara.Where(l => l.IdKorisnik == user.Id && l.IdKomentar == Guid.Parse(lajk.IdCilj)).SingleOrDefault();
-            _ctx.LajkKomentara.Remove(l);
-            _ctx.SaveChanges();
-            return Ok();
-
-        }
-        [HttpPost]
-        public async Task<IActionResult> NoviKomentar([FromBody] NoviKomentarModel komentar)
-        {
-            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            var k = new KomentarObavijesti
-            {
-                DatumObjave = DateTime.Now,
-                Id = Guid.NewGuid(),
-                IdKorisnik = user.Id,
-                IdObavijest = Guid.Parse(komentar.IdObavijest),
-                Tekst = komentar.Tekst
-            };
-            _ctx.KomentarObavijesti.Add(k);
-            _ctx.SaveChanges();
-            return Ok(k);
-        }
-
         [HttpGet]
         public async Task<IActionResult> NovaAnketa(Guid id)
         {
-            var zbor = _ctx.Zbor.Find(id);
+            if (!Exists(id))
+                return RedirectToAction("Nema", "Greska");
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
             if (!CheckRights(id, user.Id))
                 return RedirectToAction("Prava");
+            var zbor = _ctx.Zbor.Find(id);
+           
             ViewData["zborId"] = id;
             ViewData["zborIme"] = zbor.Naziv;
+            ViewData["Model"] = TempData["Model"];
             return View();
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> NovaAnketa(Guid id, AnketaModel model)
@@ -317,11 +506,15 @@ namespace ZborApp.Controllers
                 IdKorisnik = user.Id,
                 IdZbor = id,
                 DatumPostavljanja = DateTime.Now,
-                Pitanje = anketaJSON.pitanje,
+                Pitanje = anketaJSON.pitanje.Trim(),
                 DatumKraja = model.DatumKraj,
                 VisestrukiOdgovor = anketaJSON.vrsta.Equals("one") ? false : true
                 
             };
+            if(anketa.Pitanje.Equals("") || !ModelState.IsValid || anketaJSON.odgovori.Count == 0)
+            {
+                TempData["Model"] = "Ispravno zadajte pitanje";
+            }
             int i = 0;
             foreach(string odgovor in anketaJSON.odgovori)
             {
@@ -330,60 +523,41 @@ namespace ZborApp.Controllers
                     Id = Guid.NewGuid(),
                     IdAnketa = anketa.Id,
                     Redoslijed = i,
-                    Odgovor = odgovor,
+                    Odgovor = odgovor.Trim(),
                     
                 };
+                if (odg.Odgovor.Equals(""))
+                {
+                    TempData["Model"] = "Ispravno zadajte pitanje";
+                }
                 anketa.OdgovorAnkete.Add(odg);
                 i++;
             }
+            if(TempData["Model"] != null)
+            {
+                return RedirectToAction("NovaAnketa", new { id = id });
+            }
             _ctx.Anketa.Add(anketa);
             _ctx.SaveChanges();
-            return RedirectToAction("Profil", new { id = id });
+            return RedirectToAction("Pitanja", new { id = id });
         }
 
-        [HttpGet]
-        public async Task<IActionResult> RijesiAnketu(Guid idZbor, Guid id)
-        {
-            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            if (!CheckRights(idZbor, user.Id))
-                return RedirectToAction("Prava");
-            Anketa anketa = _ctx.Anketa.Where(a => a.Id == id).Include(a => a.OdgovorAnkete).ThenInclude(o => o.OdgovorKorisnikaNaAnketu).SingleOrDefault();
-           
-            anketa.OdgovorAnkete = anketa.OdgovorAnkete.OrderBy(p => p.Redoslijed).ToList();
-
-
-            //slaganje JSONa iz jedne ankete
-            PitanjeJSON anketaJSON = new PitanjeJSON
-            {
-                pitanje = anketa.Pitanje,
-                odgovori = new List<string>()
-            };
-
-            List<int> odg = new List<int>();
-            foreach (var odgovor in anketa.OdgovorAnkete)
-            {
-                anketaJSON.odgovori.Add(odgovor.Odgovor);
-                OdgovorKorisnikaNaAnketu odgovorNaPitanje = _ctx.OdgovorKorisnikaNaAnketu.Where(o => o.IdOdgovor == odgovor.Id && o.IdKorisnik == user.Id).Include(o => o.IdOdgovorNavigation).FirstOrDefault();
-                if (odgovorNaPitanje != null)
-                    odg.Add(odgovorNaPitanje.IdOdgovorNavigation.Redoslijed);
-            }
-            anketaJSON.vrsta = !anketa.VisestrukiOdgovor ?"one" : "mul";
-        
-            PrikazAnketeViewModel model = new PrikazAnketeViewModel
-            {
-                DatumKraja = anketa.DatumKraja.ToString("yyyy-MM-ddTHH:mm:ss"),
-                AnketaJson = JsonConvert.SerializeObject(anketaJSON),
-                Id = id,
-                Odgovor = JsonConvert.SerializeObject(odg),
-                Anketa = anketa
-            };
-            return View(model);
-        }
         [HttpPost]
         public async Task<IActionResult> OdgovoriNaPitanje([FromBody] ListaModel model)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            var stariOdgovor = _ctx.OdgovorKorisnikaNaAnketu.Where(o => o.IdOdgovorNavigation.IdAnketa == Guid.Parse(model.Id) && o.IdKorisnik == user.Id).ToList();
+            Guid idAnketa;
+            var flag = Guid.TryParse(model.Id, out idAnketa);
+            if (flag == false)
+                return BadRequest();
+
+            var pitanje = _ctx.Anketa.Find(idAnketa);
+            if (pitanje == null)
+                return NoContent();
+            if (!CheckRights(pitanje.IdZbor, user.Id))
+                return Forbid();
+
+            var stariOdgovor = _ctx.OdgovorKorisnikaNaAnketu.Where(o => o.IdOdgovorNavigation.IdAnketa == idAnketa && o.IdKorisnik == user.Id).ToList();
             if (stariOdgovor != null)
                 _ctx.OdgovorKorisnikaNaAnketu.RemoveRange(stariOdgovor);
             foreach (var odg in model.Lista)
@@ -396,51 +570,39 @@ namespace ZborApp.Controllers
                         Id = Guid.NewGuid(),
                         IdKorisnik = user.Id
                     };
-                    odgovor.IdOdgovor = _ctx.OdgovorAnkete.Where(o => o.IdAnketa == Guid.Parse(model.Id) && o.Redoslijed == Int32.Parse(odg)).SingleOrDefault().Id;
+                    odgovor.IdOdgovor = _ctx.OdgovorAnkete.Where(o => o.IdAnketa == idAnketa && o.Redoslijed == Int32.Parse(odg)).SingleOrDefault().Id;
                     _ctx.OdgovorKorisnikaNaAnketu.Add(odgovor);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    throw ex;
+                    return BadRequest();
                 }
             }
             _ctx.SaveChanges();
             return Ok();
         }
-
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RijesiAnketu(Guid idZbor, Guid id, PrikazAnketeViewModel model)
+        public async Task<IActionResult> ObrisiPitanje(Guid id)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            var stariOdgovor = _ctx.OdgovorKorisnikaNaAnketu.Where(o => o.IdOdgovorNavigation.IdAnketa == id && o.IdKorisnik == user.Id).ToList();
-            if(stariOdgovor != null) 
-                _ctx.OdgovorKorisnikaNaAnketu.RemoveRange(stariOdgovor);
-            var noviOdgovori = model.Rjesenje.Trim().Split(" ");
-            foreach(var odg in noviOdgovori)
-            {
-                try
-                {
-                    OdgovorKorisnikaNaAnketu odgovor = new OdgovorKorisnikaNaAnketu
-                    {
-                        DatumOdgovora = DateTime.Now,
-                        Id = Guid.NewGuid(),
-                        IdKorisnik = user.Id
-                    };
-                    odgovor.IdOdgovor = _ctx.OdgovorAnkete.Where(o => o.IdAnketa == id && o.Redoslijed == Int32.Parse(odg)).SingleOrDefault().Id;
-                    _ctx.OdgovorKorisnikaNaAnketu.Add(odgovor);
-                } catch (Exception ex)
-                {
-                    throw ex;
-                }
-            }
+            var pitanje = _ctx.Anketa.Find(id);
+            if (pitanje == null)
+                return RedirectToAction("Nema", "Greska");
+            if (pitanje.IdKorisnik != user.Id && !IsAdmin(pitanje.IdZbor, user.Id))
+                return RedirectToAction("Prava");
+
+            Anketa p = _ctx.Anketa.Find(id);
+            _ctx.Anketa.Remove(p);
             _ctx.SaveChanges();
-            return RedirectToAction("Profil", new { id = idZbor });
+
+            return RedirectToAction("Pitanja", new { id = pitanje.IdZbor });
         }
         [HttpGet]
         public async Task<IActionResult> Administracija(Guid id)
         {
+            if (!Exists(id))
+                return RedirectToAction("Nema", "Greska");
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
             if (!IsAdmin(id, user.Id))
                 return RedirectToAction("Prava");
@@ -462,12 +624,54 @@ namespace ZborApp.Controllers
             model.Voditelj = zbor.Voditelj.OrderByDescending(z => z.DatumPostanka).First().IdKorisnikNavigation;
             ViewData["zborId"] = id;
             ViewData["zborIme"] = zbor.Naziv;
+            ViewData["mess"] = TempData["mess"];
             return View(model);
         }
         [HttpPost]
-        public IActionResult PrihvatiPrijavu([FromBody] StringModel model)
+        public async Task<IActionResult> PrijavaZaZbor([FromBody] PrijavaModel prijava)
         {
-            PrijavaZaZbor prijava = _ctx.PrijavaZaZbor.Where(p => p.Id == Guid.Parse(model.Value)).Include(p => p.IdKorisnikNavigation).SingleOrDefault();
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            Guid idZbor;
+            var flag = Guid.TryParse(prijava.Id, out idZbor);
+            if (flag == false)
+                return BadRequest();
+            if (!Exists(idZbor))
+                return NotFound();
+            var prijavaZaZbor = _ctx.PrijavaZaZbor.Where(p => p.IdKorisnik == user.Id && p.IdZbor == idZbor).SingleOrDefault();
+            if (prijavaZaZbor != null)
+                return Ok();
+            var clan = _ctx.ClanZbora.Where(p => p.IdKorisnik == user.Id && p.IdZbor == idZbor).SingleOrDefault();
+            if (clan != null)
+                return Ok();
+            var pr = new PrijavaZaZbor
+            {
+                Id = Guid.NewGuid(),
+                IdKorisnik = user.Id,
+                IdZbor = idZbor,
+                Poruka = prijava.Poruka.Trim(),
+                DatumPrijave = DateTime.Now
+            };
+            _ctx.PrijavaZaZbor.Add(pr);
+            _ctx.SaveChanges();
+            var m = new StringModel { Value = "ok" };
+            return Ok(m);
+        }
+        [HttpPost]
+        public async Task<IActionResult> PrihvatiPrijavu([FromBody] StringModel model)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            Guid idPrijava;
+            var flag = Guid.TryParse(model.Value, out idPrijava);
+            if (flag == false)
+                return BadRequest();
+            PrijavaZaZbor prijava = _ctx.PrijavaZaZbor.Where(p => p.Id == idPrijava).Include(p => p.IdKorisnikNavigation).SingleOrDefault();
+            if (!IsAdmin(prijava.IdZbor, user.Id))
+                return Forbid();
+            if (prijava == null)
+                return Ok();
+            var cl = _ctx.ClanZbora.Where(p => p.IdKorisnik == user.Id && p.IdZbor == prijava.IdZbor).SingleOrDefault();
+            if (cl != null)
+                return Ok();
             ClanZbora clan = new ClanZbora
             {
                 Id = Guid.NewGuid(),
@@ -479,50 +683,96 @@ namespace ZborApp.Controllers
             _ctx.ClanZbora.Add(clan);
             _ctx.PrijavaZaZbor.Remove(prijava);
             _ctx.SaveChanges();
-            var m = new StringModel { Value = prijava.IdKorisnikNavigation.Ime + ' ' + prijava.IdKorisnikNavigation.Prezime };
             return Ok(new { ImeIPrezime = prijava.IdKorisnikNavigation.ImeIPrezime(), id=clan.Id, idZbor = clan.IdZbor });
         }
         [HttpPost]
-        public IActionResult PromjenaGlasa([FromBody] PrijavaModel model)
+        public async Task<IActionResult> PromjenaGlasa([FromBody] PrijavaModel model)
         {
-            var id = Guid.Parse(model.Id);
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            Guid idClan;
+            var flag = Guid.TryParse(model.Id, out idClan);
+            if (flag == false)
+                return BadRequest();
+            var clan = _ctx.ClanZbora.Find(idClan);
+            if (clan == null)
+                return NotFound();
+            if (!IsAdmin(clan.IdZbor, user.Id))
+                return Forbid();
+
             string glas = "";
             if (model.Poruka.Equals("1")) glas = "sopran";
             else if (model.Poruka.Equals("2")) glas = "alt";
             else if (model.Poruka.Equals("3")) glas = "tenor";
             else if (model.Poruka.Equals("4")) glas = "bas";
-            var clan = _ctx.ClanZbora.Find(id).Glas = glas;
+            clan.Glas = glas;
             _ctx.SaveChanges();
-            return Ok(new { val = "ok"});
-        }
-        [HttpPost]
-        public IActionResult PromjenaUloge([FromBody] PrijavaModel model)
-        {
-            var id = Guid.Parse(model.Id);
-            string glas = model.Poruka.Trim();
-            var clan = _ctx.ClanNaProjektu.Find(id).Uloga = glas;
-            _ctx.SaveChanges();
-            return Ok(new { val = "ok" });
-        }
-
-        [HttpPost]
-        public IActionResult OdbijPrijavu([FromBody] StringModel model)
-        {
-            PrijavaZaZbor prijava = _ctx.PrijavaZaZbor.Where(p => p.Id == Guid.Parse(model.Value)).SingleOrDefault();
-            _ctx.PrijavaZaZbor.Remove(prijava);
-            _ctx.SaveChanges();
-            var m = new StringModel { Value = "OKje" };
-
+            var m = new StringModel { Value = "ok" };
             return Ok(m);
         }
         [HttpPost]
-        public IActionResult NoviModerator([FromBody] LajkModel model)
+        public async Task<IActionResult> PromjenaUloge([FromBody] PrijavaModel model)
         {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            Guid idClan;
+            var flag = Guid.TryParse(model.Id, out idClan);
+            if (flag == false)
+                return BadRequest();
+            var clan = _ctx.ClanNaProjektu.Where(c => c.Id == idClan).Include(c => c.IdProjektNavigation).SingleOrDefault();
+            if (clan == null)
+                return NotFound();
+            if (!IsAdmin(clan.IdProjektNavigation.IdZbor, user.Id))
+                return Forbid();
+
+            var id = Guid.Parse(model.Id);
+            string glas = model.Poruka.Trim();
+            clan.Uloga = glas;
+            _ctx.SaveChanges();
+            var m = new StringModel { Value = "ok" };
+            return Ok(m);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> OdbijPrijavu([FromBody] StringModel model)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            Guid idPrijava;
+            var flag = Guid.TryParse(model.Value, out idPrijava);
+            if (flag == false)
+                return BadRequest();
+            var prijava = _ctx.PrijavaZaZbor.Find(idPrijava);
+            if (prijava == null)
+                return NotFound();
+            if (!IsAdmin(prijava.IdZbor, user.Id) || user.Id == prijava.Id)
+                return Forbid();
+            _ctx.PrijavaZaZbor.Remove(prijava);
+            _ctx.SaveChanges();
+            var m = new StringModel { Value = "ok" };
+            return Ok(m);
+        }
+        [HttpPost]
+        public async Task<IActionResult> NoviModerator([FromBody] LajkModel model)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            Guid idZbor, idMod;
+            var flagZb = Guid.TryParse(model.IdCilj, out idZbor);
+            if (flagZb == false)
+                return BadRequest();
+            var flagK = Guid.TryParse(model.IdKorisnik, out idMod);
+            if (flagK == false)
+                return BadRequest();
+            if (!Exists(idZbor) || _ctx.Korisnik.Find(idMod) == null)
+                return NotFound();
+            if (!IsAdmin(idZbor, user.Id))
+                return Forbid();
+            var clan = _ctx.ClanZbora.Where(c => c.IdZbor == idZbor && c.IdKorisnik == idMod).SingleOrDefault();
+            if (clan == null)
+                return NotFound();
+            
             ModeratorZbora mod = new ModeratorZbora
             {
                 Id = Guid.NewGuid(),
-                IdKorisnik = Guid.Parse(model.IdKorisnik),
-                IdZbor = Guid.Parse(model.IdCilj)
+                IdKorisnik = idMod,
+                IdZbor = idZbor
 
             };
             _ctx.ModeratorZbora.Add(mod);
@@ -530,78 +780,92 @@ namespace ZborApp.Controllers
             return Ok(new {id=mod.Id, ImeIPrezime= _ctx.Korisnik.Find(Guid.Parse(model.IdKorisnik)).ImeIPrezime() });
         }
         [HttpPost]
-        public IActionResult ObrisiModeratora([FromBody] StringModel model)
+        public async  Task<IActionResult> ObrisiModeratora([FromBody] StringModel model)
         {
-            ModeratorZbora mod = _ctx.ModeratorZbora.Find(Guid.Parse(model.Value));
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            Guid idMod;
+            var flag = Guid.TryParse(model.Value, out idMod);
+            if (flag == false)
+                return BadRequest();
+            ModeratorZbora mod = _ctx.ModeratorZbora.Find(idMod);
+            if (mod == null)
+                return NotFound();
+            if (!IsAdmin(mod.IdZbor, user.Id))
+                return Forbid();
             _ctx.ModeratorZbora.Remove(mod);
             _ctx.SaveChanges();
-            var m = new StringModel { Value = "OKje" };
-
+            if(idMod==user.Id)
+            {
+                return RedirectToAction("Administracija", new { id = mod.IdZbor });
+            }
+            var m = new StringModel { Value = "ok" };
             return Ok(m);
         }
         [HttpPost]
-        public IActionResult ObrisiClana(AdministracijaViewModel model)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ObrisiClana(AdministracijaViewModel model)
         {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
             var clan = _ctx.ClanZbora.Find(model.IdBrisanje);
+            if (clan == null)
+                return RedirectToAction("Nema", "Greska");
+            if (clan.IdKorisnik == user.Id)
+                return RedirectToAction("Prava");
+            if (!IsAdmin(clan.IdZbor, user.Id))
+                return RedirectToAction("Prava");
             _ctx.ClanZbora.Remove(clan);
             _ctx.SaveChanges();
             return RedirectToAction("Administracija", new { id = clan.IdZbor });
         }
         [HttpPost]
-        public IActionResult ObrisiClanaProjekta(AdministracijaProjektaViewModel model)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ObrisiClanaProjekta(AdministracijaProjektaViewModel model)
         {
-            var clan = _ctx.ClanNaProjektu.Find(model.IdBrisanje);
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            var clan = _ctx.ClanNaProjektu.Where(c => c.Id == model.IdBrisanje).Include(c => c.IdProjektNavigation).SingleOrDefault();
+            if (clan == null)
+                return RedirectToAction("Nema", "Greska");
+            if (!IsAdmin(clan.IdProjektNavigation.IdZbor, user.Id))
+                return RedirectToAction("Prava");
             _ctx.ClanNaProjektu.Remove(clan);
             _ctx.SaveChanges();
             return RedirectToAction("AdministracijaProjekta", new { id = clan.IdProjekt });
         }
         [HttpPost]
-        public IActionResult ObrisiProjekt(AdministracijaProjektaViewModel model)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ObrisiProjekt(AdministracijaProjektaViewModel model)
         {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
             var projekt = _ctx.Projekt.Find(model.IdBrisanje);
+            if(projekt == null)
+                return RedirectToAction("Nema", "Greska");
+            if (!IsAdmin(projekt.IdZbor, user.Id))
+                return RedirectToAction("Prava");
             _ctx.Remove(projekt);
             _ctx.SaveChanges();
 
             return RedirectToAction("Projekti", new { id = projekt.IdZbor });
         }
 
-        [HttpPost]
-        public IActionResult ObrisiKomentar([FromBody] StringModel model)
-        {
-            KomentarObavijesti kom = _ctx.KomentarObavijesti.Where(p => p.Id == Guid.Parse(model.Value)).Include(k => k.LajkKomentara).SingleOrDefault();
-            _ctx.LajkKomentara.RemoveRange(kom.LajkKomentara);
-            _ctx.KomentarObavijesti.Remove(kom);
-            _ctx.SaveChanges();
-            var m = new StringModel { Value = "OKje" };
-
-            return Ok(m);
-        }
-        public IActionResult ObrisiObavijest(Guid id)
-        {
-            Obavijest o = _ctx.Obavijest.Where(p => p.Id == id).Include(o => o.KomentarObavijesti).ThenInclude(k => k.LajkKomentara).Include(o => o.LajkObavijesti).SingleOrDefault();
-            var idZbor = o.IdZbor;
-            _ctx.LajkObavijesti.RemoveRange(o.LajkObavijesti);
-            foreach(var k in o.KomentarObavijesti)
-            {
-                _ctx.LajkKomentara.RemoveRange(k.LajkKomentara);
-                _ctx.Remove(k);
-
-            }
-            _ctx.Obavijest.Remove(o);
-            _ctx.SaveChanges();
-
-            return RedirectToAction("Profil", new { id = idZbor });
-        }
+        
 
 
         [HttpPost]
-        public IActionResult ObrisiPoziv([FromBody] StringModel model)
+        public async Task<IActionResult> ObrisiPoziv([FromBody] StringModel model)
         {
-            PozivZaZbor poziv = _ctx.PozivZaZbor.Where(p => p.Id == Guid.Parse(model.Value)).SingleOrDefault();
-            _ctx.PozivZaZbor.Remove(poziv);
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            Guid idPoziv;
+            var flag = Guid.TryParse(model.Value, out idPoziv);
+            if (flag == false)
+                return BadRequest();
+            PozivZaZbor poz = _ctx.PozivZaZbor.Find(idPoziv);
+            if (poz == null)
+                return NotFound();
+            if (!IsAdmin(poz.IdZbor, user.Id))
+                return Forbid();
+            _ctx.PozivZaZbor.Remove(poz);
             _ctx.SaveChanges();
-            var m = new StringModel { Value = "OKje" };
-
+            var m = new StringModel { Value = "ok" };
             return Ok(m);
         }
 
@@ -621,6 +885,8 @@ namespace ZborApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Projekti(Guid id)
         {
+            if (!Exists(id))
+                return RedirectToAction("Nema", "Greska");
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
             if (!CheckRights(id, user.Id))
                 return RedirectToAction("Prava");
@@ -642,6 +908,7 @@ namespace ZborApp.Controllers
             };
             ViewData["zborId"] = id;
             ViewData["zborIme"] = _ctx.Zbor.Find(id).Naziv;
+            ViewData["Model"] = TempData["Model"];
             return View(model);
         }
   
@@ -650,28 +917,48 @@ namespace ZborApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Projekti(ProjektiViewModel model)
         {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            var zbor = _ctx.Zbor.Find(model.Novi.IdZbor);
+            if(zbor == null)
+                return RedirectToAction("Nema", "Greska");
+            if (!CheckRights(zbor.Id, user.Id))
+                return RedirectToAction("Prava");
+
+            if (model.Novi.Naziv.Trim().Equals(""))
+                ModelState.AddModelError("Naziv", "Naziv je obavezan");
+            if(model.Novi.Opis.Trim().Equals(""))
+                ModelState.AddModelError("Opis", "Opis je obavezan");
+
             if (ModelState.IsValid)
             {
                 model.Novi.Id = Guid.NewGuid();
+                model.Novi.ClanNaProjektu.Add(new ClanNaProjektu { Id = Guid.NewGuid(), IdKorisnik = user.Id, IdProjekt = model.Novi.Id, Uloga = "Nema" });
                 _ctx.Add(model.Novi);
                 _ctx.SaveChanges();
                 return RedirectToAction("Projekti", new { id = model.Novi.IdZbor });
             }
-            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            model.IdKorisnik = user.Id;
-            model.Projekti = _ctx.Projekt.Where(p => p.IdZbor == model.Novi.IdZbor).Include(p => p.ClanNaProjektu).Include(p => p.PrijavaZaProjekt);
-            model.VrstePodjele = _ctx.VrstaPodjele.Select(v => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem { Value = v.Id.ToString(), Text = v.Podjela }).ToList();
-            model.IdZbor = model.Novi.IdZbor;
-            return View(model);
-            
+            TempData["Model"] = "Ispravno popunite podatke o projektu";
+            return RedirectToAction("Projekti", new { id = model.Novi.IdZbor });
+
+
         }
 
         [HttpPost]
         public async Task<IActionResult> PrijavaZaProjekt([FromBody] PrijavaModel prijava)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            var idProjekt = Guid.Parse(prijava.Id);
+            Guid idProjekt;
+            var flag = Guid.TryParse(prijava.Id, out idProjekt);
+            if (flag == false)
+                return BadRequest();
+            if (_ctx.Projekt.Find(idProjekt) == null)
+                return NotFound();
             var prijavaZaProjekt = _ctx.PrijavaZaProjekt.Where(p => p.IdKorisnik == user.Id && p.IdProjekt == idProjekt).SingleOrDefault();
+            if (prijavaZaProjekt != null)
+                return Ok();
+            if (!CheckRights(_ctx.Projekt.Find(idProjekt).IdZbor, user.Id))
+                return Forbid();
+
             if (prijavaZaProjekt != null)
                 return Ok();
             var pr = new PrijavaZaProjekt
@@ -684,12 +971,14 @@ namespace ZborApp.Controllers
             };
             _ctx.PrijavaZaProjekt.Add(pr);
             _ctx.SaveChanges();
-            return Ok();
+            var m = new StringModel { Value = "ok" };
+            return Ok(m);
         }
 
         [HttpGet]
         public async Task<IActionResult> AdministracijaProjekta(Guid id)
         {
+
             AdministracijaProjektaViewModel model = new AdministracijaProjektaViewModel();
             var projekt = _ctx.Projekt.Where(z => z.Id == id)
                 .Include(z => z.PozivZaProjekt).ThenInclude(p => p.IdKorisnikNavigation)
@@ -697,9 +986,12 @@ namespace ZborApp.Controllers
                 .Include(z => z.ClanNaProjektu).ThenInclude(c => c.IdKorisnikNavigation)
                 .Include(z => z.IdVrstePodjeleNavigation)
                 .SingleOrDefault();
+            if(projekt == null)
+                return RedirectToAction("Nema", "Greska");
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
             if (!IsAdmin(projekt.IdZbor, user.Id)) 
                 return RedirectToAction("Prava");
+
             model.Projekt = projekt;
             foreach(var glas in projekt.IdVrstePodjeleNavigation.Glasovi())
             {
@@ -720,14 +1012,20 @@ namespace ZborApp.Controllers
             return View(model);
         }
         [HttpGet]
-        public IActionResult Dogadjaj(Guid id)
+        public async Task<IActionResult> Dogadjaj(Guid id)
         {
             var dog = _ctx.Dogadjaj.Where(d => d.Id == id)
                 .Include(d => d.NajavaDolaska).ThenInclude(n => n.IdKorisnikNavigation)
                 .Include(d => d.IdProjektNavigation).ThenInclude(p => p.IdVrstePodjeleNavigation).SingleOrDefault();
+            if (dog == null)
+                return RedirectToAction("Nema", "Greska");
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            if (!CheckRights(dog.IdProjektNavigation.IdZbor, user.Id))
+                return RedirectToAction("Prava");
             dog.IdProjekt1 = _ctx.VrstaDogadjaja.Find(dog.IdVrsteDogadjaja);
             DogadjajViewModel model = new DogadjajViewModel();
             model.Dogadjaj = dog;
+            model.isAdmin = IsAdmin(dog.IdProjektNavigation.IdZbor, user.Id);
             foreach (var glas in dog.IdProjektNavigation.IdVrstePodjeleNavigation.Glasovi())
             {
                 model.Clanovi[glas] = new List<NajavaDolaska>();
@@ -763,8 +1061,14 @@ namespace ZborApp.Controllers
             return View(model);
         }
         [HttpPost]
-        public IActionResult Evidentiraj(DogadjajViewModel model)
+        public async Task<IActionResult> Evidentiraj(DogadjajViewModel model)
         {
+            var dog = _ctx.Dogadjaj.Where(d => d.Id == model.IdDogadjaj).Include(d => d.IdProjektNavigation).SingleOrDefault();
+            if (dog == null)
+                return RedirectToAction("Nema", "Greska");
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            if (!IsAdmin(dog.IdProjektNavigation.IdZbor, user.Id))
+                return RedirectToAction("Prava");
             var stare = _ctx.EvidencijaDolaska.Where(d => d.IdDogadjaj == model.IdDogadjaj).ToList();
             _ctx.EvidencijaDolaska.RemoveRange(stare);
             var nove = model.Evidencija.Select(e => new EvidencijaDolaska { Id = Guid.NewGuid(), IdDogadjaj = model.IdDogadjaj, IdKorisnik = e }).ToList();
@@ -773,9 +1077,22 @@ namespace ZborApp.Controllers
             return RedirectToAction("Dogadjaj", new { id = model.IdDogadjaj });
         }
         [HttpPost]
-        public IActionResult PrihvatiPrijavuProjekt([FromBody] StringModel model)
+        public async Task<IActionResult> PrihvatiPrijavuProjekt([FromBody] StringModel model)
         {
-            PrijavaZaProjekt prijava = _ctx.PrijavaZaProjekt.Where(p => p.Id == Guid.Parse(model.Value)).Include(p => p.IdKorisnikNavigation).SingleOrDefault();
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+
+            Guid idPrijava;
+            var flag = Guid.TryParse(model.Value, out idPrijava);
+            if (flag == false)
+                return BadRequest();
+            PrijavaZaProjekt prijava = _ctx.PrijavaZaProjekt.Where(p => p.Id == idPrijava).Include(p => p.IdKorisnikNavigation).Include(p => p.IdProjektNavigation).SingleOrDefault();
+            if (prijava == null)
+                return NotFound();
+            if (!IsAdmin(prijava.IdProjektNavigation.IdZbor, user.Id))
+                return Forbid();
+            var cl = _ctx.ClanNaProjektu.Where(c => c.IdProjekt == prijava.IdProjekt && c.IdKorisnik == prijava.IdKorisnik).SingleOrDefault();
+            if (cl != null)
+                return Ok();
             ClanNaProjektu clan = new ClanNaProjektu
             {
                 Id = Guid.NewGuid(),
@@ -793,8 +1110,11 @@ namespace ZborApp.Controllers
         [HttpPost]
         public IActionResult DohvatiStatistiku([FromBody] LajkModel model)
         {
-            var idKorisnik = Guid.Parse(model.IdKorisnik);
-            var idProjekt = Guid.Parse(model.IdCilj);
+            Guid idKorisnik, idProjekt;
+            var flagK = Guid.TryParse(model.IdKorisnik, out idKorisnik);
+            var flagP = Guid.TryParse(model.IdCilj, out idProjekt);
+            if (flagK == false || flagP == false)
+                return BadRequest();
             var dogadaji = _ctx.Dogadjaj.Where(d => d.IdProjekt == idProjekt)
                 .Include(d => d.EvidencijaDolaska).OrderByDescending(d => d.DatumIvrijeme);
             var ev = dogadaji.Where(d => d.EvidencijaDolaska.Select(e => e.IdKorisnik).Contains(idKorisnik)).Select(d => new { Id = d.Id, Datum = d.DatumIvrijeme.ToString("dd.MM.yyyy. hh:mm"), Naziv = d.Naziv }).ToList();
@@ -807,28 +1127,80 @@ namespace ZborApp.Controllers
             };
             return Ok(response);
         }
+        [HttpPost]
+        public IActionResult LajkoviObavijest([FromBody] StringModel model)
+        {
+            Guid idObavijest;
+            var flagK = Guid.TryParse(model.Value, out idObavijest);
+            if (flagK == false)
+                return BadRequest();
+            var lajkovi = _ctx.LajkObavijesti.Where(l => l.IdObavijest == idObavijest)
+                .Include(d => d.IdKorisnikNavigation).Select(l => new { id = l.IdKorisnik , imeIPrezime=l.IdKorisnikNavigation.ImeIPrezime()}).ToList();
+            var response = new
+            {
+                Lista = lajkovi,
+            };
+            return Ok(response);
+        }
+        [HttpPost]
+        public IActionResult LajkoviKomentar([FromBody] StringModel model)
+        {
+            Guid idKomentar;
+            var flagK = Guid.TryParse(model.Value, out idKomentar);
+            if (flagK == false)
+                return BadRequest();
+            var lajkovi = _ctx.LajkKomentara.Where(l => l.IdKomentar == idKomentar)
+                .Include(d => d.IdKorisnikNavigation).Select(l => new { id = l.IdKorisnik, imeIPrezime = l.IdKorisnikNavigation.ImeIPrezime() });
+            var response = new
+            {
+                Lista = lajkovi,
+            };
+            return Ok(response);
+        }
+
 
         [HttpPost]
-        public IActionResult OdbijPrijavuProjekt([FromBody] StringModel model)
+        public async Task<IActionResult> OdbijPrijavuProjekt([FromBody] StringModel model)
         {
-            PrijavaZaProjekt prijava = _ctx.PrijavaZaProjekt.Where(p => p.Id == Guid.Parse(model.Value)).SingleOrDefault();
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            Guid idPrijava;
+            var flag = Guid.TryParse(model.Value, out idPrijava);
+            if (flag == false)
+                return BadRequest();
+            PrijavaZaProjekt prijava = _ctx.PrijavaZaProjekt.Where(p => p.Id == idPrijava).Include(p => p.IdProjektNavigation).SingleOrDefault();
+            if (prijava == null)
+                return NotFound();
+            if (!IsAdmin(prijava.IdProjektNavigation.IdZbor, user.Id))
+                return Forbid();
             _ctx.PrijavaZaProjekt.Remove(prijava);
             _ctx.SaveChanges();
             var m = new StringModel { Value = "OKje" };
-
             return Ok(m);
         }
 
         [HttpPost]
-        public IActionResult ObrisiPozivProjekt([FromBody] StringModel model)
+        public async Task<IActionResult> ObrisiPozivProjekt([FromBody] StringModel model)
         {
-            PozivZaProjekt poziv = _ctx.PozivZaProjekt.Where(p => p.Id == Guid.Parse(model.Value)).SingleOrDefault();
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            Guid idPoziv;
+            var flag = Guid.TryParse(model.Value, out idPoziv);
+            if (flag == false)
+                return BadRequest();
+            PozivZaProjekt poziv = _ctx.PozivZaProjekt.Where(p => p.Id == idPoziv).Include(p => p.IdProjektNavigation).SingleOrDefault();
+            if (poziv == null)
+                return NotFound();
+            if (!IsAdmin(poziv.IdProjektNavigation.IdZbor, user.Id))
+                return Forbid();
             _ctx.PozivZaProjekt.Remove(poziv);
             _ctx.SaveChanges();
             var m = new StringModel { Value = "OKje" };
 
             return Ok(m);
         }
+        /*
+         * 
+         * PAZI OVO JAKO DOBROOO!!
+         * */
         public IActionResult OdbijPoziv(Guid id)
         {
             PozivZaZbor poziv = _ctx.PozivZaZbor.Where(p => p.Id == id).SingleOrDefault();
@@ -852,16 +1224,26 @@ namespace ZborApp.Controllers
             _ctx.SaveChanges();
             return RedirectToAction("Index");
         }
+
         [HttpPost]
         public async Task<IActionResult> PozivZaZbor([FromBody] PrijavaModel prijava)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            var id = Guid.Parse(prijava.Id);
-            var idZbor = Guid.Parse(prijava.Naziv);
+            Guid id, idZbor;
+            var flagI = Guid.TryParse(prijava.Id, out id);
+            var flagZ = Guid.TryParse(prijava.Naziv, out idZbor);
+            if (flagI == false || flagZ == false)
+                return BadRequest();
+            if (!IsAdmin(idZbor, user.Id))
+                return Forbid();
             var korisnik = _ctx.Korisnik.Find(id);
+
+            if (!Exists(idZbor) || korisnik == null)
+                return NotFound();
             var pozivZaZbor = _ctx.PozivZaZbor.Where(p => p.IdKorisnik == id && p.IdZbor == idZbor).SingleOrDefault();
             if (pozivZaZbor != null)
                 return Ok();
+            
             var pr = new PozivZaZbor
             {
                 Id = Guid.NewGuid(),
@@ -874,14 +1256,38 @@ namespace ZborApp.Controllers
             _ctx.SaveChanges();
             return Ok(new {ImeIPrezime = korisnik.ImeIPrezime(), Datum=pr.DatumPoziva.ToString("dd.MM.yyyy."), Id = pr.Id.ToString() });
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PovuciPrijavu(Guid id)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            var projekt = _ctx.Projekt.Find(id);
+            if (projekt == null)
+                return RedirectToAction("Nema", "Greska");
+            if (!CheckRights(projekt.IdZbor, user.Id))
+                return RedirectToAction("Prava");
+            var prijava = _ctx.PrijavaZaProjekt.Where(p => p.IdProjekt == id && p.IdKorisnik == user.Id).SingleOrDefault();
+            if (projekt == null)
+                return RedirectToAction("Projekti", new { id = projekt.IdZbor });
+            
+            _ctx.PrijavaZaProjekt.Remove(prijava);
+            _ctx.SaveChanges();
 
+            return RedirectToAction("Projekti", new { id = projekt.IdZbor });
+        }
         [HttpPost]
         public async Task<IActionResult> DodajClanProjekt([FromBody] LajkModel model)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            var id = Guid.Parse(model.IdKorisnik);
-            var idProjekt = Guid.Parse(model.IdCilj);
-            var clan = _ctx.ClanNaProjektu.Where(p => p.IdKorisnik == id && p.IdProjekt == idProjekt).SingleOrDefault();
+            Guid id, idProjekt;
+            var flagI = Guid.TryParse(model.IdKorisnik, out id);
+            var flagP = Guid.TryParse(model.IdCilj, out idProjekt);
+            if (!IsAdmin(_ctx.Projekt.Find(idProjekt).IdZbor, user.Id))
+                return Forbid();
+            if (_ctx.Projekt.Find(idProjekt) == null || _ctx.Korisnik.Find(id) == null)
+                return NotFound();
+            var clan = _ctx.ClanNaProjektu.Where(p => p.IdKorisnik == id && p.IdProjekt == idProjekt).Include(p =>p.IdProjektNavigation).SingleOrDefault();
+           
             if (clan != null)
                 return Ok();
             var c = new ClanNaProjektu
@@ -897,10 +1303,18 @@ namespace ZborApp.Controllers
         }
 
         [HttpPost]
-        public IActionResult PretragaKorisnikaProjekt([FromBody] PretragaModel model)
+        public async Task<IActionResult> PretragaKorisnikaProjekt([FromBody] PretragaModel model)
         {
-            Guid idProjekt = Guid.Parse(model.Id);
-            var projekt = _ctx.Projekt.Where(p => p.Id == idProjekt).SingleOrDefault();
+            Guid idProjekt;
+            var flag = Guid.TryParse(model.Id, out idProjekt);
+            if (!flag)
+                return BadRequest();
+            var projekt = _ctx.Projekt.Find(idProjekt);
+            if (projekt == null)
+                return NotFound();
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            if (!CheckRights(projekt.IdZbor, user.Id))
+                return Forbid();
             var korisnici = _ctx.Korisnik.Where(k => (k.Ime.Trim().ToLower() + ' ' + k.Prezime.Trim().ToLower()).Contains(model.Tekst))
                 .Where(k => k.ClanZbora.Where(c => c.IdZbor == projekt.IdZbor && c.IdKorisnik == k.Id).SingleOrDefault() != null)
                 .Where(k => k.ClanNaProjektu.Where(c => c.IdProjekt == projekt.Id && c.IdKorisnik == k.Id).SingleOrDefault() == null && k.PozivZaProjekt.Where(c => c.IdProjekt == projekt.Id && c.IdKorisnik == k.Id).SingleOrDefault() == null && k.PrijavaZaProjekt.Where(c => c.IdProjekt == projekt.Id && c.IdKorisnik == k.Id).SingleOrDefault() == null)
@@ -913,7 +1327,9 @@ namespace ZborApp.Controllers
         [HttpGet]
         public async Task<IActionResult> NoviDogadjaj(Guid id)
         {
-            var projekt = _ctx.Projekt.Where(p => p.Id == id).SingleOrDefault();
+            var projekt = _ctx.Projekt.Find(id);
+            if(projekt == null)
+                return RedirectToAction("Nema", "Greska");
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
             if (!IsAdmin(projekt.IdZbor, user.Id))
                 return RedirectToAction("Prava");
@@ -926,9 +1342,18 @@ namespace ZborApp.Controllers
             return View(model);
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult NoviDogadjaj(Guid id, NoviDogadjajViewModel model)
         {
-            if(ModelState.IsValid)
+            if (model.Novi.Naziv.Trim().Equals(""))
+                ModelState.AddModelError("Naziv", "Naziv je obavezan.");
+
+            if (model.Novi.Lokacija.Trim().Equals(""))
+                ModelState.AddModelError("Lokacija", "Lokacija je obavezna.");
+
+            if (model.Novi.DodatanOpis.Trim().Equals(""))
+                ModelState.AddModelError("DodatanOpis", "Opis je obavezan.");
+            if (ModelState.IsValid)
             {
                 model.Novi.Id = Guid.NewGuid();
                 _ctx.Dogadjaj.Add(model.Novi);
@@ -944,11 +1369,16 @@ namespace ZborApp.Controllers
         public async Task<IActionResult> NajavaDolaska([FromBody] LajkModel lajk)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            Guid idDogadjaj;
+            var flag = Guid.TryParse(lajk.IdCilj, out idDogadjaj);
+            if (!flag) return BadRequest();
+            if (_ctx.Dogadjaj.Find(idDogadjaj) == null)
+                return NotFound();
             var l = new NajavaDolaska
             {
                 Id = Guid.NewGuid(),
                 IdKorisnik = user.Id,
-                IdDogadjaj = Guid.Parse(lajk.IdCilj)
+                IdDogadjaj = idDogadjaj
 
             };
             _ctx.NajavaDolaska.Add(l);
@@ -959,8 +1389,12 @@ namespace ZborApp.Controllers
         public async Task<IActionResult> ObrisiNajavuDolaska([FromBody] LajkModel lajk)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-
-            var l = _ctx.NajavaDolaska.Where(l => l.IdKorisnik == user.Id && l.IdDogadjaj == Guid.Parse(lajk.IdCilj)).SingleOrDefault();
+            Guid idDogadjaj;
+            var flag = Guid.TryParse(lajk.IdCilj, out idDogadjaj);
+            if (!flag) return BadRequest();
+            var l = _ctx.NajavaDolaska.Where(l => l.IdKorisnik == user.Id && l.IdDogadjaj == idDogadjaj).SingleOrDefault();
+            if (l == null)
+                return NotFound();
             _ctx.NajavaDolaska.Remove(l);
             _ctx.SaveChanges();
             return Ok();
@@ -970,6 +1404,8 @@ namespace ZborApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Kalendar(Guid id)
         {
+            if(!Exists(id))
+                return RedirectToAction("Nema", "Greska");
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
             if (!CheckRights(id, user.Id))
                 return RedirectToAction("Prava");
@@ -990,14 +1426,16 @@ namespace ZborApp.Controllers
         [HttpPost]
         public async Task<IActionResult> UcitajClanove(Guid id, IFormFile file)
         {
+            if(!Exists(id))
+                return RedirectToAction("Nema", "Greska");
+            ApplicationUser u = await _userManager.GetUserAsync(HttpContext.User);
+            if (!IsAdmin(id, u.Id))
+                return RedirectToAction("Prava");
             if (!file.FileName.EndsWith("xlsx"))
             {
                 TempData["mess"] = "Uploadajte u xlsx formatu.";
             }
-
-
-
-            if (file.Length > 0)
+            else if (file.Length > 0)
             {
                 using (var stream = file.OpenReadStream())
                 {
@@ -1052,9 +1490,9 @@ namespace ZborApp.Controllers
                                             _ctx.Add(new ClanZbora { DatumPridruzivanja = DateTime.Now, IdKorisnik = user.Id, IdZbor = id, Id = Guid.NewGuid(), Glas = glas });
                                     }
                                 }
-                                catch (Exception exc)
+                                catch (Exception)
                                 {
-                                    continue;
+                                    TempData["mess"]="Došlo je do greške";
                                 }
 
                             }
@@ -1102,6 +1540,11 @@ namespace ZborApp.Controllers
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
             var kor = _ctx.Korisnik.Find(user.Id);
             var projekt = _ctx.Projekt.Where(p => p.Id == id).Include(p => p.IdVrstePodjeleNavigation).Include(p => p.Dogadjaj).ThenInclude(d => d.NajavaDolaska).SingleOrDefault();
+            if (projekt == null)
+                return RedirectToAction("Nema", "Greska");
+            if (!CheckRights(projekt.IdZbor, user.Id))
+                return RedirectToAction("Prava");
+
             var model = new ProjektViewModel { Admin = IsAdmin(projekt.IdZbor, user.Id), Projekt = projekt };
             model.AktivniDogadjaji = projekt.Dogadjaj.Where(d => d.DatumIvrijeme > DateTime.Now).OrderBy(d => d.DatumIvrijeme).AsEnumerable();
             model.ProsliDogadjaji =     projekt.Dogadjaj.Where(d => d.DatumIvrijeme <= DateTime.Now).OrderByDescending(d => d.DatumIvrijeme).AsEnumerable();
@@ -1116,6 +1559,8 @@ namespace ZborApp.Controllers
             model.Obavijesti = obavijesti;
             model.Slika = kor.Slika;
             model.ImeIPrezime = kor.ImeIPrezime();
+            var clan = _ctx.ClanNaProjektu.Where(c => c.IdProjekt == id && c.IdKorisnik == user.Id).SingleOrDefault();
+            model.Clan = clan != null ? true : false;
             ViewData["zborId"] = projekt.IdZbor;
             ViewData["zborIme"] = _ctx.Zbor.Find(projekt.IdZbor).Naziv;
 
@@ -1123,14 +1568,18 @@ namespace ZborApp.Controllers
             return View(model);
 
         }
+        [HttpPost]
         public async Task<IActionResult> NapustiZbor(Guid id)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            if (!Exists(id))
+                return RedirectToAction("Nema", "Greska");
             var clan = _ctx.ClanZbora.Where(c => c.IdKorisnik == user.Id && c.IdZbor == id).SingleOrDefault();
             _ctx.Remove(clan);
             _ctx.SaveChanges();
             return RedirectToAction("Index");
         }
+        [HttpPost]
         public async Task<IActionResult> ObrisiDogadjaj(Guid id)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
@@ -1143,7 +1592,11 @@ namespace ZborApp.Controllers
         public async Task<IActionResult> UrediDogadjaj(Guid id)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            var dog = _ctx.Dogadjaj.Where(c => c.Id == id).SingleOrDefault();
+            var dog = _ctx.Dogadjaj.Where(c => c.Id == id).Include(p => p.IdProjektNavigation).SingleOrDefault();
+            if (dog == null)
+                return RedirectToAction("Nema", "Greska");
+            if (!CheckRights(dog.IdProjektNavigation.IdZbor, user.Id))
+                return RedirectToAction("Prava");
             var model = new NoviDogadjajViewModel
             {
                 IdProjekt = dog.IdProjekt,
@@ -1158,6 +1611,8 @@ namespace ZborApp.Controllers
         public async Task<IActionResult> SkiniKalendar(Guid id)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            if (!Exists(id))
+                return RedirectToAction("Nema", "Greska");
             if (!CheckRights(id, user.Id))
                 return RedirectToAction("Prava");
             var dogadjaji = _ctx.Dogadjaj.Where(d => d.IdProjektNavigation.IdZbor == id).Include(p => p.IdProjektNavigation).ToList();
@@ -1186,6 +1641,8 @@ namespace ZborApp.Controllers
         public async Task<IActionResult> JavniProfil(Guid id)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            if (!Exists(id))
+                return RedirectToAction("Nema", "Greska");
             var zbor = _ctx.Zbor.Where(z => z.Id == id).Include(z => z.ProfilZbor)
                 .Include(z => z.Voditelj).ThenInclude(v => v.IdKorisnikNavigation).SingleOrDefault();
             JavniProfilViewModel model = new JavniProfilViewModel
@@ -1198,7 +1655,15 @@ namespace ZborApp.Controllers
         public async Task<IActionResult> Urediozboru([FromBody] PretragaModel model)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            _ctx.ProfilZbor.Find(Guid.Parse(model.Id)).OZboru = model.Tekst;
+            Guid idZbor;
+            bool flag = Guid.TryParse(model.Id, out idZbor);
+            if (flag == false)
+                return BadRequest();
+            if (!Exists(idZbor))
+                return NotFound();
+            if (!IsAdmin(idZbor, user.Id))
+                return Forbid();
+            _ctx.ProfilZbor.Find(idZbor).OZboru = model.Tekst;
             _ctx.SaveChanges();
             return Ok();
         }
@@ -1206,7 +1671,15 @@ namespace ZborApp.Controllers
         public async Task<IActionResult> Urediovoditeljima([FromBody] PretragaModel model)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            _ctx.ProfilZbor.Find(Guid.Parse(model.Id)).OVoditeljima = model.Tekst;
+            Guid idZbor;
+            bool flag = Guid.TryParse(model.Id, out idZbor);
+            if (flag == false)
+                return BadRequest();
+            if (!Exists(idZbor))
+                return NotFound();
+            if (!IsAdmin(idZbor, user.Id))
+                return Forbid();
+            _ctx.ProfilZbor.Find(idZbor).OVoditeljima = model.Tekst;
             _ctx.SaveChanges();
             return Ok();
         }
@@ -1214,7 +1687,15 @@ namespace ZborApp.Controllers
         public async Task<IActionResult> Uredirepertoar([FromBody] PretragaModel model)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            _ctx.ProfilZbor.Find(Guid.Parse(model.Id)).Repertoar = model.Tekst;
+            Guid idZbor;
+            bool flag = Guid.TryParse(model.Id, out idZbor);
+            if (flag == false)
+                return BadRequest();
+            if (!Exists(idZbor))
+                return NotFound();
+            if (!IsAdmin(idZbor, user.Id))
+                return Forbid();
+            _ctx.ProfilZbor.Find(idZbor).Repertoar = model.Tekst;
             _ctx.SaveChanges();
             return Ok();
         }
@@ -1222,7 +1703,15 @@ namespace ZborApp.Controllers
         public async Task<IActionResult> Uredireprezentacija([FromBody] PretragaModel model)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            _ctx.ProfilZbor.Find(Guid.Parse(model.Id)).Reprezentacija = model.Tekst;
+            Guid idZbor;
+            bool flag = Guid.TryParse(model.Id, out idZbor);
+            if (flag == false)
+                return BadRequest();
+            if (!Exists(idZbor))
+                return NotFound();
+            if (!IsAdmin(idZbor, user.Id))
+                return Forbid();
+            _ctx.ProfilZbor.Find(idZbor).Reprezentacija = model.Tekst;
             _ctx.SaveChanges();
             return Ok();
         }
@@ -1230,7 +1719,12 @@ namespace ZborApp.Controllers
         public async Task<IActionResult> Pretplate(Guid id)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            if (!Exists(id))
+                return RedirectToAction("Nema", "Greska");
+            if (!CheckRights(id, user.Id))
+                return RedirectToAction("Prava");
             var zbor = _ctx.Zbor.Where(z => z.Id == id).Include(z => z.PretplataNaZbor).Include(z => z.Projekt).ThenInclude(p => p.PretplataNaProjekt).SingleOrDefault();
+            
             PretplateViewModel model = new PretplateViewModel
             {
                 Zbor = zbor,
@@ -1245,6 +1739,10 @@ namespace ZborApp.Controllers
         public async Task<IActionResult> Pretplate(Guid id, PretplateViewModel model)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            if (!Exists(id))
+                return RedirectToAction("Nema", "Greska");
+            if (!CheckRights(id, user.Id))
+                return RedirectToAction("Prava");
             var pretplataZbor = _ctx.PretplataNaZbor.Where(z => z.IdZbor == id && z.IdKorisnik == user.Id).SingleOrDefault();
              if(pretplataZbor == null)
             {

@@ -14,6 +14,7 @@ namespace ZborApp.Models.ZborViewModels
         public Dictionary<Guid, List<int>> KorisnickiOdgovori = new Dictionary<Guid, List<int>>();
 
         public bool Admin { get; set; }
+        public Guid IdKorisnik { get; set; }
 
         public string OdgovoriUListu(Guid id)
         {

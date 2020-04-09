@@ -3,11 +3,74 @@
 @{
     ViewData["Title"] = "Teme";
 }
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote.min.css" rel="stylesheet">
+
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">NASdlobfaabfdb</h1>
+    <h1 class="h3 mb-0 text-gray-800">@Model.Naslov</h1>
 </div>
 
 <body>
+
+    <div class="d-flex flex-row align-items-center justify-content-between">
+        &nbsp;
+        <pager page-info="@Model.PagingInfo" page-action="Tema" page-title="Unesite željenu stranicu">
+        </pager>
+    </div>
+
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-8">
+                            Naslov teme
+                        </div>
+                        <div class="col-2">Broj zapisa</div>
+                        <div class="col-2">Zadnji zapis</div>
+                    </div>
+                </div>
+
+
+
+                <div class="card-body">
+                    @foreach (var tema in Model.Teme)
+                    {
+                        <div class="row">
+
+                            <div class="col-8">
+                                <div class="card-title"><a asp-action="Zapis" asp-route-id="@tema.Id">@tema.Naslov</a></div>
+                                <p>Korisnik @tema.IdKorisnikNavigation.ImeIPrezime(), @tema.DatumPocetka.ToString("dd.MM.yyyy. HH:mm") <a asp-action="Zapis" asp-route-id="@tema.Id">Prva</a>...<a asp-action="Zapis" asp-route-id="@tema.Id" asp-route-page="0">Zadnja</a></p>
+                            </div>
+                            <div class="col-2"> @tema.Zapis.Count</div>
+                            <div class="col-2 d-flex flex-row align-items-center justify-content-between">
+                                @{ var zadnja = tema.Zadnji();}
+
+                                @if (zadnja == null)
+                                {<text>Nema</text> }
+                            else
+                            {
+                                <div>
+                                    <a href="#">@zadnja.IdKorisnikNavigation.ImeIPrezime()</a>
+                                    <p>@zadnja.DatumIvrijeme.ToString("dd.MM.yyyy. HH:mm")</p>
+                                </div>
+                            }
+                                @if (Model.Mod || tema.IdKorisnik == Model.IdKorisnik)
+                                {
+                                    <form asp-action="ObrisiTema" asp-route-page="@Model.PagingInfo.CurrentPage"><input asp-for="IdBrisanje" value="@tema.Id" hidden style="display:none" /><button class="btn btn-outline-secondary btn-sm" type="submit"><i class="fa fa-trash-o"></i></button></form>
+                                }
+
+                            </div>
+                        </div>
+
+                    }
+
+
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row">
 
         <!-- Area Chart -->
@@ -32,15 +95,14 @@
                                 </div>
                             </div>
 
-                            <label asp-for="Tekst">Opis:</label>
+                            <label asp-for="Tekst">Prvi zapis:</label>
                             <span asp-validation-for="Tekst" class="text-danger"></span>
+                            <br />
 
-
-                            <textarea class="col-md-12 form-control" asp-for="Tekst" style="resize:none; height: 300px; width:500px"></textarea>
-
+                            <textarea id="summernote" class="form-control" asp-for="Tekst" style="resize:none; height: 300px; width:700px"></textarea>
+                            <br />
                             <div class="row">
                                 <div class="col-md-6 d-flex flex-row align-items-center justify-content-between">
-                                    &nbsp;
                                     <button type="submit" class="btn btn-outline-info">Dodaj</button>
                                 </div>
                             </div>
@@ -54,68 +116,15 @@
         </div>
 
     </div>
-    <div class="d-flex flex-row align-items-center justify-content-between">
-        &nbsp;
-        <pager page-info="@Model.PagingInfo" page-action="Tema" page-title="Unesite željenu stranicu">
-        </pager>
-    </div>
-
-    
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow mb-4">
-
-                <div class="card-header">
-                    <div class="row">
-                        <div class="col-8">
-                            Naslov teme
-                        </div>
-                        <div class="col-2">Broj zapisa</div>
-                        <div class="col-2">Zadnji zapis</div>
-                    </div>
-                </div>
-
-
-
-                <div class="card-body">
-                    @foreach (var tema in Model.Teme)
-                    {
-                        <div class="row">
-
-                            <div class="col-8">
-                                <div class="card-title"><a asp-action="Zapis" asp-route-id="@tema.Id">@tema.Naslov</a></div>
-                                <p>Korisnik @tema.IdKorisnikNavigation.ImeIPrezime(), @tema.DatumPocetka.ToString("dd.MM.yyyy. HH:mm") <a  asp-action="Zapis" asp-route-id="@tema.Id">Prva</a>...<a  asp-action="Zapis" asp-route-id="@tema.Id" asp-route-page="0">Zadnja</a></p>
-                            </div>
-                            <div class="col-2"> @tema.Zapis.Count</div>
-                            <div class="col-2">
-                                @{ var zadnja = tema.Zadnji();}
-                                <div>
-                                    @if (zadnja == null)
-                                    {<text>Nema</text> }
-                                else
-                                {
-                                    <div>
-                                        <a href="#">@zadnja.IdKorisnikNavigation.ImeIPrezime()</a>
-                                        <p>@zadnja.DatumIvrijeme.ToString("dd.MM.yyyy. HH:mm")</p>
-                                    </div>
-                                }
-                                    <form asp-action="ObrisiTema" asp-route-page="@Model.PagingInfo.CurrentPage"><input asp-for="IdBrisanje" value="@tema.Id" hidden style="display:none" /><button class="btn btn-outline-warning" type="submit">Obriši</button></form>
-
-                                </div>
-                            </div>
-                        </div>
-
-                    }
-
-
-                </div>
-            </div>
-        </div>
-    </div>
-
 </body>
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote.min.js"></script>
     <script src="~/js/gotopage.js">
 
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#summernote').summernote();
+        });
     </script>
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace ZborData.Model
 {
@@ -17,8 +18,11 @@ namespace ZborData.Model
         }
 
         public Guid Id { get; set; }
+        [Required(ErrorMessage= "Naziv projekta je obavezan")]
         public string Naziv { get; set; }
+        [Required(ErrorMessage = "Opis projekta je obavezan")]
         public string Opis { get; set; }
+        [Required(ErrorMessage = "Datum početka projekta je obavezan")]
         public DateTime DatumPocetka { get; set; }
         public Guid IdZbor { get; set; }
         public Guid IdVrstePodjele { get; set; }

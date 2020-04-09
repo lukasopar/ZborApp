@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace ZborData.Model
@@ -11,6 +12,7 @@ namespace ZborData.Model
             Zapis = new HashSet<Zapis>();
         }
         public Guid Id { get; set; }
+        [Required(ErrorMessage="Naslov je obavezan")]
         public string Naslov { get; set; }
         public DateTime DatumPocetka { get; set; }
         public Guid IdKorisnik { get; set; }

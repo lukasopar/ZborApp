@@ -45,6 +45,26 @@ namespace ZborApp.Controllers
             _ctx = ctx;
             _userManager = userManager;
         }
+        private bool Exists(Guid idZbor)
+        {
+            var zbor = _ctx.Zbor.Find(idZbor);
+            return zbor == null ? false : true;
+        }
+        private bool CheckRights(Guid idZbor, Guid idKorisnik)
+        {
+            var clan = _ctx.ClanZbora.Where(c => c.IdKorisnik == idKorisnik && c.IdZbor == idZbor).SingleOrDefault();
+            var voditelj = _ctx.Voditelj.Where(v => v.IdZbor == idZbor).OrderByDescending(v => v.DatumPostanka).SingleOrDefault();
+            if (clan != null || voditelj.IdKorisnik == idKorisnik)
+                return true;
+            return false;
+        }
+        private bool IsAdmin(Guid idZbor, Guid idKorisnik)
+        {
+            var zbor = _ctx.Zbor.Where(z => z.Id == idZbor).Include(z => z.Voditelj).Include(z => z.ModeratorZbora).SingleOrDefault();
+            var admin = zbor.Voditelj.OrderByDescending(z => z.DatumPostanka).First();
+            var mod = zbor.ModeratorZbora.Where(m => m.IdKorisnik == idKorisnik).SingleOrDefault();
+            return admin.IdKorisnik == idKorisnik || mod != null ? true : false;
+        }
         public async Task<IActionResult> Korisnik(Guid id)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
@@ -65,16 +85,24 @@ namespace ZborApp.Controllers
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
             var korisnik = _ctx.Korisnik.Where(k => k.Id == user.Id).SingleOrDefault();
-            var datoteke = _ctx.RepozitorijZbor.Where(r => r.IdZbor == id).OrderByDescending(r => r.DatumPostavljanja).ToList();
-            if (!_ctx.ClanZbora.Select(c => c.IdKorisnik).Contains(id))
+            var datoteke = _ctx.RepozitorijZbor.Where(r => r.IdZbor == id).Include(k => k.IdKorisnikNavigation).OrderByDescending(r => r.DatumPostavljanja).ToList();
+            if (!_ctx.ClanZbora.Where(c => c.IdZbor == id).Select(c => c.IdKorisnik).Contains(user.Id))
                 datoteke = datoteke.Where(d => d.Privatno == false).ToList();
 
+            var zbor = _ctx.Zbor.Where(z => z.Id == id).Include(z => z.Voditelj).Include(z => z.ModeratorZbora).SingleOrDefault();
+            var admin = zbor.Voditelj.OrderByDescending(z => z.DatumPostanka).First();
+            var mod = zbor.ModeratorZbora.Where(m => m.IdKorisnik == user.Id).SingleOrDefault();
+            bool flagAdmin  =  admin.IdKorisnik == user.Id || mod != null ? true : false;
+            var clan = _ctx.ClanZbora.Where(c => c.IdKorisnik == user.Id && c.IdZbor == id).SingleOrDefault();
+            bool flagClan = clan == null ? false : true;
             RepozitorijZborViewModel model = new RepozitorijZborViewModel
             {
                 Datoteke = datoteke,
                 IdKorisnik = user.Id,
                 IdTrazeni = id,
-                IdZbor = id
+                IdZbor = id,
+                Promjena = flagAdmin,
+                Clan = flagClan
             };
             return View(model);
         }
@@ -82,8 +110,16 @@ namespace ZborApp.Controllers
         public async Task<IActionResult> Objavi([FromBody] StringModel model)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            Guid idRep;
+            var flag = Guid.TryParse(model.Value, out idRep);
+            if (flag == false)
+                return BadRequest();
             //provjera usera bla bla
-            var d = _ctx.RepozitorijKorisnik.Where(d => d.Id == Guid.Parse(model.Value)).SingleOrDefault();
+            var d = _ctx.RepozitorijKorisnik.Find(idRep);
+            if (d == null)
+                return NotFound();
+            if (d.IdKorisnik != user.Id)
+                return Forbid();
             d.Privatno = false;
             _ctx.SaveChanges();
             var m = new StringModel { Value = "Ok" };
@@ -93,8 +129,15 @@ namespace ZborApp.Controllers
         public async Task<IActionResult> ObjaviZbor([FromBody] StringModel model)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            //provjera usera bla bla
-            var d = _ctx.RepozitorijZbor.Where(d => d.Id == Guid.Parse(model.Value)).SingleOrDefault();
+            Guid idRep;
+            var flag = Guid.TryParse(model.Value, out idRep);
+            if (flag == false)
+                return BadRequest();
+            var d = _ctx.RepozitorijZbor.Find(idRep);
+            if (d == null)
+                return NotFound();
+            if (!IsAdmin(d.IdZbor, user.Id) && d.IdKorisnik != user.Id)
+                return Forbid();
             d.Privatno = false;
             _ctx.SaveChanges();
             var m = new StringModel { Value = "Ok" };
@@ -104,8 +147,16 @@ namespace ZborApp.Controllers
         public async Task<IActionResult> Privatiziraj([FromBody] StringModel model)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            Guid idRep;
+            var flag = Guid.TryParse(model.Value, out idRep);
+            if (flag == false)
+                return BadRequest();
             //provjera usera bla bla
-            var d = _ctx.RepozitorijKorisnik.Where(d => d.Id == Guid.Parse(model.Value)).SingleOrDefault();
+            var d = _ctx.RepozitorijKorisnik.Find(idRep);
+            if (d == null)
+                return NotFound();
+            if (d.IdKorisnik != user.Id)
+                return Forbid();
             d.Privatno = true;
             _ctx.SaveChanges();
             var m = new StringModel { Value = "Ok" };
@@ -115,27 +166,52 @@ namespace ZborApp.Controllers
         public async Task<IActionResult> PrivatizirajZbor([FromBody] StringModel model)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            //provjera usera bla bla
-            var d = _ctx.RepozitorijZbor.Where(d => d.Id == Guid.Parse(model.Value)).SingleOrDefault();
+            Guid idRep;
+            var flag = Guid.TryParse(model.Value, out idRep);
+            if (flag == false)
+                return BadRequest();
+            var d = _ctx.RepozitorijZbor.Find(idRep);
+            if (d == null)
+                return NotFound();
+            if (!IsAdmin(d.IdZbor, user.Id) && d.IdKorisnik != user.Id)
+                return Forbid();
             d.Privatno = true;
             _ctx.SaveChanges();
             var m = new StringModel { Value = "Ok" };
             return Ok(m);
         }
         [HttpPost]
-        public IActionResult PromjenaNaziva([FromBody] PretragaModel model)
+        public async Task<IActionResult> PromjenaNaziva([FromBody] PretragaModel model)
         {
-            var d = _ctx.RepozitorijKorisnik.Where(d => d.Id == Guid.Parse(model.Id)).SingleOrDefault();
-            d.Naziv = model.Tekst + "." + d.GetEkstenzija();
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            Guid idRep;
+            var flag = Guid.TryParse(model.Id, out idRep);
+            if (flag == false)
+                return BadRequest();
+            var d = _ctx.RepozitorijKorisnik.Find(idRep);
+            if (d == null)
+                return NotFound();
+            if (d.IdKorisnik != user.Id)
+                return Forbid();
+            d.Naziv = model.Tekst.Trim() + "." + d.GetEkstenzija();
             _ctx.SaveChanges();
             var m = new StringModel { Value = "Ok" };
             return Ok(m);
         }
         [HttpPost]
-        public IActionResult PromjenaNazivaZbor([FromBody] PretragaModel model)
+        public async Task<IActionResult> PromjenaNazivaZbor([FromBody] PretragaModel model)
         {
-            var d = _ctx.RepozitorijZbor.Where(d => d.Id == Guid.Parse(model.Id)).SingleOrDefault();
-            d.Naziv = model.Tekst + "." + d.GetEkstenzija();
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            Guid idRep;
+            var flag = Guid.TryParse(model.Id, out idRep);
+            if (flag == false)
+                return BadRequest();
+            var d = _ctx.RepozitorijZbor.Find(idRep);
+            if (d == null)
+                return NotFound();
+            if (!IsAdmin(d.IdZbor, user.Id) && d.IdKorisnik != user.Id)
+                return Forbid();
+            d.Naziv = model.Tekst.Trim() + "." + d.GetEkstenzija();
             _ctx.SaveChanges();
             var m = new StringModel { Value = "Ok" };
             return Ok(m);
@@ -175,9 +251,6 @@ namespace ZborApp.Controllers
                 _ctx.SaveChanges();
             }
 
-            // Process uploaded files
-            // Don't rely on or trust the FileName property without validation.
-
             return RedirectToAction("Korisnik", new { id = user.Id });
         }
         public async Task<IActionResult> UploadZbor(RepozitorijZborViewModel model)
@@ -191,7 +264,7 @@ namespace ZborApp.Controllers
                 if (formFile.Length > 0)
                 {
                     DirectoryInfo di = Directory.CreateDirectory(LOCATION_CHOIR + model.IdZbor);
-                    var filePath = model.IdZbor+ "/" + formFile.FileName;
+                    var filePath = "Zbor/"+ model.IdZbor+ "/" + formFile.FileName;
                     RepozitorijZbor dat = new RepozitorijZbor
                     {
                         Id = Guid.NewGuid(),
@@ -216,24 +289,26 @@ namespace ZborApp.Controllers
                 _ctx.SaveChanges();
             }
 
-            // Process uploaded files
-            // Don't rely on or trust the FileName property without validation.
-
             return RedirectToAction("Zbor", new { id = user.Id });
         }
         public async Task<IActionResult> Delete(RepozitorijViewModel model)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            var dat = _ctx.RepozitorijKorisnik.Where(d => d.Id == model.IdTrazeni).SingleOrDefault();
+ 
+            var d = _ctx.RepozitorijKorisnik.Find(model.IdTrazeni);
+            if (d == null)
+                return RedirectToAction("Nema", "Greska");
+            if (d.IdKorisnik != user.Id)
+                return RedirectToAction("Prava", "Zbor");
             try
             {
 
-                System.IO.File.Delete(LOCATION + "/" + dat.Url);
-                _ctx.Remove(dat);
+                System.IO.File.Delete(LOCATION + "/" + d.Url);
+                _ctx.Remove(d);
                 _ctx.SaveChanges();
-            }catch (Exception exc)
+            }catch (Exception)
             {
-                int g = 0; ;
+                return RedirectToAction("Error", "Zbor");
             };
 
 
@@ -242,21 +317,25 @@ namespace ZborApp.Controllers
         public async Task<IActionResult> DeleteZbor(RepozitorijZborViewModel model)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            var dat = _ctx.RepozitorijZbor.Where(d => d.Id == model.IdTrazeni).SingleOrDefault();
+            var dat = _ctx.RepozitorijZbor.Find(model.IdTrazeni);
+            if (dat == null)
+                return RedirectToAction("Nema", "Greska");
+            if (!IsAdmin(dat.IdZbor, user.Id) && dat.IdKorisnik != user.Id)
+                return RedirectToAction("Prava", "Zbor");
             try
             {
 
-                System.IO.File.Delete(LOCATION_CHOIR + "/" + dat.Url);
+                System.IO.File.Delete(LOCATION + "/" + dat.Url);
                 _ctx.Remove(dat);
                 _ctx.SaveChanges();
             }
-            catch (Exception exc)
+            catch (Exception)
             {
-                int g = 0; ;
+                return RedirectToAction("Error", "Zbor");
             };
 
 
-            return RedirectToAction("Zbor", new { id = model.IdZbor });
+            return RedirectToAction("Zbor", new { id = dat.IdZbor });
         }
         public async Task<IActionResult> Get(Guid id)
         {
@@ -270,7 +349,7 @@ namespace ZborApp.Controllers
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
             var dat = _ctx.RepozitorijZbor.Where(d => d.Id == id).SingleOrDefault();
 
-            return File(System.IO.File.ReadAllBytes(LOCATION_CHOIR + "/" + dat.Url), "application/force-download", dat.Naziv);
+            return File(System.IO.File.ReadAllBytes(LOCATION + "/" + dat.Url), "application/force-download", dat.Naziv);
         }
     }
 }

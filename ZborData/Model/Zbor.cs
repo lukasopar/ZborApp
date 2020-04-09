@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace ZborData.Model
 {
@@ -20,9 +21,12 @@ namespace ZborData.Model
         }
 
         public Guid Id { get; set; }
+        [Required(ErrorMessage = "Naziv zbora je obavezan.")]
         public string Naziv { get; set; }
+        [Required(ErrorMessage = "Adresa zbora je obavezna.")]
         public string Adresa { get; set; }
         public string Opis { get; set; }
+        [Required(ErrorMessage = "Datum osnutka zbora je obavezan.")]
         public DateTime DatumOsnutka { get; set; }
 
         public virtual ICollection<Anketa> Anketa { get; set; }

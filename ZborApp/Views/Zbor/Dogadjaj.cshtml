@@ -35,13 +35,13 @@
                         <label>Vrijeme početka: @Model.Dogadjaj.DatumIvrijeme.ToString("dd.MM.yyyy. hh:mm")</label>
                     </div>
                     <div class="row">
-                        <label>Vrijeme početka: @Model.Dogadjaj.DatumIvrijemeKraja.ToString("dd.MM.yyyy. hh:mm")</label>
+                        <label>Vrijeme završetka: @Model.Dogadjaj.DatumIvrijemeKraja.ToString("dd.MM.yyyy. hh:mm")</label>
                     </div>
                     <div class="row">
                         <label>Opis: @Model.Dogadjaj.DodatanOpis</label>
                     </div>
                     <div class="row">
-                        <label>Najave dolaska: <i data-toggle="modal" data-target="#exampleModal" class="fa fa-exclamation-circle hoverable"></i></label>
+                        <a class="hoverable" style="color:blue" data-toggle="modal" data-target="#exampleModal">Najave dolazaka</a>
                     </div>
                 </div>
             </div>
@@ -62,26 +62,14 @@
                 </button>
             </div>
             <div class="modal-body">
-           
-                    <div class="d-flex flex-row align-items-start justify-content-between">
-                        @foreach (var glas in Model.Dogadjaj.IdProjektNavigation.IdVrstePodjeleNavigation.Glasovi())
-                        {
-                            <div class="@glas">
-                                <div>@glas:  @Model.Clanovi[glas].Count</div>
-                                <div>
-                                    @foreach (var clan in Model.Clanovi[glas])
-                                    {
-                                        <div id="Clan-@clan.Id" style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between">
-                                            <a href="#">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                        }
-                        <div >
-                            <div>Nerazvrstani:  @Model.Nerazvrstani.Count</div>
+
+                <div class="d-flex flex-row align-items-start justify-content-between">
+                    @foreach (var glas in Model.Dogadjaj.IdProjektNavigation.IdVrstePodjeleNavigation.Glasovi())
+                    {
+                        <div class="@glas">
+                            <div>@glas:  @Model.Clanovi[glas].Count</div>
                             <div>
-                                @foreach (var clan in Model.Nerazvrstani)
+                                @foreach (var clan in Model.Clanovi[glas])
                                 {
                                     <div id="Clan-@clan.Id" style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between">
                                         <a href="#">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>
@@ -89,14 +77,28 @@
                                 }
                             </div>
                         </div>
+                    }
+                    <div>
+                        <div>Nerazvrstani:  @Model.Nerazvrstani.Count</div>
+                        <div>
+                            @foreach (var clan in Model.Nerazvrstani)
+                            {
+                                <div id="Clan-@clan.Id" style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between">
+                                    <a href="#">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>
+                                </div>
+                            }
+                        </div>
                     </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Zatvori</button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Zatvori</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
-    </div>
+@if (Model.isAdmin)
+{
     <div class="row">
         <div class="col-xl-12 col-lg-12">
             <div class="card shadow mb-4">
@@ -108,7 +110,7 @@
                 <div class="card-body">
 
                     <form method="post" asp-action="Evidentiraj">
-                        <input asp-for="IdDogadjaj" value="@Model.Dogadjaj.Id" hidden/>
+                        <input asp-for="IdDogadjaj" value="@Model.Dogadjaj.Id" hidden />
                         <div class=" d-flex flex-row align-items-start justify-content-between">
                             @foreach (var glas in Model.Dogadjaj.IdProjektNavigation.IdVrstePodjeleNavigation.Glasovi())
                             {
@@ -117,7 +119,7 @@
                                     <div class="card-text">
                                         @foreach (var clan in Model.ClanoviProjekta[glas])
                                         {
-                                            <div id="Clan-@clan.Id" style="width:100%; padding-top:7px" >
+                                            <div id="Clan-@clan.Id" style="width:100%; padding-top:7px">
                                                 <input name="Evidencija" type="checkbox" value="@clan.IdKorisnik" @if (Model.Evidencija.Contains(clan.IdKorisnik)) { <text> checked</text> } />
                                                 <a href="#">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>
 
@@ -135,7 +137,7 @@
                                 {
                                     @foreach (var clan in Model.NerazvrstaniClanovi)
                                     {
-                                        <div id="Clan-@clan.Id" style="width:100%; padding-top:7px" >
+                                        <div id="Clan-@clan.Id" style="width:100%; padding-top:7px">
                                             <input name="Evidencija" type="checkbox" value="@clan.IdKorisnik" @if (Model.Evidencija.Contains(clan.IdKorisnik)) { <text> checked</text> } />
 
                                             <a href="#">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>
@@ -148,10 +150,14 @@
 
 
                         </div>
-                        <div class=" d-flex flex-row align-items-start justify-content-between">
-                            &nbsp;
-                            <button type="submit" class="btn btn-outline-secondary">Spremi</button>
-                        </div>
+                        @if (Model.isAdmin)
+                        {
+                            <div class=" d-flex flex-row align-items-start justify-content-between">
+                                &nbsp;
+                                <button type="submit" class="btn btn-outline-secondary">Spremi</button>
+                            </div>
+                        }
+
                     </form>
 
                 </div>
@@ -159,8 +165,10 @@
             </div>
         </div>
     </div>
+}
 
-@section Scripts{ 
+
+@section Scripts{
     <script>
         $(document).ready(function () {
             $('[data-toggle="tooltip"]').tooltip();

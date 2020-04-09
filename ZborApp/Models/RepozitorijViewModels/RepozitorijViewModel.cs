@@ -15,5 +15,7 @@ namespace ZborApp.Models.RepozitorijViewModels
 
         public Guid IdTrazeni { get; set; }
         public IList<IFormFile> FormFiles { get; set; }
+        public bool Promjena { get; set; }
+        public bool Clan { get; set; }
     }
 }

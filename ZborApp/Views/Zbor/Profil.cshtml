@@ -26,7 +26,7 @@
             <div class="card-body">
                 <div class="card-text">
                     <form id="formy" style="width:100%" asp-route-returnUrl="@ViewData["ReturnUrl"]" asp-route-id="@Model.Zbor.Id" method="post">
-                        <div asp-validation-summary="All" class="text-danger"></div>
+                        <div asp-validation-summary="All" class="text-danger">@if (ViewData["Model"] != null){<text>@ViewData["Model"]</text>}</div>
                         <div class="row">
 
                             <div class="form-group col-md-6">
@@ -46,7 +46,7 @@
 
                             <span>
 
-                                <input class="form-control" style="width:400px" id="basic" placeholder="Projekti vezani uz obavijest:" />
+                                <input class="form-control" style="width:400px" id="basic" placeholder="Obavijest je vezana uz projekte:" />
                                 <input asp-for="OdabraniProjekti" id="basicHidden" style="display:none" />
 
                             </span>
@@ -76,12 +76,12 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <img src="@o.IdKorisnikNavigation.Slika" alt="profpic" style="border-radius:50%; width:30px; height:30px">
-                            @o.IdKorisnikNavigation.Ime @o.IdKorisnikNavigation.Prezime  <text class="small text-muted"> | @o.DatumObjave</text>
+                            @o.IdKorisnikNavigation.Ime @o.IdKorisnikNavigation.Prezime  <text class="small text-muted"> | @o.DatumObjave.ToString("dd.MM.yyyy. HH:mm")</text>
                         </div>
                         <div>
                             @if (Model.Admin || o.IdKorisnik == Model.IdKorisnik)
                             {
-                                <a style="right:0px;" asp-action="ObrisiObavijest" asp-route-id="@o.Id"><i class="fa fa-trash-o"></i></a>
+                                <form asp-action="ObrisiObavijest" asp-route-id="@o.Id" method="post"><button type="submit" class="btn btn-outline-secondary"><i class="fa fa-trash-o hoverable"></i></button></form>
                             }
                         </div>
                     </div>
@@ -102,15 +102,15 @@
                             <div>
                                 @if (o.LajkObavijesti.Where(l => l.IdKorisnik == Model.IdKorisnik).Count() == 0)
                                 {
-                                    <button id="BtnO-@o.Id" onclick="lajkObavijesti('@o.Id')" class="btn btn-outline-secondary btn-sm">@Html.Raw("Sviđa mi se")</button>
+                                    <button id="BtnO-@o.Id" onclick="lajkObavijesti('@o.Id', '@Model.IdKorisnik')" class="btn btn-outline-secondary btn-sm">@Html.Raw("Sviđa mi se")</button>
                                 }
                                 else
                                 {
-                                    <button id="BtnO-@o.Id" onclick="lajkObavijesti('@o.Id')" class="btn btn-secondary btn-sm">@Html.Raw("Sviđa mi se")</button>
+                                    <button id="BtnO-@o.Id" onclick="lajkObavijesti('@o.Id', '@Model.IdKorisnik')" class="btn btn-secondary btn-sm">@Html.Raw("Sviđa mi se")</button>
                                 }
                             </div>
-                            <div>
-                                <i class="fa fa-thumbs-o-up"></i><span id="LajkO-@o.Id" class="badge badge-danger badge-counter">@o.LajkObavijesti.Count</span>
+                            <div class="hoverable" data-id="@o.Id" data-name="obavijest" data-toggle="modal" data-target="#statistika">
+                                <i class="fa fa-thumbs-o-up"></i><span id="LajkO-@o.Id" class="badge badge-secondary badge-counter">@o.LajkObavijesti.Count</span>
                             </div>
                         </div>
 
@@ -119,8 +119,8 @@
                     <ul id="Komentari-@o.Id" class="list-group list-group-flush">
                         @foreach (KomentarObavijesti k in o.KomentarObavijesti.OrderBy(k => k.DatumObjave))
                         {
-                            <li class="list-group-item small" style="margin-bottom:0px; padding-bottom:0px" id="Kom-@k.Id">
-                                <div class="col-md-6 rounded-pill" style="display: inline-block; background-color:gainsboro;  ">
+                            <li class="list-group-item " style="margin-bottom:0px; padding-bottom:0px" id="Kom-@k.Id">
+                                <div class="col-md-6 rounded-pill" style="display: inline-block; background-color:gainsboro;  padding-bottom:10px; padding-left:10px; padding-top:10px">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
                                             <img src="@k.IdKorisnikNavigation.Slika" alt="profpic" style="border-radius:50%; width:30px; height:30px">
@@ -135,19 +135,21 @@
 
                                     </div>
                                 </div>
-                                <div style="padding-top:0px" class="col-md-4">
-                                    <p class="small">
-                                        @k.DatumObjave  <i class="fa fa-thumbs-o-up"></i><span id="LajkK-@k.Id" class="badge badge-danger badge-counter">@k.LajkKomentara.Count</span>
-                                        @if (k.LajkKomentara.Where(l => l.IdKorisnik == Model.IdKorisnik).Count() == 0)
-                                        {
-                                            <a style="color:blue" class="hoverable" id="BtnK-@k.Id" onclick="lajkKomentara('@k.Id')">Sviđa mi se</a>
-                                        }
-                                        else
-                                        {
-                                            <a style="color:blue" class="hoverable font-weight-bold" id="BtnK-@k.Id" onclick="lajkKomentara('@k.Id')">Sviđa mi se</a>
-                                        }
-
-                                    </p>
+                                <div style="padding-top:0px" class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-center" style="font-size:15px">
+                                        <div> @k.DatumObjave.ToString("dd.MM.yyyy. HH:mm")</div>  
+                                        <div class="row">
+                                            <div class="hoverable" data-id="@k.Id" data-name="komentar" data-toggle="modal" data-target="#statistika"><i class="fa fa-thumbs-o-up"></i><span id="LajkK-@k.Id" class="badge badge-secondary badge-counter">@k.LajkKomentara.Count</span></div>
+                                            @if (k.LajkKomentara.Where(l => l.IdKorisnik == Model.IdKorisnik).Count() == 0)
+                                            {
+                                                <a style="color:blue" class="hoverable" id="BtnK-@k.Id" onclick="lajkKomentara('@k.Id', '@Model.IdKorisnik')">Sviđa mi se</a>
+                                            }
+                                            else
+                                            {
+                                                <a style="color:blue" class="hoverable font-weight-bold" id="BtnK-@k.Id" onclick="lajkKomentara('@k.Id', '@Model.IdKorisnik')">Sviđa mi se</a>
+                                            }
+                                        </div>
+                                    </div>
                                 </div>
 
                             </li>
@@ -166,184 +168,85 @@
         </div>
     </div>
 }
+<div class="modal fade" id="statistika" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Osobe kojima se sviđa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="loadano">
+                    <span><text id="ime"></text></span>
+                    <p id="id" hidden></p>
+                    <div id="lajkovi"></div>
+                    
+                    
+                </div>
+                <div id="loading" style="display:none">
+                    <img src="https://i.gifer.com/4V0b.gif" alt="loading" />
+                </div>
 
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Zatvori</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 
 @section Scripts {
 
-    <script>
-            function lajkObavijesti(id) {
-                gumbObavijest = '#BtnO-' + id;
-                brojLajkovaObavijest = '#LajkO-' + id;
-                data = { IdCilj: id + '', IdKorisnik: '@Model.IdKorisnik' };
-                if ($(gumbObavijest).hasClass("btn-outline-secondary")) {
-                    $.ajax({
-                        type: "POST",
-                        dataType: "json",
-                        contentType: "application/json;charset=utf-8",
-                        url: '@Url.Action("LajkObavijesti", "Zbor")',
-                        data: JSON.stringify(data),
-                        xhrFields: {
-                            withCredentials: true
-                        }
-                    });
-                    brojLajkova = $(brojLajkovaObavijest).val() + 1;
-                    $(brojLajkovaObavijest).text(brojLajkova);
-
-                    $(gumbObavijest).removeClass("btn-outline-secondary");
-                    $(gumbObavijest).addClass("btn-secondary");
-                }
-                else {
-                    $.ajax({
-                        type: "POST",
-                        dataType: "json",
-                        contentType: "application/json;charset=utf-8",
-                        url: '@Url.Action("UnlajkObavijesti", "Zbor")',
-                        data: JSON.stringify(data),
-                        xhrFields: {
-                            withCredentials: true
-                        }
-                    });
-                    brojLajkova = $(brojLajkovaObavijest).text() - 1;
-                    $(brojLajkovaObavijest).text(brojLajkova);
-
-                    $(gumbObavijest).removeClass("btn-secondary");
-                    $(gumbObavijest).addClass("btn-outline-secondary");
-                }
-
-
-                console.log(brojLajkova)
-        }
-
+    <script src="~/js/Profil.js">
+            
     </script>
 
-    <script>
-            function lajkKomentara(id) {
-                gumbKomentar = '#BtnK-' + id;
-                brojLajkovaKomentar = '#LajkK-' + id;
-
-                data = { IdCilj: id + '', IdKorisnik: '@Model.IdKorisnik' };
-                if ($(gumbKomentar).hasClass("font-weight-bold")) {
-                    $.ajax({
-                        type: "POST",
-                        dataType: "json",
-                        contentType: "application/json;charset=utf-8",
-                        url: '@Url.Action("UnlajkKomentara", "Zbor")',
-                        data: JSON.stringify(data),
-                        xhrFields: {
-                            withCredentials: true
-                        }
-                    });
-                    brojLajkova = $(brojLajkovaKomentar).text() - 1;
-                    $(brojLajkovaKomentar).text(brojLajkova);
-
-                    $(gumbKomentar).removeClass("font-weight-bold");
-                }
-                else {
-                    $.ajax({
-                        type: "POST",
-                        dataType: "json",
-                        contentType: "application/json;charset=utf-8",
-                        url: '@Url.Action("LajkKomentara", "Zbor")',
-                        data: JSON.stringify(data),
-                        xhrFields: {
-                            withCredentials: true
-                        }
-                    });
-                    brojLajkova = Number($(brojLajkovaKomentar).text()) + 1;
-                    $(brojLajkovaKomentar).text(brojLajkova);
-
-                    $(gumbKomentar).addClass("font-weight-bold");
-                }
-        }
-
-    </script>
-
-    <script>
-
-        function test(ele, id) {
-            if(event.keyCode != 13) {
-                return;
-            }
-            inputPolje = '#noviKomentar-' + id
-            $(inputPolje).prop('disabled', true)
-            data = { Tekst: ele.value + '', IdObavijest: id + '' }
-            $.ajax({
-                type: "POST",
-                dataType: "json",
-                contentType: "application/json;charset=utf-8",
-                url: '@Url.Action("NoviKomentar", "Zbor")',
-                data: JSON.stringify(data),
-                xhrFields: {
-                    withCredentials: true
-                }
-            }).done(function (response) {
-                console.log(response)
-                idKomentara = response + '';
-                idDiv = "#Komentari-" + id;
-                var $listItem = $('<li class="list-group-item small" style="margin-bottom:0px; padding-bottom:0px"  id="Kom-'+response.id+'"></li>')
-                $(idDiv).append($listItem);
-
-                var $d = $('<div class="d-flex justify-content-between align-items-center"></div>');
-                var $kom = $('<div class="col-md-6 rounded-pill" style="display: inline-block; background-color:gainsboro;"></div>');
-                var $div1 = $('<div><img src="@Model.Slika" alt="profpic" style="border-radius:50%; width:30px; height:30px"><span style="color:cornflowerblue">' + '@Model.ImeIPrezime' + '</span>: ' + response.tekst + '</div>');
-                $($d).append($div1);
-
-                var $div2 = $('<div><a class="hoverable" onclick="obrisi(\'' + response.id + '\')"><i class="fa fa-trash-o"></i></a>  </div>');
-                $($d).append($div2);
-                $($kom).append($d);
-
-                $($listItem).append($kom);
-
-                var $newdiv2 = $( '<div class="col-md-2"><p class="small">'+'@DateTime.Now'+'</p></div>' )
-
-                var $last = $('<div class="col-md-4"> <p class="small">' + '@DateTime.Now' + ' <i class="fa fa-thumbs-o-up"></i> <span class="badge badge-danger badge-counter" id="LajkK-' + response.id + '">0</span> <a class="hoverable" style="color:blue" id="BtnK-' + response.id + '" onclick="lajkKomentara(\'' + response.id + '\')">Sviđa mi se</a> </p></div>');
-                $($listItem).append($last);
-
-                var $newdiv3 = $('<div class="col-md-4"><p class="small">' + '@Model.ImeIPrezime' + '</p></div>');
-                $(idDiv).append($listItem);
-
-                $(inputPolje).val('');
 
 
-
-
-            })
-            .always(function () {
-
-                $(inputPolje).prop('disabled', false)
-            });
-
-        }
-
-    </script>
-
-    <script>
-        function obrisi(id) {
-            data = { Value: id + '' }
-            $.ajax({
-                type: "POST",
-                dataType: "json",
-                contentType: "application/json;charset=utf-8",
-                url: '@Url.Action("ObrisiKomentar", "Zbor")',
-                data: JSON.stringify(data),
-                xhrFields: {
-                    withCredentials: true
-                }
-            }).done(function (response) {
-                kom = '#Kom-' + id
-                $(kom).hide();
-
-            })
-            .always(function () {
-                g = 2;
-            });
-
-        }
-    </script>
     <script src="~/js/jquery.magicsearch.js"></script>
+    <script>
+        $('#statistika').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget) // Button that triggered the modal
+                var ime = button.text(); // Extract info from data-* attributes
+                var id = button.data('id');
+                var name = button.data('name')
 
+                $("#loadano").hide();
+                $("#loading").show()
+                data = { Value: id+'' }
+                console.log(data)
+                $.ajax({
+                    type: "POSt",
+                    dataType: "json",
+                    contentType: "application/json;charset=utf-8",
+                    url: '/Zbor/Lajkovi'+name,
+                    data: JSON.stringify(data),
+                    xhrFields: {
+                        withCredentials: true
+                    }
+                }).done(function (response) {
+                    var i = 0;
+                    $("#lajkovi").empty();
+
+                    for (i = 0; i < response.lista.length; i++) {
+                        var newP = '<div class="row" style="padding-left:15px;padding-bottom:7px"><a href="#">' + response.lista[i].imeIPrezime + '</a></div>';
+                        $("#lajkovi").append(newP);
+                    }
+                   
+                    $("#loading").hide()
+
+                    $("#loadano").show();
+                })
+                    .always(function () {
+                        var g = 0;
+                    });
+             
+            })
+        </script>
     <script>
             var dataSource = [
                         @foreach(var projekt in Model.Projekti)

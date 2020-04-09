@@ -13,5 +13,9 @@ namespace ZborApp.Models.ForumViewModels
         public Zapis Novi { get; set; }
         public Guid IdTema { get; set; }
         public Guid IdBrisanje { get; set; }
+        public Guid IdKorisnik { get; set; }
+        public string Naslov { get; set; }
+        public bool Mod { get; set; }
+
     }
 }
