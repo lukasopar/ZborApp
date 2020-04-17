@@ -26,6 +26,7 @@ namespace ZborData.Model
         public DateTime DatumPocetka { get; set; }
         public Guid IdZbor { get; set; }
         public Guid IdVrstePodjele { get; set; }
+        public bool Zavrsen { get; set; }
 
         public virtual VrstaPodjele IdVrstePodjeleNavigation { get; set; }
         public virtual Zbor IdZborNavigation { get; set; }

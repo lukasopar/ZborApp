@@ -29,7 +29,7 @@
                         </div>
                         <div class="srch_bar">
                             <div class="stylish-input-group">
-                                <input type="text" class="search-bar" placeholder="Search">
+                                <input type="text" class="search-bar" placeholder="Pretraga" id="pretraga" onkeyup="myFilter()">
                                 <span class="input-group-addon">
                                     <button type="button"> <i class="fa fa-search" aria-hidden="true"></i> </button>
                                 </span>
@@ -46,22 +46,22 @@
                             {
                                 if (k.IdKorisnik == Model.IdKorisnik) continue;
                                 name += k.IdKorisnikNavigation.Ime + " " + k.IdKorisnikNavigation.Prezime + ",";
-                                slika = k.IdKorisnikNavigation.Slika;
+                                slika = k.IdKorisnikNavigation.IdSlika +"";
                             }
                             name.Remove(name.Length - 1);
                             <div class="chat_list" id="Razg-@razg.Id" onclick="promjenaRazgovora('@razg.Id')">
                                 <div class="chat_people">
 
-                                    <div class="chat_img"><img src="@slika" alt="profpic"> </div>
+                                    <div class="chat_img"><img src="/Repozitorij/Get/@slika" alt="profpic"> </div>
                                     <div class="chat_ib">
                                         <h5><text >
                                         @if(razg.KorisnikUrazgovoru.Count < 3)
                                         {
-                                            <b>@razg.GetPopisKorisnika(Model.IdKorisnik)</b>
+                                            <b class="popis" data-id="@razg.Id" data-popis="@razg.GetPopisKorisnika(Model.IdKorisnik)">@razg.GetPopisKorisnika(Model.IdKorisnik)</b>
                                         }
                                         else
                                         {
-                                            <b id="Naslov-@razg.Id">@razg.GetNaslov()</b>
+                                            <b class="popis" data-id="@razg.Id" data-popis="@razg.GetPopisKorisnika(Model.IdKorisnik)" id="Naslov-@razg.Id">@razg.GetNaslov()</b>
                                         }</text>
                                         <span class="chat_date" id="DatZadnje-@razg.Id">@razg.DatumZadnjePoruke.ToString("dd.MM.yyyy HH:mm")</span></h5>
                                         <p>
@@ -111,7 +111,7 @@
                                     <div class="outgoing_msg">
                                         <div class="sent_msg">
                                             <p>
-                                                @poruka.Poruka1
+                                                @Html.Raw(poruka.Poruka1)
                                             </p>
                                             <span class="time_date"> @poruka.DatumIvrijeme.ToString("HH:mm")    |    @poruka.DatumIvrijeme.ToString("dd.MM.yyyy")</span>
                                         </div>
@@ -120,12 +120,12 @@
                                 else
                                 {
                                     <div class="incoming_msg">
-                                        <div class="incoming_msg_img"> <img src="@poruka.IdKorisnikNavigation.Slika" alt="sunil"> </div>
+                                        <div class="incoming_msg_img"> <img src="/repozitorij/get/@poruka.IdKorisnikNavigation.IdSlika" alt="sunil"> </div>
                                         <div class="received_msg">
                                             <div class="received_withd_msg">
                                                 <span class="time_date">@poruka.IdKorisnikNavigation.Ime</span>
                                                 <p>
-                                                    @poruka.Poruka1
+                                                    @Html.Raw(poruka.Poruka1)
                                                 </p>
                                                 <span class="time_date"> @poruka.DatumIvrijeme.ToString("HH:mm")    |    @poruka.DatumIvrijeme.ToString("dd.MM.yyyy")</span>
                                             </div>

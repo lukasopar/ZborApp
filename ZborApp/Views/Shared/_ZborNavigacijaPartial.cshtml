@@ -9,6 +9,7 @@
 @{
     var zborId = ViewData["zborId"];
     var zborIme = ViewData["zborIme"];
+    var idSlika = ViewData["idSlika"];
 }
 
 
@@ -19,8 +20,9 @@
 
     <!-- Nav Item - Dashboard -->
     <li class="nav-item">
-        <a class="nav-link" asp-controller="Zbor" asp-action="Profil" asp-route-id="@zborId">
-            <i class="fa fa-home"></i>
+        <a class="nav-link text-center" asp-controller="Zbor" asp-action="Profil" asp-route-id="@zborId">
+            <img src="/Repozitorij/GetZbor/@idSlika" alt="profpic" class="img-profile rounded-circle" style="width:40px; height:40px; background-color:white"><br />
+
             <span>@zborIme</span>
         </a>
     </li>
@@ -58,13 +60,13 @@
     </li>
     <li class="nav-item">
         <a class="nav-link" asp-controller="Repozitorij" asp-action="Zbor" asp-route-id="@zborId">
-            <i class="fa fa-tasks"></i>
+            <i class="fa fa-file-o"></i>
             <span>Repozitorij</span>
         </a>
     </li>
     <li class="nav-item">
         <a class="nav-link" asp-controller="Zbor" asp-action="JavniProfil" asp-route-id="@zborId">
-            <i class="fa fa-tasks"></i>
+            <i class="fa fa-magic"></i>
             <span>Javni profil</span>
         </a>
     </li>
@@ -88,6 +90,13 @@
             <span>Upravljanje zborom</span>
         </a>
     </li>
+    <hr class="sidebar-divider">
+    <li class="nav-item">
+        <a class="nav-link hoverable"  data-toggle="modal" data-target="#napustanjeZbora" data-id="@zborId">
+            <i class="fa fa-cog"></i>
+            <span>Napusti zbor</span>
+        </a>
+    </li>
 
 
     <!-- Divider -->
@@ -100,15 +109,15 @@
 
 
 }
-else
+else if (SignInManager.IsSignedIn(User))
 {
     <hr class="sidebar-divider my-0" />
     var kor = ctx.Korisnik.Where(k => k.Id == Guid.Parse(UserManager.GetUserId(User))).SingleOrDefault();
-    
+
     <!-- Nav Item - Dashboard -->
     <li class="nav-item">
-        <a class="nav-link" asp-controller="Korisnik" asp-action="Index" asp-route-id="@kor.Id">
-            <i class="fa fa-home"></i>
+        <a class="nav-link text-center" asp-controller="Korisnik" asp-action="Index" asp-route-id="@kor.Id">
+            <img src="/Repozitorij/Get/@kor.IdSlika" alt="profpic" class="img-profile rounded-circle" style="width:40px; height:40px;"><br />
             <span>@kor.ImeIPrezime()</span>
         </a>
     </li>
@@ -120,26 +129,29 @@ else
     <!-- Nav Item - Dashboard -->
     <li class="nav-item">
         <a class="nav-link" asp-controller="Poruke" asp-action="Index">
-            <i class="fa fa-folder-o"></i>
+            <i class="fa fa-envelope-o"></i>
             <span>Poruke</span>
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" href="#">
-            <i class="fa fa-folder-o"></i>
+        <a class="nav-link" asp-controller="Korisnik" asp-action="Obavijesti">
+            <i class="fa fa-bell"></i>
             <span>Obavijesti</span>
         </a>
     </li>
     <li class="nav-item">
         <a class="nav-link" asp-controller="Repozitorij" asp-action="Korisnik" asp-route-id="@kor.Id">
-            <i class="fa fa-folder-o"></i>
+            <i class="fa fa-file-o"></i>
             <span>Repozitorij</span>
         </a>
     </li>
     <li class="nav-item">
         <a class="nav-link" asp-controller="Forum" asp-action="Index">
-            <i class="fa fa-folder-o"></i>
+            <i class="fa fa-comments-o"></i>
             <span>Forum</span>
         </a>
     </li>
 }
+
+
+

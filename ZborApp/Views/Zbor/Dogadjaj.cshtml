@@ -120,7 +120,7 @@
                                         @foreach (var clan in Model.ClanoviProjekta[glas])
                                         {
                                             <div id="Clan-@clan.Id" style="width:100%; padding-top:7px">
-                                                <input name="Evidencija" type="checkbox" value="@clan.IdKorisnik" @if (Model.Evidencija.Contains(clan.IdKorisnik)) { <text> checked</text> } />
+                                                <input name="Evidencija" type="checkbox" value="@clan.IdKorisnik" @if (Model.Evidencija.Contains(clan.IdKorisnik) ) { <text> checked</text> } @if (Model.Dogadjaj.IdProjektNavigation.Zavrsen) {<text>disabled</text> } />
                                                 <a href="#">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>
 
                                                 <br />
@@ -138,7 +138,7 @@
                                     @foreach (var clan in Model.NerazvrstaniClanovi)
                                     {
                                         <div id="Clan-@clan.Id" style="width:100%; padding-top:7px">
-                                            <input name="Evidencija" type="checkbox" value="@clan.IdKorisnik" @if (Model.Evidencija.Contains(clan.IdKorisnik)) { <text> checked</text> } />
+                                            <input name="Evidencija" type="checkbox" value="@clan.IdKorisnik" @if (Model.Evidencija.Contains(clan.IdKorisnik)) { <text> checked</text> } @if (Model.Dogadjaj.IdProjektNavigation.Zavrsen) {<text>disabled</text> }/>
 
                                             <a href="#">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>
 

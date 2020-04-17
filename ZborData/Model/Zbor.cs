@@ -28,7 +28,8 @@ namespace ZborData.Model
         public string Opis { get; set; }
         [Required(ErrorMessage = "Datum osnutka zbora je obavezan.")]
         public DateTime DatumOsnutka { get; set; }
-
+        public Guid IdSlika { get; set; }
+        public RepozitorijZbor IdSlikaNavigation { get; set; }
         public virtual ICollection<Anketa> Anketa { get; set; }
         public virtual ICollection<ClanZbora> ClanZbora { get; set; }
         public virtual ICollection<ModeratorZbora> ModeratorZbora { get; set; }

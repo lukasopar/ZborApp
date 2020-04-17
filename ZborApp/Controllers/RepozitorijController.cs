@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -39,11 +40,14 @@ namespace ZborApp.Controllers
         private readonly ILogger<RepozitorijController> _logger;
         private readonly ZborDatabaseContext _ctx;
         private readonly UserManager<ApplicationUser> _userManager;
-        public RepozitorijController(ILogger<RepozitorijController> logger, ZborDatabaseContext ctx, UserManager<ApplicationUser> userManager)
+        private readonly IHubContext<ChatHub> _hubContext;
+
+        public RepozitorijController(ILogger<RepozitorijController> logger, ZborDatabaseContext ctx, UserManager<ApplicationUser> userManager, IHubContext<ChatHub> hubContext)
         {
             _logger = logger;
             _ctx = ctx;
             _userManager = userManager;
+            _hubContext = hubContext;
         }
         private bool Exists(Guid idZbor)
         {
@@ -75,7 +79,7 @@ namespace ZborApp.Controllers
             
             RepozitorijViewModel model = new RepozitorijViewModel
             {
-                Datoteke = datoteke,
+                Datoteke = datoteke, 
                 IdKorisnik = user.Id,
                 IdTrazeni = id
             };
@@ -104,6 +108,9 @@ namespace ZborApp.Controllers
                 Promjena = flagAdmin,
                 Clan = flagClan
             };
+            ViewData["zborId"] = id;
+            ViewData["zborIme"] = zbor.Naziv;
+            ViewData["idSlika"] = zbor.IdSlika;
             return View(model);
         }
         [HttpPost]
@@ -286,10 +293,25 @@ namespace ZborApp.Controllers
                     _ctx.Add(dat);
 
                 }
+                var pretplatnici = _ctx.PretplataNaZbor.Where(p => p.IdZbor == model.IdZbor).Select(p => p.IdKorisnik).ToHashSet();
+                foreach (var pret in pretplatnici)
+                {
+                    OsobneObavijesti ob = new OsobneObavijesti
+                    {
+                        Id = Guid.NewGuid(),
+                        IdKorisnik = pret,
+                        Tekst = String.Format("Nove datoteke u zboru <b>{0}</b>.", _ctx.Zbor.Find(model.IdZbor).Naziv),
+                        Procitano = false,
+                        Poveznica = "/Repozitorij/Zbor/" + model.IdZbor
+                    };
+                    _ctx.Add(ob);
+                    await _hubContext.Clients.User(pret.ToString()).SendAsync("NovaObavijest", new { id = ob.Id, poveznica = ob.Poveznica, procitano = ob.Procitano, datum = ob.Datum, tekst = ob.Tekst });
+
+                }
                 _ctx.SaveChanges();
             }
 
-            return RedirectToAction("Zbor", new { id = user.Id });
+            return RedirectToAction("Zbor", new { id = model.IdZbor });
         }
         public async Task<IActionResult> Delete(RepozitorijViewModel model)
         {
@@ -341,16 +363,46 @@ namespace ZborApp.Controllers
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
             var dat = _ctx.RepozitorijKorisnik.Where(d => d.Id == id).SingleOrDefault();
-            
+            if (dat == null)
+                return View("Nema", "Greska");
             return File(System.IO.File.ReadAllBytes(LOCATION + "/" + dat.Url), "application/force-download", dat.Naziv);
+            
         }
         public async Task<IActionResult> GetZbor(Guid id)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
             var dat = _ctx.RepozitorijZbor.Where(d => d.Id == id).SingleOrDefault();
-
+            if (dat == null)
+                return View("Nema", "Greska");
             return File(System.IO.File.ReadAllBytes(LOCATION + "/" + dat.Url), "application/force-download", dat.Naziv);
         }
+        public async Task<IActionResult> PromjenaProfilne(Guid id)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            var dat = _ctx.RepozitorijKorisnik.Find(id);
+            if (dat == null)
+                return View("Nema", "Greska");
+            if (user.Id != dat.IdKorisnik)
+                return View("Prava", "Zbor");
+            dat.Privatno = false;
+            _ctx.Korisnik.Find(user.Id).IdSlika = id;
+            _ctx.SaveChanges();
+            return RedirectToAction("Galerija","Korisnik" ,new { id = user.Id });
+        }
+        public async Task<IActionResult> PromjenaProfilneZbor(Guid id)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            var dat = _ctx.RepozitorijZbor.Find(id);
+            if (dat == null)
+                return View("Nema", "Greska");
+            if (!CheckRights(dat.IdZbor, user.Id))
+                return View("Prava", "Zbor");
+            dat.Privatno = false;
+            _ctx.Zbor.Find(dat.IdZbor).IdSlika = id;
+            _ctx.SaveChanges();
+            return RedirectToAction("Galerija", "Zbor", new { id = user.Id });
+        }
+       
     }
 }
 

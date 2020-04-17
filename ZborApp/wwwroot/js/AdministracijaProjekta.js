@@ -14,7 +14,7 @@
 
         $(prijava).remove();
         if ($("#listaPrijava").children().length === 1) $("#nemaPrijava").show();
-        newDiv = '<div id="Clan-' + response.id + '" style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between"><a href="#">' + response.imeIPrezime + '</a><div class="dropdown no-arrow"><a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-v"></i> </a><div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink"><div class="dropdown-header">Mogućnosti</div><button id="Promjena-' + response.id + '" class="dropdown-item" data-toggle="modal" data-target="#promjenaGlasa" data-ime="' + response.imeIPrezime + '" data-id="' + response.id + '" data-glas="1">Promjena glasa</button><form action="/Zbor/ObrisiClanaProjekta" method="post"><input id="IdBrisanje" name="IdBrisanje" value="' + response.id + '" hidden style="display: none"/><button class="dropdown-item" type="submit">Ukloni s projekta</button></form></div></div></div>';
+        newDiv = '<div id="Clan-' + response.id + '" style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between"><a  class="hoverable" data-id="' + response.idkorisnik + '" data-toggle="modal" data-target="#statistika">' + response.imeIPrezime + '</a><div class="dropdown no-arrow"><a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-v"></i> </a><div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink"><div class="dropdown-header">Mogućnosti</div><button id="Promjena-' + response.id + '" class="dropdown-item" data-toggle="modal" data-target="#promjenaGlasa" data-ime="' + response.imeIPrezime + '" data-id="' + response.id + '" data-glas="1">Promjena glasa</button><form action="/Zbor/ObrisiClanaProjekta" method="post"><input id="IdBrisanje" name="IdBrisanje" value="' + response.id + '" hidden style="display:none" type="text" data-val="true"/><button class="dropdown-item" type="submit">Ukloni s projekta</button></form></div></div></div>';
         $("#Nerazvrstani").append(newDiv);
 
 
@@ -31,7 +31,7 @@ function odbij(id) {
         type: "POST",
         dataType: "json",
         contentType: "application/json;charset=utf-8",
-        url: '@Url.Action("OdbijPrijavuProjekt", "Zbor")',
+        url: '/Zbor/OdbijPrijavuProjekt',
         data: JSON.stringify(data),
         xhrFields: {
             withCredentials: true
@@ -50,7 +50,7 @@ function odbij(id) {
 }
 
 function pretraga(ele, id) {
-    if (event.keyCode != 13) {
+    if (event.keyCode !== 13) {
         return;
     }
     inputPolje = '#pret';

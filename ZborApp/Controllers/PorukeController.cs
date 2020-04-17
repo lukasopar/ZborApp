@@ -63,16 +63,29 @@ namespace ZborApp.Controllers
         public async Task<IActionResult> Procitano([FromBody] StringModel model)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            KorisnikUrazgovoru k = _ctx.KorisnikUrazgovoru.Where(k => k.IdKorisnik == user.Id && k.IdRazgovor == Guid.Parse(model.Value)).SingleOrDefault();
+            Guid idRazg;
+            var flag = Guid.TryParse(model.Value, out idRazg);
+            if (flag == false)
+                return BadRequest();
+            KorisnikUrazgovoru k = _ctx.KorisnikUrazgovoru.Where(k => k.IdKorisnik == user.Id && k.IdRazgovor == idRazg).SingleOrDefault();
+            if (k == null)
+                return NotFound();
             k.Procitano = true;
             _ctx.SaveChanges();
             var m = new StringModel { Value = "Ok" };
             return Ok(m);
         }
         [HttpPost]
-        public IActionResult PromjenaNaslova([FromBody] PretragaModel model)
+        public async Task<IActionResult> PromjenaNaslova([FromBody] PretragaModel model)
         {
-            Razgovor r = _ctx.Razgovor.Where(r => r.Id == Guid.Parse(model.Id)).SingleOrDefault();
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            Guid idRazg;
+            var flag = Guid.TryParse(model.Id, out idRazg);
+            if (flag == false)
+                return BadRequest();
+            Razgovor r = _ctx.Razgovor.Find(idRazg);
+            if (r == null)
+                return NotFound();
             r.Naslov = model.Tekst;
             _ctx.SaveChanges();
             var m = new StringModel { Value = "Ok" };
@@ -101,7 +114,7 @@ namespace ZborApp.Controllers
                     Id = r.Id,
                     Naziv = r.Naslov + " (" + r.Poruka.First().IdKorisnikNavigation.ImeIPrezime() + ")",
                     Datum = r.Poruka.First().DatumIvrijeme.ToString("dd.MM.yyyy. hh:mm"),
-                    Slika = r.Poruka.First().IdKorisnikNavigation.Slika,
+                    Slika = r.Poruka.First().IdKorisnikNavigation.IdSlika,
                     Poruka = r.Poruka.First().Poruka1,
                     Procitano = r.KorisnikUrazgovoru.Where(k => k.IdKorisnik == user.Id).SingleOrDefault().Procitano,
                 }),

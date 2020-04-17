@@ -9,15 +9,43 @@
         }
     }).done(function (response) {
         var i = 0;
-        for (i = 0; i < 3; i++) {
-            var porukaDiv = '<a id="Header-' + response.poruke[i].id + '" class="dropdown-item d-flex align-items-center" href="/Poruke/Poruka/' + response.poruke[i].id + '"><div class="dropdown-list-image mr-3"><img class="rounded-circle" src="' + response.poruke[i].slika + '" alt=""></div><div id="Procitano-' + response.poruke[i].id + '"><div class="text-truncate">' + response.poruke[i].poruka + '</div><div class="small text-gray-500">' + response.poruke[i].naziv + ' ' + response.poruke[i].datum + '</div></div></a>'
+        for (i = 0; i < response.poruke.length; i++) {
+            var porukaDiv = '<a id="Header-' + response.poruke[i].id + '" class="dropdown-item d-flex align-items-center" href="/Poruke/Poruka/' + response.poruke[i].id + '"><div class="dropdown-list-image mr-3"><img class="rounded-circle" src="/repozitorij/get/' + response.poruke[i].slika + '" alt=""></div><div id="Procitano-' + response.poruke[i].id + '"><div class="text-truncate">' + response.poruke[i].poruka + '</div><div class="small text-gray-500">' + response.poruke[i].naziv + ' ' + response.poruke[i].datum + '</div></div></a>'
             $("#poruke_layout").append(porukaDiv);
             if (response.poruke[i].procitano === false) {
                 var proc = "#Procitano-" + response.poruke[i].id;
                 $(proc).addClass("font-weight-bold");
             }
             if (response.neprocitane > 0) {
-                $("#messageCounter").text(response.neprocitane);
+                $("#messageCounter")[0].innerHTML = response.neprocitane;
+            }
+        }
+    })
+        .always(function () {
+            g = 2;
+        });
+
+}
+function renderNot() {
+    $.ajax({
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json;charset=utf-8",
+        url: '/Korisnik/DohvatiObavijesti',
+        xhrFields: {
+            withCredentials: true
+        }
+    }).done(function (response) {
+        var i = 0;
+        for (i = 0; i < response.poruke.length; i++) {
+            var porukaDiv = '<a id="HeaderO-' + response.poruke[i].id + '" class="dropdown-item d-flex align-items-center" href="' + response.poruke[i].poveznica + '"><div class=procitano id="ProcitanoO-' + response.poruke[i].id + '"><div class="text-truncate">' + response.poruke[i].tekst + '</div><div class="small text-gray-500">' + formatDate(response.poruke[i].datum) + ' ' + formatTime(response.poruke[i].datum) + '</div></div></a>';
+            $("#obavijesti_layout").append(porukaDiv);
+            if (response.poruke[i].procitano === false) {
+                var proc = "#ProcitanoO-" + response.poruke[i].id;
+                $(proc).addClass("font-weight-bold");
+            }
+            if (response.neprocitane > 0) {
+                $("#notificationCounter").text(response.neprocitane);
             }
         }
     })
@@ -27,15 +55,48 @@
 
 }
 
-
 var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
 connection.start();
 
 //Disable send button until connection is established
 //document.getElementById("sendButton").disabled = true;
+connection.on("NovaObavijest", function (response) {
+    var porukaDiv = '<a id="HeaderO-' + response.id + '" class="dropdown-item d-flex align-items-center" href="' + response.poveznica + '"><div class="procitano" id="ProcitanoO-' + response.id + '"><div class="text-truncate">' + response.tekst + '</div><div class="small text-gray-500">' + formatDate(response.datum)+' '+formatTime(response.datum) + '</div></div></a>';
+    var head = "#HeaderO-" + response.id;
+    $(head).remove();
+    $("#obavijesti_layout").prepend(porukaDiv);
 
+
+    if ($("#obavijesti_layout").children().length > 3) {
+        $("#obavijesti_layout").children().last().remove();
+    }
+    if (response.procitano === false) {
+        var proc = "#ProcitanoO-" + response.id;
+        $(proc).addClass("font-weight-bold");
+    }
+    $.ajax({
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json;charset=utf-8",
+        url: '/Korisnik/DohvatiNeprocitano',
+        xhrFields: {
+            withCredentials: true
+        }
+    }).done(function (broj) {
+        if (broj > 0) {
+            $("#notificationCounter")[0].innerHTML=broj;
+        }
+        else if (broj === 0) {
+            $("#notificationCounter")[0].innerHTML = "";
+
+        }
+    })
+        .always(function () {
+            g = 2;
+        });
+});
 connection.on("ChangeHeader", function (response) {
-    var porukaDiv = '<a id="Header-' + response.id + '" class="dropdown-item d-flex align-items-center" href="/Poruke/Poruka/' + response.id + '"><div class="dropdown-list-image mr-3"><img class="rounded-circle" src="' + response.slika + '" alt=""></div><div id="Procitano-' + response.id + '"><div class="text-truncate">' + response.poruka + '</div><div class="small text-gray-500">' + response.naziv + ' ' + response.datum + '</div></div></a>'
+    var porukaDiv = '<a id="Header-' + response.id + '" class="dropdown-item d-flex align-items-center" href="/Poruke/Poruka/' + response.id + '"><div class="dropdown-list-image mr-3"><img class="rounded-circle" src="/repozitorij/get/' + response.slika + '" alt=""></div><div id="Procitano-' + response.id + '"><div class="text-truncate">' + response.poruka + '</div><div class="small text-gray-500">' + response.naziv + ' ' + response.datum + '</div></div></a>'
     var head = "#Header-" + response.id;
     $(head).remove();
     $("#poruke_layout").prepend(porukaDiv);
@@ -92,7 +153,7 @@ connection.on("LajkObavijesti", function (response) {
 
 connection.on("LajkKomentara", function (response) {
     brojLajkovaObavijest = '#LajkK-' + response.id;
-    gumbObavijest = '#BtnK-' + response.id;
+    gumbKomentar = '#BtnK-' + response.id;
     if (response.lajk === true) {
         $(brojLajkovaObavijest).text(response.brojLajkova);
         if (response.jesamja === true) {
@@ -107,7 +168,7 @@ connection.on("LajkKomentara", function (response) {
 
         }
     }
-
+    return false;
 });
 
 connection.on("ObrisiKomentar", function (response) {
@@ -124,7 +185,7 @@ connection.on("NoviKomentar", function (response) {
 
     var $kom = $('<div class="col-md-6 rounded-pill" style="display: inline-block; background-color:gainsboro;padding-bottom:10px; padding-left:10px; padding-top:10px"></div>');
     var $d = $('<div class="d-flex justify-content-between align-items-center"></div>');
-    var $div1 = $('<div><img src="' + response.slika + '" alt="profpic" style="border-radius:50%; width:30px; height:30px"><span style="color:cornflowerblue">' + response.imeIPrezime + '</span>: ' + response.tekst + '</div>');
+    var $div1 = $('<div><img src="/repozitorij/get/' + response.slika + '" alt="profpic" style="border-radius:50%; width:30px; height:30px"><span style="color:cornflowerblue">' + response.imeIPrezime + '</span>: ' + response.tekst + '</div>');
     $($d).append($div1);
 
     var $div2 = $('<div><a class="hoverable" onclick="obrisi(\'' + response.id + '\')"><i class="fa fa-trash-o"></i></a>  </div>');
@@ -147,3 +208,39 @@ connection.on("NoviKomentar", function (response) {
     $(idDiv).append($listItem);
 
 });
+function formatDate(dateString) {
+    var date = new Date(dateString);
+    var newDate = pad(date.getDate()) + "." + pad((date.getMonth() + 1)) + "." + pad(date.getFullYear());
+    return newDate;
+}
+
+function formatTime(dateString) {
+    var date = new Date(dateString);
+    newDate = pad(date.getHours()) + ":" + pad(date.getMinutes());
+    return newDate;
+}
+function pad(n) { return n < 10 ? '0' + n : n; }
+
+function procitaj3Obavijesti() {
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json;charset=utf-8",
+        url: '/Korisnik/ProcitajVrh',
+        xhrFields: {
+            withCredentials: true
+        }
+    }).done(function (broj) {
+
+        if (broj > 0) {
+            $("#notificationCounter")[0].innerHTML = broj;
+        }
+        else if (broj === 0) {
+            $("#notificationCounter")[0].innerHTML = "";
+
+        }
+    })
+        .always(function () {
+            g = 2;
+        });
+}

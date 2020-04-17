@@ -4,11 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using ZborData.Model;
 
-namespace ZborApp.Models.ZborViewModels
+namespace ZborApp.Models.KorisnikVIewModels
 {
     public class JavniProfilViewModel
     {
-        public Zbor Zbor { get; set; }
-        public bool Mod { get; set; }
+ 
+        public Korisnik Korisnik { get; set; }
+        public Guid Aktivni { get; set; }
     }
 }

@@ -23,7 +23,7 @@ connection.on("ReceiveMessage", function (userId, message) {
 
     if (userId === message.idUser) {
         //moja poruka
-        let newDiv = '<div class="outgoing_msg"> <div class="sent_msg"><p>' + message.message + ' </p><span class="time_date">' + formatDate(message.when) + '    |    ' + formatTime(message.when) + '</span ></div></div>';
+        let newDiv = '<div class="outgoing_msg"> <div class="sent_msg"><p>' + message.message + ' </p><span class="time_date">' + message.when + '</span ></div></div>';
         let chat = "#Chat-" + message.idRazg;
         let sazetak = "#Sazetak-" + message.idRazg;
         $(sazetak).html("Ti: " + message.message);
@@ -32,7 +32,7 @@ connection.on("ReceiveMessage", function (userId, message) {
     }
     else {
         //dobivena poruka
-        let newDiv = '<div class="incoming_msg"> <div class="incoming_msg_img"> <img src="' + message.slika + '" alt="sunil"> </div><div class="received_msg"><div class="received_withd_msg"><span class="time_date">' + message.ime + '</span><p>' + message.message + ' </p><span class="time_date">' + formatDate(message.when) + '    |    ' + formatTime(message.when) + '</span ></div></div></div>';   
+        let newDiv = '<div class="incoming_msg"> <div class="incoming_msg_img"> <img src="/repozitorij/get/' + message.slika + '" alt="sunil"> </div><div class="received_msg"><div class="received_withd_msg"><span class="time_date">' + message.ime + '</span><p>' + message.message + ' </p><span class="time_date">' + message.when + '</span ></div></div></div>';   
         let chat = "#Chat-" + message.idRazg;
         let sazetak = "#Sazetak-" + message.idRazg;
         $(sazetak).html(message.message);
@@ -40,9 +40,9 @@ connection.on("ReceiveMessage", function (userId, message) {
         $(chat).append(newDiv);
     }
     let dat = "#DatZadnje-" + message.idRazg;
-    $(dat).html(formatDate(message.when) + " " + formatTime(message.when));
+    $(dat).html(message.when.replace(' |',''));
     setOnTop(message.idRazg);
-    if (userId != message.idUser) {
+    if (userId !== message.idUser) {
         var novo = "#Novo-" + message.idRazg;
         $(novo).show();
         
@@ -55,10 +55,10 @@ connection.on("ReceiveNewConversation", function (userId, message) {
     //sazetak desno
     var newDiv = "";
     if (message.popis.split(",").length === 1) {
-        newDiv = '<div class="chat_list" id="Razg-' + message.idRazg + '" onclick="promjenaRazgovora(\'' + message.idRazg + '\')"><div class="chat_people" ><div class="chat_img"><img src="' + message.slika + '" alt="profpic"></div> <div class="chat_ib"><h5><b>' + message.popis + '</b> <span class="chat_date" id="DatZadnje-' + message.idRazg + '">' + formatDate(message.when) + ' ' + formatTime(message.when) + '</span></h5> <p><span  id="Sazetak-' + message.idRazg + '">' + getSazetak(userId, message) + '</span><span class="novo" id="Novo-' + message.idRazg + '" style="display:none">Novo!</span></p></div></div ></div>';
+        newDiv = '<div class="chat_list" id="Razg-' + message.idRazg + '" onclick="promjenaRazgovora(\'' + message.idRazg + '\')"><div class="chat_people" ><div class="chat_img"><img src="/repozitorij/get/' + message.slika + '" alt="profpic"></div> <div class="chat_ib"><h5><b data-id="' + message.id + '" data-popis="' + message.popis + '">' + message.popis + '</b> <span class="chat_date" id="DatZadnje-' + message.idRazg + '">' + message.when + '</span></h5> <p><span  id="Sazetak-' + message.idRazg + '">' + getSazetak(userId, message) + '</span><span class="novo" id="Novo-' + message.idRazg + '" style="display:none">Novo!</span></p></div></div ></div>';
     }
     else { 
-        newDiv = '<div class="chat_list" id="Razg-' + message.idRazg + '" onclick="promjenaRazgovora(\'' + message.idRazg + '\')"><div class="chat_people" ><div class="chat_img"><img src="' + message.slika + '" alt="profpic"></div> <div class="chat_ib"><h5><b id="Naslov-' + message.idRazg + '">' +"Grupa" + '</b> <span class="chat_date" id="DatZadnje-' + message.idRazg + '">' + formatDate(message.when) + ' ' + formatTime(message.when) + '</span></h5> <p><span  id="Sazetak-' + message.idRazg + '">' + getSazetak(userId, message) + '</span><span class="novo" id="Novo-' + message.idRazg + '" style="display:none">Novo!</span></p></div></div ></div>';
+        newDiv = '<div class="chat_list" id="Razg-' + message.idRazg + '" onclick="promjenaRazgovora(\'' + message.idRazg + '\')"><div class="chat_people" ><div class="chat_img"><img src="/repozitorij/get/' + message.slika + '" alt="profpic"></div> <div class="chat_ib"><h5><b data-id="' + message.id + '" data-popis="' + message.popis + '" id="Naslov-' + message.idRazg + '">' + "Grupa" + '</b> <span class="chat_date" id="DatZadnje-' + message.idRazg + '">' + message.when + '</span></h5> <p><span  id="Sazetak-' + message.idRazg + '">' + getSazetak(userId, message) + '</span><span class="novo" id="Novo-' + message.idRazg + '" style="display:none">Novo!</span></p></div></div ></div>';
     }
     $("#lista").prepend(newDiv);
     // poruke lijevo
@@ -142,17 +142,7 @@ function newConversation(idUser) {
 
 }
 
-function formatDate(dateString) {
-    var date = new Date(dateString);
-    var newDate = pad(date.getDate()) + "." + pad((date.getMonth() + 1)) + "." + pad(date.getFullYear());
-    return newDate;
-}
 
-function formatTime(dateString) {
-    var date = new Date(dateString);
-    newDate = pad(date.getHours()) + ":" + pad(date.getMinutes());
-    return newDate;
-}
 
 function setOnTop(id) {
     let razg = "#Razg-" + id;
@@ -170,12 +160,12 @@ function getSazetak(idUser, message) {
 function getPoruka(userId, message) {
     if (userId === message.idUser) {
         //moja poruka
-        let newDiv = '<div class="outgoing_msg"> <div class="sent_msg"><p>' + message.message + ' </p><span class="time_date">' + formatDate(message.when) + '    |    ' + formatTime(message.when) + '</span ></div></div>';
+        let newDiv = '<div class="outgoing_msg"> <div class="sent_msg"><p>' + message.message + ' </p><span class="time_date">' + message.when + '</span ></div></div>';
         return newDiv;
     }
     else {
         //dobivena poruka
-        let newDiv = '<div class="incoming_msg"> <div class="incoming_msg_img"> <img src="' + message.slika + '" alt="sunil"> </div><div class="received_msg"><div class="received_withd_msg"><span class="time_date">' + message.ime + '</span><p>' + message.message + ' </p><span class="time_date">' + formatDate(message.when) + '    |    ' + formatTime(message.when) + '</span ></div></div></div>';
+        let newDiv = '<div class="incoming_msg"> <div class="incoming_msg_img"> <img src="/repozitorij/get/' + message.slika + '" alt="sunil"> </div><div class="received_msg"><div class="received_withd_msg"><span class="time_date">' + message.ime + '</span><p>' + message.message + ' </p><span class="time_date">' + message.when + '</span ></div></div></div>';
         return newDiv;
     }
 }
@@ -244,4 +234,36 @@ function procitano(id) {
 }
 
 
-function pad(n) { return n < 10 ? '0' + n : n; }
+
+
+function myFilter() {
+  // Declare variables
+    var list = $(".popis");
+    var inputList = $("#pretraga").val().split(",");
+    var i, j;
+    for (j = 0; j < inputList.length; j++) {
+        inputList[j] = inputList[j].trim().toLowerCase();
+        if (inputList[j].trim() === "" && inputList.length> 1)
+            inputList[j] = "A";
+    }
+    // Loop through all list items, and hide those who don't match the search query
+    for (i = 0; i < list.length; i++) {
+        var flag = false;
+        for (j = 0; j < inputList.length; j++) {
+            if (list[i].getAttribute('data-popis').toLowerCase().indexOf(inputList[j]) > -1) {
+                console.log(list[i].getAttribute('data-popis'));
+                flag = true;
+                break;
+            }
+           
+        }
+        var id = "#Razg-" + list[i].getAttribute('data-id');
+        if (flag === true) {
+            $(id).attr("style", "display:block");
+        }
+        else {
+            $(id).attr("style", "display:none");
+        }
+    }
+}
+

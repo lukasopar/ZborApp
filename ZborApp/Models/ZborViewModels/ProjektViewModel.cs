@@ -18,7 +18,7 @@ namespace ZborApp.Models.ZborViewModels
         public Guid IdKorisnik { get; set; }
         public bool Admin { get; set; }
         public bool Clan { get; set; }
-        public string Slika { get; set; }
+        public Guid Slika { get; set; }
         public string ImeIPrezime { get; set; }
     }
 }

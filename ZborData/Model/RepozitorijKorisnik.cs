@@ -6,6 +6,9 @@ namespace ZborData.Model
 {
     public partial class RepozitorijKorisnik
     {
+        public RepozitorijKorisnik(){
+            IdKorisniks = new HashSet<Korisnik>();
+        }
         public Guid Id { get; set; }
         public string Naziv { get; set; }
         public Guid IdKorisnik { get; set; }
@@ -14,7 +17,7 @@ namespace ZborData.Model
         public bool Privatno { get; set; }
 
         public virtual Korisnik IdKorisnikNavigation { get; set; }
-
+        public virtual ICollection<Korisnik> IdKorisniks { get; set; }
         public string GetSlika()
         {
             var vrsta = Naziv.Split(".");
@@ -35,6 +38,13 @@ namespace ZborData.Model
                 naziv += vrsta[i] + ".";
             naziv = naziv.Remove(naziv.Length - 1);
             return naziv;
+        }
+        public bool JeSlika()
+        {
+            string ekst = GetEkstenzija();
+            if (ekst.Equals("png") || ekst.Equals("jpg") || ekst.Equals("jpeg") || ekst.Equals("bmp"))
+                return true;
+            return false;
         }
     }
 }

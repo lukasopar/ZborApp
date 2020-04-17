@@ -7,12 +7,10 @@ namespace ZborData.Model
     {
         public Guid Id { get; set; }
         public string Poveznica { get; set; }
-        public string Slika { get; set; }
-
         public string Tekst { get; set; }
         public bool Procitano { get; set; }
         public Guid IdKorisnik { get; set; }
-
+        public DateTime Datum { get; set; } = DateTime.Now;
         public virtual Korisnik IdKorisnikNavigation { get; set; }
     }
 }

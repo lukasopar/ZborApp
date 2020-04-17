@@ -6,10 +6,14 @@
 <!-- Page Heading -->
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Projekt: @Model.Projekt.Naziv</h1>
-    <div>
-        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i>Administracija</a>
-        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i>Napusti projekt</a>
-
+    <div class="row">
+        @if (Model.Admin)
+        {
+            <a asp-action="NoviDogadjaj" asp-route-id="@Model.Projekt.Id" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">Dodaj događaj</a>
+            <a asp-action="AdministracijaProjekta" asp-route-id="@Model.Projekt.Id" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">Administracija</a>}
+        @if (Model.Clan && !Model.Projekt.Zavrsen)
+        {<form style="padding-left:5px" asp-action="NapustiProjekt" asp-route-id="@Model.Projekt.Id"><input asp-for="IdKorisnik" value="@Model.IdKorisnik" hidden style="display:none" /><button class="d-none d-sm-inline-block btn btn-sm btn-danger shadow-sm" type="submit">Napusti projekt</button></form>
+        }
     </div>
 </div>
 <div class="row">
@@ -63,7 +67,7 @@
                         <div class="card-header">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <img src="@o.IdKorisnikNavigation.Slika" alt="profpic" style="border-radius:50%; width:30px; height:30px">
+                                    <img src="/repozitorij/get/@o.IdKorisnikNavigation.IdSlika" alt="profpic" style="border-radius:50%; width:30px; height:30px">
                                     @o.IdKorisnikNavigation.Ime @o.IdKorisnikNavigation.Prezime  <text class="small text-muted"> | @o.DatumObjave</text>
                                 </div>
                                 <div>
@@ -111,7 +115,7 @@
                                         <div class="col-md-6 rounded-pill" style="display: inline-block; background-color:gainsboro;  padding-bottom:10px; padding-left:10px; padding-top:10px">
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <div>
-                                                    <img src="@k.IdKorisnikNavigation.Slika" alt="profpic" style="border-radius:50%; width:30px; height:30px">
+                                                    <img src="/repozitorij/get/@k.IdKorisnikNavigation.IdSlika" alt="profpic" style="border-radius:50%; width:30px; height:30px">
                                                     <span style="color:cornflowerblue">@k.IdKorisnikNavigation.Ime @k.IdKorisnikNavigation.Prezime</span>: @k.Tekst
                                                 </div>
                                                 <div>
@@ -187,7 +191,7 @@
                                     <div class="col-4 d-flex flex-row align-items-center justify-content-between">
                                         &nbsp;
                                         <div>
-                                            @if (Model.Clan)
+                                            @if (Model.Clan && !Model.Projekt.Zavrsen)
                                             {
                                                 @if (dogadjaj.NajavaDolaska.Where(l => l.IdKorisnik == Model.IdKorisnik).Count() == 0)
                                                 {

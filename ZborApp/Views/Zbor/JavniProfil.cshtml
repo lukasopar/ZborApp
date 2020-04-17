@@ -20,10 +20,13 @@
                 <!-- Card Header - Dropdown -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">O zboru</h6>
+                    @if(Model.Mod)
+                    { 
                     <div>
                         <button id="Urediozboru-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="edit('@Model.Zbor.Id', 'ozboru')" type="button">Uredi</button>
                         <button id="Spremiozboru-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="save('@Model.Zbor.Id', 'ozboru')" type="button" style="display:none">Spremi</button>
                     </div>
+                    }
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
@@ -38,11 +41,15 @@
                 <!-- Card Header - Dropdown -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">O voditeljima</h6>
-                    <div>
-                        <button id="Urediovoditeljima-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="edit('@Model.Zbor.Id', 'ovoditeljima')" type="button">Uredi</button>
-                        <button id="Spremiovoditeljima-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="save('@Model.Zbor.Id', 'ovoditeljima')" type="button" style="display:none">Spremi</button>
-                    </div>
+                    @if (Model.Mod)
+                    {
+                        <div>
+                            <button id="Urediovoditeljima-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="edit('@Model.Zbor.Id', 'ovoditeljima')" type="button">Uredi</button>
+                            <button id="Spremiovoditeljima-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="save('@Model.Zbor.Id', 'ovoditeljima')" type="button" style="display:none">Spremi</button>
+                        </div>
+                    }
                 </div>
+
                 <!-- Card Body -->
                 <div class="card-body">
                     <div class="card-text">
@@ -57,10 +64,13 @@
                 <!-- Card Header - Dropdown -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">Poveznice</h6>
-                    <div>
-                        <button id="Uredireprezentacija-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="edit('@Model.Zbor.Id', 'reprezentacija')" type="button">Uredi</button>
-                        <button id="Spremireprezentacija-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="save('@Model.Zbor.Id', 'reprezentacija')" type="button" style="display:none">Spremi</button>
-                    </div>
+                    @if (Model.Mod)
+                    {
+                        <div>
+                            <button id="Uredireprezentacija-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="edit('@Model.Zbor.Id', 'reprezentacija')" type="button">Uredi</button>
+                            <button id="Spremireprezentacija-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="save('@Model.Zbor.Id', 'reprezentacija')" type="button" style="display:none">Spremi</button>
+                        </div>
+                    }
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
@@ -98,10 +108,13 @@
                 <!-- Card Header - Dropdown -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">Repertoar</h6>
-                    <div>
-                        <button id="Uredirepertoar-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="edit('@Model.Zbor.Id', 'repertoar')" type="button">Uredi</button>
-                        <button id="Spremirepertoar-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="save('@Model.Zbor.Id', 'repertoar')" type="button" style="display:none">Spremi</button>
-                    </div>
+                    @if (Model.Mod)
+                    {
+                        <div>
+                            <button id="Uredirepertoar-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="edit('@Model.Zbor.Id', 'repertoar')" type="button">Uredi</button>
+                            <button id="Spremirepertoar-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="save('@Model.Zbor.Id', 'repertoar')" type="button" style="display:none">Spremi</button>
+                        </div>
+                    }
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">

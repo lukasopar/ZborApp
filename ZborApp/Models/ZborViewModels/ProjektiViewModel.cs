@@ -20,6 +20,8 @@ namespace ZborApp.Models.ZborViewModels
 
         public IEnumerable<Projekt> PrijavaProjekti { get; set; }
         public IEnumerable<Projekt> OstaliProjekti { get; set; }
+        public IEnumerable<Projekt> ZavrseniProjekti { get; set; }
+
 
         public List<SelectListItem> VrstePodjele { get; set; }  
 

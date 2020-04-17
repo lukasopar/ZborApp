@@ -38,11 +38,12 @@ namespace ZborData.Model
 
         public string Ime { get; set; }
         public string Prezime { get; set; }
-        public string Slika { get; set; }
+        public Guid IdSlika { get; set; }
 
         public Guid Id { get; set; }
         public string Opis { get; set; }
         public DateTime DatumRodjenja { get; set; }
+        public virtual RepozitorijKorisnik IdSlikaNavigation { get; set; }
         public virtual ICollection<AdministratorForuma> AdministratorForuma { get; set; }
         public virtual ICollection<Anketa> Anketa { get; set; }
         public virtual ICollection<ClanNaProjektu> ClanNaProjektu { get; set; }

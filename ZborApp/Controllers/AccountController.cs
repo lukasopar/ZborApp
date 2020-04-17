@@ -286,7 +286,6 @@ namespace Lumenn.Controllers
                     k.Prezime = model.Prezime;
                     k.Opis = model.Opis;
                     k.DatumRodjenja = Convert.ToDateTime(model.DatumRodjenja, new System.Globalization.CultureInfo("fr-FR", true));
-                    k.Slika = "https://p7.hiclipart.com/preview/201/51/681/computer-icons-customer-service-user-others.jpg";
                     _ctx.Korisnik.Add(k);
                     _ctx.SaveChanges();
                     return RedirectToLocal(returnUrl);

@@ -9,7 +9,7 @@ namespace ZborApp.Models.ZborViewModels
     public class ProfilViewModel
     {
         public Guid IdKorisnik { get; set; }
-        public string Slika { get; set; }
+        public Guid Slika { get; set; }
         public string ImeIPrezime { get; set; }
         public Zbor Zbor { get; set; }
         public Obavijest NovaObavijest { get; set; }

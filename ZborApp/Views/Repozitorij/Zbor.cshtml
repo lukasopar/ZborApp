@@ -46,7 +46,7 @@
                         <tr>
 
                             <td><a asp-action="GetZbor" asp-route-id="@datoteka.Id"><img alt="fileicon" src="@datoteka.GetSlika()" style="width:20px; height:40px" /><span class="name" data-id="@datoteka.Id" id="Naziv-@datoteka.Id">@datoteka.GetNaziv()</span>.@datoteka.GetEkstenzija()</a></td>
-                            <td>@datoteka.DatumPostavljanja.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>@datoteka.DatumPostavljanja.ToString("yyyy.MM.dd. HH:mm")</td>
                             <td>@datoteka.IdKorisnikNavigation.ImeIPrezime()</td>
                             @if (Model.Promjena)
                             {
@@ -115,7 +115,9 @@
     <script src="~/js/RepZbor.js"></script>
     <script>
         $(document).ready(function() {
-            $('#datoteke').DataTable();
+            $('#datoteke').DataTable({
+                "order": [[ 1, "desc" ]]
+            });
         });
         bindEdit();
     </script>

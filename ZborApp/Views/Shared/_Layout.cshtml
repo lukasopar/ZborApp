@@ -65,14 +65,23 @@
                         <ul class="navbar-nav ml-auto">
                             <!-- Nav Item - Alerts -->
                             <li class="nav-item dropdown no-arrow mx-1">
-                                <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="procitaj3Obavijesti()">
                                     <i class="fa fa-bell"></i>
                                     <!-- Counter - Alerts -->
-                                    <span id="notificationCounter" class="badge badge-danger badge-counter">3+</span>
+                                    <span id="notificationCounter" class="badge badge-danger badge-counter"></span>
                                 </a>
                                 <!-- Dropdown - Alerts -->
-                                <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
+                                <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown" >
+                                    <h6 class="dropdown-header">
+                                        Obavijesti
+                                    </h6>
+                                    <div id="obavijesti_layout">
 
+                                    </div>
+
+
+
+                                    <a class="dropdown-item text-center small text-gray-500" asp-action="Obavijesti" asp-controller="Korisnik">Više obavijesti</a>
                                 </div>
                             </li>
 
@@ -97,7 +106,6 @@
                                     <a class="dropdown-item text-center small text-gray-500" asp-action="Index" asp-controller="Poruke">Više poruka</a>
                                 </div>
                             </li>
-                            </li>
 
                             <div class="topbar-divider d-none d-sm-block"></div>
 
@@ -113,6 +121,26 @@
 
                         <main role="main" class="pb-3">
                             @RenderBody()
+                            <div class="modal fade" id="napustanjeZbora" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">Napuštanje zbora</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Jeste li sigurni da želite napustiti zbor?</p>
+                                            <p id="idNapusti" style="display:none"></p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-primary" onclick="napustiZbor()">Da</button>
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Ne</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </main>
                     </div>
                 </div>
@@ -133,8 +161,10 @@
     <script src="~/js/signalr/dist/browser/signalr.js"></script>
 
     <script src="~/js/chat_layout.js"></script>
-
-    <script>renderChat()</script>
+    <script>
+       
+    </script>
+    <script>renderChat(); renderNot()</script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

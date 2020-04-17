@@ -101,7 +101,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdZborNavigation)
                     .WithMany(p => p.Anketa)
                     .HasForeignKey(d => d.IdZbor)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Anketa_Zbor");
             });
 
@@ -122,7 +122,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdProjektNavigation)
                     .WithMany(p => p.ClanNaProjektu)
                     .HasForeignKey(d => d.IdProjekt)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_ClanNaProjektu_Projekt");
             });
 
@@ -150,7 +150,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdZborNavigation)
                     .WithMany(p => p.ClanZbora)
                     .HasForeignKey(d => d.IdZbor)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_ClanZbora_Zbor");
             });
 
@@ -179,7 +179,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdProjektNavigation)
                     .WithMany(p => p.Dogadjaj)
                     .HasForeignKey(d => d.IdProjekt)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Dogadjaj_Projekt");
 
                 entity.HasOne(d => d.IdProjekt1)
@@ -200,7 +200,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdDogadjajNavigation)
                     .WithMany(p => p.EvidencijaDolaska)
                     .HasForeignKey(d => d.IdDogadjaj)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_EvidencijaDolaska_Dogadjaj");
 
                 entity.HasOne(d => d.IdKorisnikNavigation)
@@ -273,6 +273,11 @@ namespace ZborData.Model
                 entity.Property(e => e.Prezime)
                     .IsRequired()
                     .HasMaxLength(20);
+                entity.HasOne(d => d.IdSlikaNavigation)
+                    .WithMany(p => p.IdKorisniks)
+                    .HasForeignKey(d => d.IdSlika)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Korisnik_RepozitorijKorisnik");
             });
 
             modelBuilder.Entity<KorisnikUrazgovoru>(entity =>
@@ -366,7 +371,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdZborNavigation)
                     .WithMany(p => p.ModeratorZbora)
                     .HasForeignKey(d => d.IdZbor)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_ModeratorZbora_Zbor");
             });
 
@@ -381,7 +386,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdDogadjajNavigation)
                     .WithMany(p => p.NajavaDolaska)
                     .HasForeignKey(d => d.IdDogadjaj)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_NajavaDolaska_Dogadjaj");
 
                 entity.HasOne(d => d.IdKorisnikNavigation)
@@ -414,7 +419,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdZborNavigation)
                     .WithMany(p => p.Obavijest)
                     .HasForeignKey(d => d.IdZbor)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Obavijest_Zbor");
             });
 
@@ -435,7 +440,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdProjektNavigation)
                     .WithMany(p => p.ObavijestVezanaUzProjekt)
                     .HasForeignKey(d => d.IdProjekt)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_ObavijestVezanaUzProjekt_Projekt");
             });
 
@@ -481,7 +486,7 @@ namespace ZborData.Model
 
                 entity.Property(e => e.Tekst)
                     .IsRequired()
-                    .HasMaxLength(50);
+                    .HasMaxLength(500);
 
                 entity.HasOne(d => d.IdKorisnikNavigation)
                     .WithMany(p => p.OsobneObavijesti)
@@ -546,7 +551,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdProjektNavigation)
                     .WithMany(p => p.PozivZaProjekt)
                     .HasForeignKey(d => d.IdProjekt)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_PozivZaProjekt_Projekt");
             });
 
@@ -571,7 +576,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdZborNavigation)
                     .WithMany(p => p.PozivZaZbor)
                     .HasForeignKey(d => d.IdZbor)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_PozivZaZbor_Zbor");
             });
 
@@ -588,7 +593,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdProjektNavigation)
                     .WithMany(p => p.PretplataNaProjekt)
                     .HasForeignKey(d => d.IdProjekt)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_PretplataNaProjekt_Projekt");
             });
             modelBuilder.Entity<PretplataNaZbor>(entity =>
@@ -604,7 +609,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdZborNavigation)
                     .WithMany(p => p.PretplataNaZbor)
                     .HasForeignKey(d => d.IdZbor)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_PretplataNaZbor_Zbor");
             });
 
@@ -629,7 +634,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdProjektNavigation)
                     .WithMany(p => p.PrijavaZaProjekt)
                     .HasForeignKey(d => d.IdProjekt)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_PrijavaZaProjekt_Projekt");
             });
 
@@ -654,7 +659,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdZborNavigation)
                     .WithMany(p => p.PrijavaZaZbor)
                     .HasForeignKey(d => d.IdZbor)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_PrijavaZaZbor_Zbor");
             });
 
@@ -734,7 +739,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdZborNavigation)
                    .WithMany(p => p.RepozitorijZbor)
                    .HasForeignKey(d => d.IdZbor)
-                   .OnDelete(DeleteBehavior.ClientSetNull)
+                   .OnDelete(DeleteBehavior.Cascade)
                    .HasConstraintName("FK_RepozitorijZbor_Zbor");
 
             });
@@ -776,7 +781,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdProjektNavigation)
                     .WithMany(p => p.Trosak)
                     .HasForeignKey(d => d.IdProjekt)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Trosak_Projekt");
             });
 
@@ -799,7 +804,7 @@ namespace ZborData.Model
                 entity.HasOne(d => d.IdZborNavigation)
                     .WithMany(p => p.Voditelj)
                     .HasForeignKey(d => d.IdZbor)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Voditelj_Zbor");
             });
 
@@ -865,6 +870,11 @@ namespace ZborData.Model
                     .HasMaxLength(60);
 
                 entity.Property(e => e.Opis).HasMaxLength(1000);
+                entity.HasOne(d => d.IdSlikaNavigation)
+                    .WithMany(p => p.IdZbors)
+                    .HasForeignKey(d => d.IdSlika)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Zbor_RepozitorijZbor");
             });
 
             OnModelCreatingPartial(modelBuilder);

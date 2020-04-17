@@ -24,11 +24,13 @@ namespace ZborApp.Services
         public async Task SendMessage(PorukaModel poruka)
         {
             var razg = _ctx.Razgovor.Where(razg => razg.Id == Guid.Parse(poruka.IdRazg)).Include(razg => razg.KorisnikUrazgovoru).SingleOrDefault();
-            poruka.Message.Replace("\n", "<br />");
+            poruka.Message=poruka.Message.Replace("\n", "<br />");
             var user = _ctx.Korisnik.Where(k => k.Id == Guid.Parse(poruka.IdUser)).SingleOrDefault();
-            poruka.Slika = user.Slika;
+            poruka.Slika = user.IdSlika.ToString();
             poruka.Ime = user.Ime;
             var when = DateTime.ParseExact(poruka.When, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+            poruka.When = when.ToString("dd.MM.yyyy. | HH:mm");
+
             Poruka novaPoruka = new Poruka
             {
                 DatumIvrijeme =when,
@@ -58,7 +60,7 @@ namespace ZborApp.Services
                     Id = novaPoruka.IdRazgovor,
                     Naziv = razg.Naslov + " (" + user.ImeIPrezime() + ")",
                     Datum = novaPoruka.DatumIvrijeme.ToString("dd.MM.yyyy. hh:mm"),
-                    Slika = user.Slika,
+                    Slika = user.IdSlika,
                     Poruka = novaPoruka.Poruka1,
                     Procitano = k.Procitano
                 });
@@ -73,11 +75,13 @@ namespace ZborApp.Services
             //glupi uvjet, treba bolji napisat
             var razg = _ctx.Razgovor.Where(razg => razg.KorisnikUrazgovoru.Select(k => k.IdKorisnik).All(id => listaId.Contains(id)) && razg.KorisnikUrazgovoru.Count() == listaId.Count()).Include(k=>k.KorisnikUrazgovoru).SingleOrDefault();
             var when = DateTime.ParseExact(poruka.When, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+            poruka.Message = poruka.Message.Replace("\n", "<br />");
+            poruka.When = when.ToString("dd.MM.yyyy. | HH:mm");
 
             if (razg != null)
             {
                 var user = _ctx.Korisnik.Where(k => k.Id == Guid.Parse(poruka.IdUser)).SingleOrDefault();
-                poruka.Slika = user.Slika;
+                poruka.Slika = user.IdSlika.ToString();
                 poruka.Ime = user.Ime;
                 poruka.IdRazg = razg.Id.ToString();
                 Poruka novaPoruka = new Poruka
@@ -101,8 +105,8 @@ namespace ZborApp.Services
                     {
                         Id = novaPoruka.IdRazgovor,
                         Naziv = razg.Naslov + " (" + user.ImeIPrezime() + ")",
-                        Datum = novaPoruka.DatumIvrijeme.ToString("dd.MM.yyyy. hh:mm"),
-                        Slika = user.Slika,
+                        Datum = novaPoruka.DatumIvrijeme.ToString("dd.MM.yyyy. | HH:mm"),
+                        Slika = user.IdSlika,
                         Poruka = novaPoruka.Poruka1,
                         Procitano = k.Procitano
                     });
@@ -114,7 +118,7 @@ namespace ZborApp.Services
             {
                 //Treba napraviti novi;
                 var user = _ctx.Korisnik.Where(k => k.Id == Guid.Parse(poruka.IdUser)).SingleOrDefault();
-                poruka.Slika = user.Slika;
+                poruka.Slika = user.IdSlika.ToString();
                 poruka.Ime = user.Ime;
                 Poruka novaPoruka = new Poruka
                 {
@@ -161,8 +165,8 @@ namespace ZborApp.Services
                     {
                         Id = novaPoruka.IdRazgovor,
                         Naziv = noviRazg.Naslov + " (" + user.ImeIPrezime() + ")",
-                        Datum = novaPoruka.DatumIvrijeme.ToString("dd.MM.yyyy. hh:mm"),
-                        Slika = user.Slika,
+                        Datum = novaPoruka.DatumIvrijeme.ToString("dd.MM.yyyy. | HH:mm"),
+                        Slika = user.IdSlika,
                         Poruka = novaPoruka.Poruka1,
                         Procitano = flag
                     });

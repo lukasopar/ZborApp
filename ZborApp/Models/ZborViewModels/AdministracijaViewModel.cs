@@ -21,5 +21,7 @@ namespace ZborApp.Models.ZborViewModels
         public ICollection<ModeratorZbora> Moderatori { get; set; }
 
         public Korisnik Voditelj { get; set; }
+        public bool Vod { get; set; }
+
     }
 }

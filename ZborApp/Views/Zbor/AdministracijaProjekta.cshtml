@@ -5,9 +5,16 @@
 
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Administracija projekta @Model.Projekt.Naziv</h1>
-        <div>
-            <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fa fa-trash-o"></i>Završi projekt</a>
-            <form asp-action="ObrisiProjekt"><input asp-for="IdBrisanje" value="@Model.Projekt.Id" hidden style="display:none" /><button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm"><i class="fa fa-key"></i>Obriši projekt</button></form>
+        <div class="row">
+            @if (!Model.Projekt.Zavrsen)
+            {
+                <form style="padding-left:5px" asp-action="ZavrsiProjekt"><input asp-for="IdBrisanje" value="@Model.Projekt.Id" hidden style="display:none" /><button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">Završi projekt</button></form>
+            }
+            else
+            {
+                <form style="padding-left:5px" asp-action="OtvoriProjekt"><input asp-for="IdBrisanje" value="@Model.Projekt.Id" hidden style="display:none" /><button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">Otvori projekt</button></form>
+            }
+            <form style="padding-left:5px" asp-action="ObrisiProjekt"><input asp-for="IdBrisanje" value="@Model.Projekt.Id" hidden style="display:none" /><button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">Obriši projekt</button></form>
 
         </div>
     </div>
@@ -35,6 +42,8 @@
                             {
                                 <div id="Clan-@clan.Id" style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between">
                                     <a class="hoverable" data-id="@clan.IdKorisnik" data-toggle="modal" data-target="#statistika">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>
+                                    @if (!Model.Projekt.Zavrsen)
+                                    {
                                     <div class="dropdown no-arrow">
                                         <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <i class="fa fa-ellipsis-v"></i>
@@ -45,6 +54,7 @@
                                             <form asp-action="ObrisiClanaProjekta"><input asp-for="IdBrisanje" value="@clan.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Ukloni iz projekta</button></form>
                                         </div>
                                     </div>
+                                    }
                                 </div>
                             }
                         </div>
@@ -59,6 +69,9 @@
                             {
                                 <div id="Clan-@clan.Id" style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between">
                                     <a class="hoverable" data-id="@clan.IdKorisnik" data-toggle="modal" data-target="#statistika">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>
+                                    @if (!Model.Projekt.Zavrsen)
+                                    {
+
                                     <div class="dropdown no-arrow">
                                         <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <i class="fa fa-ellipsis-v"></i>
@@ -69,6 +82,7 @@
                                             <form asp-action="ObrisiClanaProjekta"><input asp-for="IdBrisanje" value="@clan.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Ukloni iz projekta</button></form>
                                         </div>
                                     </div>
+                                    }
                                 </div>
 
                             }
@@ -80,7 +94,8 @@
         </div>
     </div>
 </div>
-
+@if (!Model.Projekt.Zavrsen)
+{
 <div class="row">
     <div class="col-xl-6 col-lg-6">
         <div class="card shadow mb-4">
@@ -138,7 +153,7 @@
         </div>
     </div>
 </div>
-
+}
 
     <div class="modal fade" id="promjenaGlasa" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -223,7 +238,7 @@
                         withCredentials: true
                     }
                 }).done(function (response) {
-                    newDiv = '<div id="Clan-' + response.id + '" style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between"><a href="#">' + response.imeIPrezime + '</a><div class="dropdown no-arrow"><a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-v"></i> </a><div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink"><div class="dropdown-header">Mogućnosti</div><button id="Promjena-' + response.id + '" class="dropdown-item" data-toggle="modal" data-target="#promjenaGlasa" data-ime="' + response.imeIPrezime + '" data-id="' + response.id + '" data-glas="1">Promjena glasa</button><form action="/Zbor/ObrisiClanaProjekta" method="post"><input id="IdBrisanje" name="IdBrisanje" value="' + response.id + '" hidden style="display: none"/><button class="dropdown - item" type="submit">Ukloni s projekta</button></form></div></div></div>';
+                     newDiv = '<div id="Clan-' + response.id + '" style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between"><a  class="hoverable" data-id="' + response.idkorisnik + '" data-toggle="modal" data-target="#statistika">' + response.imeIPrezime + '</a><div class="dropdown no-arrow"><a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-v"></i> </a><div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink"><div class="dropdown-header">Mogućnosti</div><button id="Promjena-' + response.id + '" class="dropdown-item" data-toggle="modal" data-target="#promjenaGlasa" data-ime="' + response.imeIPrezime + '" data-id="' + response.id + '" data-glas="1">Promjena glasa</button><form action="/Zbor/ObrisiClanaProjekta" method="post"><input id="IdBrisanje" name="IdBrisanje" value="' + response.id + '" hidden style="display:none" type="text" data-val="true"/><button class="dropdown-item" type="submit">Ukloni s projekta</button></form></div></div></div>';
                     $("#Nerazvrstani").append(newDiv);
                     testB = '#B-' + idKorisnik;
                     console.log(testB);

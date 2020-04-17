@@ -1,0 +1,48 @@
+﻿@model ZborApp.Models.KorisnikVIewModels.ObavijestiViewModel
+@using ZborData.Model
+@{
+    ViewData["Title"] = "Profil";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote.min.css" rel="stylesheet">
+
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Moje obavijesti</h1>
+</div>
+
+
+<div class="row">
+    <div class="col-7">
+        <!-- Area Chart -->
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Obavijesti</h6>
+                    
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="card-text">
+                        @foreach(var o in Model.Obavijesti)
+                        {
+                            <div class="row">
+                                <div class="col-12">
+                                    <a href="@o.Poveznica">
+                                        <div @if (o.Procitano == false) { <text> class="font-weight-bold" </text> }>
+                                            <br />
+                                            <div>@Html.Raw(o.Tekst)</div><div class="small text-gray-500">@o.Datum.ToString("dd.MM.yyyy. HH:mm")</div>
+                                        </div>
+
+                                    </a>
+                                </div>
+                            </div>
+                            <hr />
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+       

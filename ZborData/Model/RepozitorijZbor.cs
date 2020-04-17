@@ -5,6 +5,10 @@ using ZborData.Services;
 namespace ZborData.Model
 {
     public partial class RepozitorijZbor { 
+        public RepozitorijZbor()
+        {
+            IdZbors = new HashSet<Zbor>();
+        }
         public Guid Id { get; set; }
         public string Naziv { get; set; }
         public Guid IdKorisnik { get; set; }
@@ -15,7 +19,7 @@ namespace ZborData.Model
 
         public virtual Korisnik IdKorisnikNavigation { get; set; }
         public virtual Zbor IdZborNavigation { get; set; }
-
+        public virtual ICollection<Zbor> IdZbors { get; set; }
 
         public string GetSlika()
         {
@@ -28,6 +32,13 @@ namespace ZborData.Model
             var vrsta = Naziv.Split(".");
             var ekstenzija = vrsta[vrsta.Length - 1].ToLower().Trim();
             return ekstenzija;
+        }
+        public bool JeSlika()
+        {
+            string ekst = GetEkstenzija();
+            if (ekst.Equals("png") || ekst.Equals("jpg") || ekst.Equals("jpeg") || ekst.Equals("bmp"))
+                return true;
+            return false;
         }
         public string GetNaziv()
         {

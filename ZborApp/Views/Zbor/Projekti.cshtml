@@ -143,7 +143,7 @@
                                 {
                                     <a class="btn btn-sm btn-outline-secondary" asp-action="AdministracijaProjekta" asp-route-id="@projekt.Id">Administracija</a>
                                 }
-                            <form style="padding-left:7px" asp-action="PovuciPrijavu" asp-route-id="@projekt.Id"  method="post"><button type="submit" class="btn btn-sm btn-outline-secondary">Povuci prijavu</button></form>
+                                <form style="padding-left:7px" asp-action="PovuciPrijavu" asp-route-id="@projekt.Id" method="post"><button type="submit" class="btn btn-sm btn-outline-secondary">Povuci prijavu</button></form>
 
                             </div>
 
@@ -178,16 +178,16 @@
                                 {
                                     <a class="btn btn-sm btn-outline-secondary" asp-action="AdministracijaProjekta" asp-route-id="@projekt.Id">Administracija</a>
                                 }
-                             
-
-                                    <a id="B-@projekt.Id" class="btn btn-sm btn-outline-secondary" data-toggle="modal" data-target="#exampleModal" data-ime="@projekt.Naziv" data-id="@projekt.Id">Uključi se</a>
 
 
-                           
-                        
-                                    <text id="T-@projekt.Id" style="display: none" class="text-success">Prijava poslana.</text>
+                                <a id="B-@projekt.Id" class="btn btn-sm btn-outline-secondary" data-toggle="modal" data-target="#exampleModal" data-ime="@projekt.Naziv" data-id="@projekt.Id">Uključi se</a>
 
-                      
+
+
+
+                                <text id="T-@projekt.Id" style="display: none" class="text-success">Prijava poslana.</text>
+
+
 
                             </div>
 
@@ -200,7 +200,43 @@
             </div>
         </div>
     </div>
+    <div class="col-xl-4 col-lg-4">
+        <div class="card shadow mb-4">
+            <!-- Card Header - Dropdown -->
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-secondary">Moji projekti</h6>
+            </div>
+            <!-- Card Body -->
+            <div class="card-body">
+                <div class="card-text">
+                    @if (Model.ZavrseniProjekti == null || Model.ZavrseniProjekti.Count() == 0)
+                    {
+                        <p>Nema završenih projekta.</p>
+                    }
+                    @foreach (Projekt projekt in Model.ZavrseniProjekti)
+                    {
+                        <div class=" d-flex flex-row align-items-center justify-content-between" style="padding-top:3px">
+                            <div>
+                                <a asp-action="Projekt" asp-route-id="@projekt.Id">@projekt.Naziv</a>
 
+
+                            </div>
+                            <div>
+
+                                @if (Model.Admin)
+                                {
+                                    <a class="btn btn-sm btn-outline-secondary" asp-action="AdministracijaProjekta" asp-route-id="@projekt.Id">Administracija</a>
+
+                                }
+                            </div>
+                        </div>
+                        <hr />
+
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 

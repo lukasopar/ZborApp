@@ -4,9 +4,12 @@
 }
 
 
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Administracija</h1>
-</div>
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Administracija</h1>
+        @if (Model.Vod)
+        {<form style="padding-left:5px" asp-action="ObrisiZbor"><input asp-for="IdBrisanje" value="@Model.Zbor.Id" hidden style="display:none" /><button type="submit" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">Obriši zbor</button></form>}
+
+    </div>
 
 
 <div class="row">
@@ -18,6 +21,8 @@
             </div>
             <!-- Card Body -->
             <div class="card-body">
+                @if (ViewData["mess"] != null)
+                    {<div class="alert-danger">@ViewData["mess"]</div>}
                 <div class="card-title d-flex flex-row align-items-center justify-content-between">
                     <div class="col-md-2">
                         Soprani
@@ -51,7 +56,7 @@
                                             <div class="dropdown-header">@Html.Raw("Mogućnosti")</div>
                                             <button id="Promjena-@clan.Id" class="dropdown-item" data-toggle="modal" data-target="#promjenaGlasa" data-ime="@clan.IdKorisnikNavigation.ImeIPrezime()" data-id="@clan.Id" data-glas="1">Promjena glasa</button>
                                             <button class="dropdown-item" onclick="moderiraj('@clan.IdKorisnik', '@Model.Zbor.Id')">Postavi za moderatora</button>
-
+                                            <form asp-action="PostaviVoditelja"><input asp-for="IdBrisanje" value="@clan.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Postavi voditelja</button></form>
                                             <form asp-action="ObrisiClana"><input asp-for="IdBrisanje" value="@clan.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Izbaci</button></form>
                                         </div>
                                     </div>
@@ -75,6 +80,7 @@
                                             <div class="dropdown-header">@Html.Raw("Mogućnosti")</div>
                                             <button id="Promjena-@clan.Id" class="dropdown-item" data-toggle="modal" data-target="#promjenaGlasa" data-ime="@clan.IdKorisnikNavigation.ImeIPrezime()" data-id="@clan.Id" data-glas="2">Promjena glasa</button>
                                             <button class="dropdown-item" onclick="moderiraj('@clan.IdKorisnik', '@Model.Zbor.Id')">Postavi za moderatora</button>
+                                            <form asp-action="PostaviVoditelja"><input asp-for="IdBrisanje" value="@clan.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Postavi voditelja</button></form>
                                             <form asp-action="ObrisiClana"><input asp-for="IdBrisanje" value="@clan.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Izbaci</button></form>
                                         </div>
                                     </div>
@@ -97,6 +103,7 @@
                                             <div class="dropdown-header">@Html.Raw("Mogućnosti")</div>
                                             <button id="Promjena-@clan.Id" class="dropdown-item" data-toggle="modal" data-target="#promjenaGlasa" data-ime="@clan.IdKorisnikNavigation.ImeIPrezime()" data-id="@clan.Id" data-glas="3">Promjena glasa</button>
                                             <button class="dropdown-item" onclick="moderiraj('@clan.IdKorisnik', '@Model.Zbor.Id')">Postavi za moderatora</button>
+                                            <form asp-action="PostaviVoditelja"><input asp-for="IdBrisanje" value="@clan.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Postavi voditelja</button></form>
                                             <form asp-action="ObrisiClana"><input asp-for="IdBrisanje" value="@clan.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Izbaci</button></form>
                                         </div>
                                     </div>
@@ -120,7 +127,7 @@
                                             <div class="dropdown-header">@Html.Raw("Mogućnosti")</div>
                                             <button id="Promjena-@clan.Id" class="dropdown-item" data-toggle="modal" data-target="#promjenaGlasa" data-ime="@clan.IdKorisnikNavigation.ImeIPrezime()" data-id="@clan.Id" data-glas="4">Promjena glasa</button>
                                             <button class="dropdown-item" onclick="moderiraj('@clan.IdKorisnik', '@Model.Zbor.Id')">Postavi za moderatora</button>
-
+                                            <form asp-action="PostaviVoditelja"><input asp-for="IdBrisanje" value="@clan.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Postavi voditelja</button></form>
                                             <form asp-action="ObrisiClana"><input asp-for="IdBrisanje" value="@clan.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Izbaci</button></form>
                                         </div>
                                     </div>
@@ -144,6 +151,7 @@
                                             <div class="dropdown-header">@Html.Raw("Mogućnosti")</div>
                                             <button id="Promjena-@clan.Id" class="dropdown-item" data-toggle="modal" data-target="#promjenaGlasa" data-ime="@clan.IdKorisnikNavigation.ImeIPrezime()" data-id="@clan.Id" data-glas="1">Promjena glasa</button>
                                             <button class="dropdown-item" onclick="moderiraj('@clan.IdKorisnik', '@Model.Zbor.Id')">Postavi za moderatora</button>
+                                            <form asp-action="PostaviVoditelja"><input asp-for="IdBrisanje" value="@clan.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Postavi voditelja</button></form>
                                             <form asp-action="ObrisiClana"><input asp-for="IdBrisanje" value="@clan.Id" hidden style="display:none" /><button class="dropdown-item" type="submit">Izbaci</button></form>
                                         </div>
                                     </div>
