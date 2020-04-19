@@ -39,7 +39,7 @@ namespace ZborApp.Services
                 client.Send(mail);
                 return Task.CompletedTask;
             }
-            catch (System.Exception e)
+            catch (System.Exception)
             {
                 return Task.CompletedTask;
             }

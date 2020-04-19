@@ -1919,7 +1919,9 @@ namespace ZborApp.Controllers
 
                                     if (glas == null) glas = "ne";
                                     else glas.Trim().ToLower();
+#pragma warning disable CS0642 // Possible mistaken empty statement
                                     if (glas.Equals("sopran") || glas.Equals("alt") || glas.Equals("tenor") || glas.Equals("bas")) ;
+#pragma warning restore CS0642 // Possible mistaken empty statement
                                     else glas = "ne";
                                     string email = reader.GetString(2);
                                     var user = await _userManager.FindByEmailAsync(email);

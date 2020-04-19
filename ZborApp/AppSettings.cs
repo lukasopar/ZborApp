@@ -10,7 +10,7 @@ namespace ZborApp
 
         public int PageSize { get; set; } = 2;
         public int PageOffset { get; set; } = 2;
-     
+        public string Secret { get; set; } = "Tajna je otkrivena hehe";
 
 
     }

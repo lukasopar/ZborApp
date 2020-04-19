@@ -3,9 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29519.87
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZborApp", "ZborApp\ZborApp.csproj", "{A712AD36-8DBC-4BF4-ABC9-02EB5AB5AD58}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZborApp", "ZborApp\ZborApp.csproj", "{A712AD36-8DBC-4BF4-ABC9-02EB5AB5AD58}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZborData", "ZborData\ZborData.csproj", "{C9F757F3-F060-4A2A-85B8-D6F8096D2686}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZborData", "ZborData\ZborData.csproj", "{C9F757F3-F060-4A2A-85B8-D6F8096D2686}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZborMob.Android", "ZborMob\ZborMob.Android\ZborMob.Android.csproj", "{B6A0D2CC-429C-406A-9EC2-AA4A3774A584}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZborMob", "ZborMob\ZborMob\ZborMob.csproj", "{387F93B8-F185-43EE-B073-55F166723831}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZborDataStandard", "ZborDataStandard\ZborDataStandard.csproj", "{B568B614-BBC6-4E56-9F5D-0773F72B5C8F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +27,20 @@ Global
 		{C9F757F3-F060-4A2A-85B8-D6F8096D2686}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9F757F3-F060-4A2A-85B8-D6F8096D2686}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9F757F3-F060-4A2A-85B8-D6F8096D2686}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6A0D2CC-429C-406A-9EC2-AA4A3774A584}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6A0D2CC-429C-406A-9EC2-AA4A3774A584}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6A0D2CC-429C-406A-9EC2-AA4A3774A584}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{B6A0D2CC-429C-406A-9EC2-AA4A3774A584}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6A0D2CC-429C-406A-9EC2-AA4A3774A584}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6A0D2CC-429C-406A-9EC2-AA4A3774A584}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{387F93B8-F185-43EE-B073-55F166723831}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{387F93B8-F185-43EE-B073-55F166723831}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{387F93B8-F185-43EE-B073-55F166723831}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{387F93B8-F185-43EE-B073-55F166723831}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B568B614-BBC6-4E56-9F5D-0773F72B5C8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B568B614-BBC6-4E56-9F5D-0773F72B5C8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B568B614-BBC6-4E56-9F5D-0773F72B5C8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B568B614-BBC6-4E56-9F5D-0773F72B5C8F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

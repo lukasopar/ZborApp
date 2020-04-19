@@ -173,7 +173,6 @@ namespace ZborApp.Services
                 }
                 _ctx.Add(noviRazg);
                 _ctx.SaveChanges();
-                int g = 0;
             }
         }
     }
