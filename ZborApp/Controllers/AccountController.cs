@@ -14,7 +14,7 @@ using ZborDataStandard.Model;
 using ZborDataStandard.Account;
 using ZborApp.Controllers;
 using ZborApp.Services;
-using ZborApp.Models.AccountViewModels;
+using ZborDataStandard.ViewModels.AccountViewModels;
 
 namespace Lumenn.Controllers
 {

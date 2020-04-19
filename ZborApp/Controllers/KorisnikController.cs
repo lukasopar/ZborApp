@@ -16,13 +16,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using ZborApp.Models;
-using ZborApp.Models.JSONModels;
-using ZborApp.Models.ForumViewModels;
+using ZborDataStandard.ViewModels;
+using ZborDataStandard.ViewModels.JSONModels;
+using ZborDataStandard.ViewModels.ForumViewModels;
 using ZborApp.Services;
 using ZborDataStandard.Account;
 using ZborDataStandard.Model;
-using ZborApp.Models.KorisnikVIewModels;
+using ZborDataStandard.ViewModels.KorisnikVIewModels;
 
 namespace ZborApp.Controllers
 {
