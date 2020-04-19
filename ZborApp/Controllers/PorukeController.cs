@@ -21,8 +21,8 @@ using ZborApp.Models.JSONModels;
 using ZborApp.Models.PorukeViewModels;
 using ZborApp.Models.ZborViewModels;
 using ZborApp.Services;
-using ZborData.Account;
-using ZborData.Model;
+using ZborDataStandard.Account;
+using ZborDataStandard.Model;
 
 
 

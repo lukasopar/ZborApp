@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ZborApp.Models.JSONModels;
-using ZborData.Model;
+using ZborDataStandard.Model;
 
 namespace ZborApp.Models.ZborViewModels
 {

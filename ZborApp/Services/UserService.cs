@@ -8,8 +8,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using ZborData.Account;
-using ZborData.Model;
+using ZborDataStandard.Account;
+using ZborDataStandard.Model;
 
 namespace ZborApp.Services
 {

@@ -18,8 +18,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.OAuth;
 using ZborApp.Services;
-using ZborData.Account;
-using ZborData.Model;
+using ZborDataStandard.Account;
+using ZborDataStandard.Model;
 
 
 namespace ZborApp

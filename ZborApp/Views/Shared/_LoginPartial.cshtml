@@ -1,10 +1,10 @@
 @using Microsoft.AspNetCore.Identity
 @using ZborApp.Models
-@using ZborData.Account
+@using ZborDataStandard.Account
 
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
-@inject ZborData.Model.ZborDatabaseContext ctx
+@inject ZborDataStandard.Model.ZborDatabaseContext ctx
 
 @if (SignInManager.IsSignedIn(User))
 {

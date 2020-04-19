@@ -20,8 +20,8 @@ using ZborApp.Models;
 using ZborApp.Models.JSONModels;
 using ZborApp.Models.ForumViewModels;
 using ZborApp.Services;
-using ZborData.Account;
-using ZborData.Model;
+using ZborDataStandard.Account;
+using ZborDataStandard.Model;
 using ZborApp.Models.KorisnikVIewModels;
 
 namespace ZborApp.Controllers
