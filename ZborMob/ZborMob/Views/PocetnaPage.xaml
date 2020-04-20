@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:ZborMob.ViewModels"
+    
+             mc:Ignorable="d"
+             x:Class="ZborMob.Views.PocetnaPage"
+             x:Name="Pocetna">
+    <ContentPage.BindingContext>
+        <local:PocetnaViewModel x:Name="viewmodel"/>
+    </ContentPage.BindingContext>
+    <StackLayout>
+        <Label Text="Moji zborovi"/>
+        <ListView ItemsSource="{Binding MojiZborovi}" x:Name="MojiZborovi" x:FieldModifier="public" ItemTapped="MojZborTapped" >
+            <ListView.ItemTemplate >
+                <DataTemplate>
+                    <ViewCell>
+                        <ViewCell.View>
+                            <StackLayout>
+                                <Label Text="{Binding Naziv}" FontSize="20"/>
+                               
+                            </StackLayout>
+                        </ViewCell.View>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </StackLayout>
+</ContentPage>

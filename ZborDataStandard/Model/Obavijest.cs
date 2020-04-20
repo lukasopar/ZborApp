@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace ZborDataStandard.Model
 {
@@ -27,5 +28,12 @@ namespace ZborDataStandard.Model
         public virtual ICollection<KomentarObavijesti> KomentarObavijesti { get; set; }
         public virtual ICollection<LajkObavijesti> LajkObavijesti { get; set; }
         public virtual ICollection<ObavijestVezanaUzProjekt> ObavijestVezanaUzProjekt { get; set; }
+        public bool Lajkano
+        {
+            get
+            {
+                return LajkObavijesti.Select(l => l.IdKorisnik).Contains(IdKorisnik);
+            }
+        }
     }
 }

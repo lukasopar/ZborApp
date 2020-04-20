@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:ZborMob.ViewModels"
+             xmlns:helpers="clr-namespace:ZborMob.Converters"
+             mc:Ignorable="d"
+             x:Class="ZborMob.Views.ObavijestiPage"
+             x:Name="ObavijestiStranica">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <helpers:ObavijestConverter x:Key="ColorConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <StackLayout>
+
+        <ListView ItemsSource="{Binding Obavijesti}" x:Name="Obavijesti" x:FieldModifier="public" HasUnevenRows="True">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <ViewCell.View>
+                            <StackLayout>
+                                <Label Text="{Binding Naslov}" FontSize="20"/>
+                                <Label Text="{Binding Tekst}" />
+                                <Label Text="{Binding LajkObavijesti.Count, StringFormat='{0} oznaka Sviđa mi se'}" />
+                                <Button Text="Sviđa mi se" x:Name="lajk" Clicked="Lajkam" BackgroundColor="{Binding Converter={StaticResource ColorConverter}}" />
+
+                                <Label Text="{Binding KomentarObavijesti.Count, StringFormat='{0} komentara'}" >
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="Komentari" />
+                                    </Label.GestureRecognizers>
+                                </Label>
+
+                            </StackLayout>
+                            
+                        </ViewCell.View>
+                       
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </StackLayout>
+</ContentPage>

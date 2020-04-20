@@ -77,5 +77,9 @@ namespace ZborDataStandard.Model
         {
             return Ime + " " + Prezime;
         }
+        public string ImeIPrezimeP
+        {
+            get { return Ime + " " + Prezime; }
+        }
     }
 }

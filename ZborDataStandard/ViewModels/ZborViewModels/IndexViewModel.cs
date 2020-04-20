@@ -8,10 +8,10 @@ namespace ZborDataStandard.ViewModels.ZborViewModels
 {
     public class IndexViewModel
     {
-        public IEnumerable<Zbor> MojiZborovi { get; set; }
-        public IEnumerable<Zbor> OstaliZborovi { get; set; }
-        public IEnumerable<Zbor> PoslanePrijaveZborovi { get; set; }
-        public IEnumerable<PozivZaZbor> MojiPozivi { get; set; }
+        public List<Zbor> MojiZborovi { get; set; }
+        public List<Zbor> OstaliZborovi { get; set; }
+        public List<Zbor> PoslanePrijaveZborovi { get; set; }
+        public List<PozivZaZbor> MojiPozivi { get; set; }
 
         public Guid KorisnikId { get; set; }
 

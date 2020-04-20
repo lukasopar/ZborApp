@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                          xmlns:helpers="clr-namespace:ZborMob.Converters"
+
+             mc:Ignorable="d"
+             x:Class="ZborMob.Views.KomentariPage">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <helpers:KomentarConverter x:Key="ColorConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.Content>
+        <StackLayout>
+            <ListView ItemsSource="{Binding KomentarObavijesti}" x:Name="KomentarObavijesti" x:FieldModifier="public" HasUnevenRows="True">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <StackLayout>
+                                    <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}" FontSize="20"/>
+                                    <Label Text="{Binding Tekst}" />
+                                    <Label Text="{Binding LajkKomentara.Count, StringFormat='{0} oznaka Sviđa mi se'}" />
+                                    <Button Text="Sviđa mi se" x:Name="lajk" Clicked="Lajkam" BackgroundColor="{Binding Converter={StaticResource ColorConverter}}" />
+
+
+                                </StackLayout>
+
+                            </ViewCell.View>
+
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+          
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
