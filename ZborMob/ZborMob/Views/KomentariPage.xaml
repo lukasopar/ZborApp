@@ -14,7 +14,7 @@
     </ContentPage.Resources>
     <ContentPage.Content>
         <StackLayout>
-            <ListView ItemsSource="{Binding KomentarObavijesti}" x:Name="KomentarObavijesti" x:FieldModifier="public" HasUnevenRows="True">
+            <ListView ItemsSource="{Binding Komentari}"  x:FieldModifier="public" HasUnevenRows="True">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
@@ -34,7 +34,8 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-          
+            <Entry Text="{Binding Novi}"/>
+            <Button Text="Pošalji" Clicked="NoviKomentar"/>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

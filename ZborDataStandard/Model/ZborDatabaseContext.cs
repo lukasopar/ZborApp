@@ -758,7 +758,7 @@ namespace ZborDataStandard.Model
                     .WithMany(p => p.Tema)
                     .HasForeignKey(d => d.IdKorisnik)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Tema__IdKorisnik__3587F3E0");
+                    .HasConstraintName("FK_Tema_IdKorisnik_3587F3E0");
                 entity.HasOne(d => d.IdForumNavigation)
                    .WithMany(p => p.Tema)
                    .HasForeignKey(d => d.IdForum)

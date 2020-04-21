@@ -14,7 +14,9 @@
         </ResourceDictionary>
     </ContentPage.Resources>
     <StackLayout>
-
+        <Entry Text="{Binding Naslov}"/>
+        <Entry Text="{Binding Tekst}"/>
+        <Button Text="Pošalji" Clicked="NovaObavijest"/>
         <ListView ItemsSource="{Binding Obavijesti}" x:Name="Obavijesti" x:FieldModifier="public" HasUnevenRows="True">
             <ListView.ItemTemplate>
                 <DataTemplate>

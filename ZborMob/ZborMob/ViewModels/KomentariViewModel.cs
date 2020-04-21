@@ -35,20 +35,36 @@ namespace ZborMob.ViewModels
         }
       
         private Obavijest model;
-
+        public string Novi { get; set; }
         public KomentariViewModel(Obavijest o)
         {
             _apiServices = new ApiServices();
             model = o;
+            Komentari = new ObservableCollection<KomentarObavijesti>(model.KomentarObavijesti);
 
         }
        
         public async void Lajk(KomentarObavijesti o)
         {
-            if (!o.LajkKomentara.Select(l => l.IdKorisnik).Contains(App.Korisnik.Id)) 
+            if (!o.LajkKomentara.Select(l => l.IdKorisnik).Contains(App.Korisnik.Id))
+            {
                 await _apiServices.LajkKomentaraAsync(o.Id);
+                o.LajkKomentara.Add(new LajkKomentara { Id = Guid.NewGuid(), IdKorisnik = App.Korisnik.Id, IdKomentar = o.Id });
+
+            }
             else
+            {
+                var l = o.LajkKomentara.Where(l => l.IdKorisnik == App.Korisnik.Id && l.IdKomentar == o.Id).SingleOrDefault();
+                o.LajkKomentara.Remove(l);
                 await _apiServices.UnLajkKomentaraAsync(o.Id);
+            }
+            RaisepropertyChanged("Komentari");
+
+        }
+        public async void DodajNovi()
+        {
+            var kom = await _apiServices.NoviKomentarAsync(Novi, model.Id);
+            Komentari.Add(kom);
 
 
 

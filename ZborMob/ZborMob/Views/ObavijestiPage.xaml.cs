@@ -48,5 +48,10 @@ namespace ZborMob.Views
             var obavijest = (Obavijest)((Label)o).BindingContext;
             Navigation.PushModalAsync(new KomentariPage(obavijest));
         }
+        async void NovaObavijest(object sender, EventArgs args)
+        {
+            viewmodel.NovaObavijest();
+            int g = 0;
+        }
     }
 }

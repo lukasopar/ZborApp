@@ -20,7 +20,9 @@ namespace ZborMob.ViewModels
         private ObservableCollection<Obavijest> obavijesti;
 
         public Guid IdKorisnik { get; set; }
-
+        public string Naslov { get; set; }
+        public string Tekst { get; set; }
+        private Guid IdZbor { get; set; }
         public ObservableCollection<Obavijest> Obavijesti
         {
             get
@@ -39,6 +41,7 @@ namespace ZborMob.ViewModels
         public ObavijestiViewModel(Guid id)
         {
             _apiServices = new ApiServices();
+            IdZbor = id;
             GetData(id);
 
         }
@@ -55,6 +58,14 @@ namespace ZborMob.ViewModels
                 await _apiServices.LajkObavijestiAsync(o.Id);
             else
                 await _apiServices.UnLajkObavijestiAsync(o.Id);
+
+
+
+        }
+        public async void NovaObavijest()
+        {
+            var o = await _apiServices.NovaObavijest(Naslov, Tekst, IdZbor);
+            Obavijesti.Prepend(o);
 
 
 

@@ -19,8 +19,9 @@ namespace ZborMob.Views
         public KomentariPage(Obavijest o)
         {
             obavijest = o;
-            this.BindingContext = obavijest;
             viewmodel = new KomentariViewModel(o);
+            this.BindingContext = viewmodel;
+
             InitializeComponent();
         }
 
@@ -30,16 +31,19 @@ namespace ZborMob.Views
             viewmodel.Lajk(k);
             if (!k.LajkKomentara.Select(l => l.IdKorisnik).Contains(App.Korisnik.Id))
             {
-                k.LajkKomentara.Add(new LajkKomentara { Id = Guid.NewGuid(), IdKorisnik= App.Korisnik.Id, IdKomentar = k.Id });
                 ((Button)sender).BackgroundColor = Xamarin.Forms.Color.Aqua;
             }
             else
             {
-                var l = k.LajkKomentara.Where(l => l.IdKorisnik == App.Korisnik.Id && l.IdKomentar == k.Id).SingleOrDefault();
-                k.LajkKomentara.Remove(l);
+                
                 ((Button)sender).BackgroundColor = Color.DarkCyan;
 
             }
+            int g = 0;
+        }
+        async void NoviKomentar(object sender, EventArgs args)
+        {
+            viewmodel.DodajNovi();
             int g = 0;
         }
     }

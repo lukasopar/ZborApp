@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using ZborDataStandard.Model;
 using ZborDataStandard.ViewModels.ZborViewModels;
 
 namespace ZborMob.Services
@@ -125,5 +126,47 @@ namespace ZborMob.Services
             var response = await _httpClient.SendAsync(request);
             // In case you need to send an auth token...
         }
+        public async Task<KomentarObavijesti> NoviKomentarAsync(string tekst, Guid id)
+        {
+            var keyValues = new
+            {
+                IdObavijest = id,
+                Tekst = tekst
+
+            };
+            var _httpClient = GetNewClient();
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/NoviKomentar/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", App.Token);
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<KomentarObavijesti>(content);
+                return obj;
+            }
+            return null;
+        }
+        public async Task<Obavijest> NovaObavijest(string naslov, string tekst, Guid id)
+        {
+            var keyValues = new ProfilViewModel
+            {
+                NovaObavijest = new Obavijest { Naslov = naslov, Tekst=tekst}
+
+            };
+            var _httpClient = GetNewClient();
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/NovaObavijest/" + id);
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", App.Token);
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<Obavijest>(content);
+                return obj;
+            }
+            return null;
+        }
+
     }
 }
