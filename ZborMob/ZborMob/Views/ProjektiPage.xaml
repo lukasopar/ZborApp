@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="ZborMob.Views.ProjektiPage"
+             >
+    <ContentPage.Content>
+        <ScrollView>
+        <StackLayout >
+            <StackLayout>
+                <Label Text="Naziv"/>
+                <Entry Text="{Binding Novi.Naziv}"/>
+                <Label Text="Vrsta podjele"/>
+                <Picker ItemsSource="{Binding Vrste}" ItemDisplayBinding="{Binding Podjela}" x:Name="picker"></Picker>
+                <Label Text="Datum početka"/>
+                <DatePicker Date="{Binding Datum}" x:Name="datePicker"/>
+                <Label Text="Opis"/>
+                <Entry Text="{Binding Novi.Opis}"/>
+                    <Button Text="Dodaj" Clicked="NoviProjekt"/>
+                </StackLayout>
+            <Label Text="Moji projekti"/>
+                <ListView ItemsSource="{Binding MojiProjekti}" x:Name="MojiProjekti" x:FieldModifier="public" HasUnevenRows="False" ItemTapped="OtvoriProjekt">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <StackLayout>
+                                    <Label Text="{Binding Naziv}"></Label>
+                                </StackLayout>
+                            </ViewCell.View>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Label Text="Prijavljeni projekti"/>
+                <ListView ItemsSource="{Binding PrijavljeniProjekti}" x:Name="PrijavljeniProjekti" x:FieldModifier="public" HasUnevenRows="False" ItemTapped="OtvoriProjekt">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                    <StackLayout Orientation="Horizontal">
+                                        <Label Text="{Binding Naziv}"></Label>
+                                        <Button Text="PovuciPrijavu" Clicked="ObrisiPrijavu"/>
+
+                                    </StackLayout>
+                            </ViewCell.View>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Label Text="Ostali projekti"/>
+                <ListView ItemsSource="{Binding OstaliProjekti}" x:Name="OstaliProjekti" x:FieldModifier="public" HasUnevenRows="False" ItemTapped="OtvoriProjekt">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <StackLayout Orientation="Horizontal">
+                                        <Label Text="{Binding Naziv}"></Label>
+                                        <Button Text="Uključi se" Clicked="PrijavaProjekt"/>
+                                    </StackLayout>
+                            </ViewCell.View>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Label Text="Završeni projekti"/>
+                <ListView ItemsSource="{Binding ZavrseniProjekti}" x:Name="ZavrseniProjekti" x:FieldModifier="public" HasUnevenRows="False" ItemTapped="OtvoriProjekt">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <ViewCell.View>
+                                    <StackLayout>
+                                        <Label Text="{Binding Naziv}"></Label>
+                                    </StackLayout>
+                                </ViewCell.View>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackLayout>
+        </ScrollView>
+
+    </ContentPage.Content>
+</ContentPage>

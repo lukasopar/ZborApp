@@ -18,10 +18,10 @@ namespace ZborMob.Views
     {
         ObavijestiViewModel viewmodel;
 
-        public ObavijestiPage(Guid id)
+        public ObavijestiPage()
         {
             
-            viewmodel = new ObavijestiViewModel(id);
+            viewmodel = new ObavijestiViewModel(App.Zbor.Id);
             this.BindingContext = viewmodel;
             InitializeComponent();
         }

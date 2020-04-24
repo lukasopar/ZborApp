@@ -59,7 +59,7 @@
                             else
                             {
                                 <div class="form-check" id="form-@a.Id">
-                                    <input class="form-check-input" value="@odg.Redoslijed" type="radio" name="box" @if (Model.KorisnickiOdgovori[a.Id].Contains(odg.Redoslijed)) { <text> checked</text> } onchange="spremiOdgovor('@a.Id', @counter)">
+                                    <input class="form-check-input" value="@odg.Redoslijed" type="radio" name="@counter" @if (Model.KorisnickiOdgovori[a.Id].Contains(odg.Redoslijed)) { <text> checked </text> } onchange="spremiOdgovor('@a.Id', @counter)">
                                     <label class="form-check-label">
                                         @odg.Odgovor
                                     </label>
@@ -167,7 +167,7 @@
                             if (a.VisestrukiOdgovor)
                             {
                                 <div class="form-check" id="form-@a.Id">
-                                    <input disabled class="form-check-input" value="@odg.Redoslijed" type="checkbox" name="box" @if (Model.KorisnickiOdgovori[a.Id].Contains(odg.Redoslijed)) { <text> checked</text> }>
+                                    <input disabled class="form-check-input" value="@odg.Redoslijed" type="checkbox" name="@a.Id" @if (Model.KorisnickiOdgovori[a.Id].Contains(odg.Redoslijed)) { <text> checked</text> }>
                                     <label class="form-check-label">
                                         @odg.Odgovor
                                     </label>
@@ -176,7 +176,7 @@
                             else
                             {
                                 <div class="form-check" id="form-@a.Id">
-                                    <input disabled class="form-check-input" value="@odg.Redoslijed" type="radio" name="box" @if (Model.KorisnickiOdgovori[a.Id].Contains(odg.Redoslijed)) { <text> checked</text> }>
+                                    <input disabled class="form-check-input" value="@odg.Redoslijed" type="radio" name="@a.Id" @if (Model.KorisnickiOdgovori[a.Id].Contains(odg.Redoslijed)) { <text> checked</text> }>
                                     <label class="form-check-label">
                                         @odg.Odgovor
                                     </label>
@@ -260,7 +260,7 @@
     function spremiOdgovor(id, count) {
         var form = "#form-" + id;
         var arr = [];
-        $(form + ' input[name=box]:checked').each(function () { arr.push($(this).val())});
+        $(form + ' input:checked').each(function () { arr.push($(this).val())});
         console.log(arr);
         data = { Id: id + '', Lista: arr }
             $.ajax({

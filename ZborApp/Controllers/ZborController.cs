@@ -506,6 +506,7 @@ namespace ZborApp.Controllers
             Dictionary<Guid, List<int>> korisnickiOdgovori = new Dictionary<Guid, List<int>>();
             foreach (var anketa in aktivna)
             {
+                anketa.OdgovorAnkete= anketa.OdgovorAnkete.OrderBy(o => o.Redoslijed).ToList();
                 List<int> odg = new List<int>();
                 foreach (var odgovor in anketa.OdgovorAnkete)
                 {
@@ -1006,6 +1007,9 @@ namespace ZborApp.Controllers
             _ctx.ClanZbora.Remove(clan);
             var pretplata = _ctx.PretplataNaZbor.Where(p => p.IdKorisnik == clan.IdKorisnik && p.IdZbor == clan.IdZbor).ToList();
             _ctx.RemoveRange(pretplata);
+            var mod = _ctx.ModeratorZbora.Where(mod => mod.IdKorisnik == clan.IdKorisnik && mod.IdZbor == clan.IdZbor).SingleOrDefault();
+            if (mod != null)
+                _ctx.ModeratorZbora.Remove(mod);
             OsobneObavijesti ob = new OsobneObavijesti
             {
                 Id = Guid.NewGuid(),
@@ -1140,7 +1144,7 @@ namespace ZborApp.Controllers
             var prijaveProjekti = _ctx.Projekt.Where(p => id == p.IdZbor && !p.Zavrsen).Where(z => z.PrijavaZaProjekt.Select(p => p.IdKorisnik).Contains(user.Id)).AsEnumerable();
             var ostaliProjekti = _ctx.Projekt.Where(p => id == p.IdZbor && !p.Zavrsen).Where(z => !z.ClanNaProjektu.Select(v => v.IdKorisnik).Contains(user.Id) && !z.PrijavaZaProjekt.Select(p => p.IdKorisnik).Contains(user.Id)).AsEnumerable();
             var zavrseniProjekti = _ctx.Projekt.Where(p => id == p.IdZbor && p.Zavrsen).ToList();
-            ProjektiViewModel model = new ProjektiViewModel
+            ProjektiWebViewModel model = new ProjektiWebViewModel
             {
                 IdZbor = id,
                 MojiProjekti = mojiProjekti,
@@ -1163,7 +1167,7 @@ namespace ZborApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Projekti(ProjektiViewModel model)
+        public async Task<IActionResult> Projekti(ProjektiWebViewModel model)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
             var zbor = _ctx.Zbor.Find(model.Novi.IdZbor);
@@ -1586,7 +1590,7 @@ namespace ZborApp.Controllers
             {
                 Id = Guid.NewGuid(),
                 DatumPridruzivanja = DateTime.Now,
-                Glas = "sopran",
+                Glas = "ne",
                 IdKorisnik = poziv.IdKorisnik,
                 IdZbor = poziv.IdZbor
             };

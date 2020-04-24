@@ -1,0 +1,154 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="ZborMob.Views.AdministracijaPage"
+             >
+    <ContentPage.Content>
+        <ScrollView>
+        <StackLayout >
+            <Label Text="Soprani"/>
+                <ListView ItemsSource="{Binding Soprani}" x:Name="Soprani" x:FieldModifier="public" HasUnevenRows="False" ItemTapped="PokreniPopup">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <StackLayout>
+                                    <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}"></Label>
+                                </StackLayout>
+                            </ViewCell.View>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Label Text="Alti"/>
+                <ListView ItemsSource="{Binding Alti}" x:Name="Alti" x:FieldModifier="public" HasUnevenRows="False" ItemTapped="PokreniPopup">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <StackLayout>
+                                    <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}"></Label>
+                                </StackLayout>
+                            </ViewCell.View>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Label Text="Tenori"/>
+                <ListView ItemsSource="{Binding Tenori}" x:Name="Tenori" x:FieldModifier="public" HasUnevenRows="False" ItemTapped="PokreniPopup">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <StackLayout>
+                                    <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}"></Label>
+                                </StackLayout>
+                            </ViewCell.View>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Label Text="Basi"/>
+                <ListView ItemsSource="{Binding Basi}" x:Name="Basi" x:FieldModifier="public" HasUnevenRows="False" ItemTapped="PokreniPopup">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <StackLayout>
+                                    <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}"></Label>
+                                </StackLayout>
+                            </ViewCell.View>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Label Text="Nerazvrstani"/>
+                <ListView ItemsSource="{Binding Nerazvrstani}" x:Name="Nerazvrstani" x:FieldModifier="public" HasUnevenRows="False" ItemTapped="PokreniPopup">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <StackLayout>
+                                    <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}"></Label>
+                                </StackLayout>
+                            </ViewCell.View>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+                <Label Text="Moderatori"/>
+                <ListView ItemsSource="{Binding Moderatori}" x:Name="Moderatori" x:FieldModifier="public" HasUnevenRows="False" >
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <ViewCell.View>
+                                    <StackLayout Orientation="Horizontal">
+                                        <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}"></Label>
+                                        <Button Text="Obriši" Clicked="ObrisiModeratora"/>
+
+                                    </StackLayout>
+                                </ViewCell.View>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+                <Label Text="Prijave za zbor"/>
+            <ListView ItemsSource="{Binding Prijave}" x:Name="Prijave" x:FieldModifier="public" HasUnevenRows="True" ItemTapped="OdabranaPrijava">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <StackLayout Orientation="Horizontal">
+                                    <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}"></Label>
+                                    <Button Text="Prihvati" Clicked="PrihvatiPrijavu"/>
+                                    <Button Text="Odbij" Clicked="ObrisiPrijavu"/>
+
+                                </StackLayout>
+                            </ViewCell.View>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Label Text="Pozivi za zbor"/>
+            <ListView ItemsSource="{Binding Pozivi}" x:Name="Pozivi" x:FieldModifier="public" HasUnevenRows="True" ItemTapped="OdabraniPoziv">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <StackLayout Orientation="Horizontal">
+                                    <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}"></Label>
+                                    <Button Text="Odbij" Clicked="ObrisiPoziv"/>
+                                </StackLayout>
+                            </ViewCell.View>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <ListView ItemsSource="{Binding Pretraga}" x:Name="Pretraga" x:FieldModifier="public" HasUnevenRows="True" >
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <StackLayout Orientation="Horizontal">
+                                    <Label Text="{Binding ImeIPrezimeP}"></Label>
+                                    <Button Text="Pozovi" Clicked="Pozovi"/>
+                                </StackLayout>
+                            </ViewCell.View>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <StackLayout Orientation="Horizontal">
+                <Label Text="Pretraga"/>
+                <Entry Text="{Binding Uvjet}"/>
+                <Button Text="Pretraga" Clicked="Pretrazi"/>
+            </StackLayout>
+            
+        </StackLayout>
+        </ScrollView>
+
+    </ContentPage.Content>
+</ContentPage>

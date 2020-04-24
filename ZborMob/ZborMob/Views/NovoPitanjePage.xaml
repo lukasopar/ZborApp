@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="ZborMob.Views.NovoPitanjePage"
+             xmlns:local="clr-namespace:ZborMob.Views">
+    <ContentPage.Content>
+        <StackLayout>
+            <Picker x:Name="Visestruki">
+                <Picker.ItemsSource>
+                    <x:Array Type="{x:Type x:String}">
+                        <x:String>Odabir jednog odgovora</x:String>
+                        <x:String>Odabir više odgovora</x:String>
+                    </x:Array>
+                </Picker.ItemsSource>
+            </Picker>
+            <DatePicker Date="{Binding Datum}" x:Name="datumPicker"/>
+            <Entry Text="{Binding Pitanje}" Placeholder="Unesite pitanje"/>
+            <ListView ItemsSource="{Binding Odgovori}" x:Name="Odgovori" x:FieldModifier="public" HasUnevenRows="True">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <StackLayout Orientation="Vertical">
+                                    <Entry Text="{Binding Value}" Placeholder="Odgovor"/>
+                                    <Button Text="Obriši" Clicked="ObrisiOdgovor"/>
+                                </StackLayout>
+
+                            </ViewCell.View>
+
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Button Text="Dodaj odgovor" Clicked="DodajOdgovor"/>
+            <Button Text="Završi" Clicked="Zavrsi"/>
+
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

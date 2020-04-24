@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<popup:PopupPage xmlns="http://xamarin.com/schemas/2014/forms"  
+                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"  
+                 xmlns:popup="clr-namespace:Rg.Plugins.Popup.Pages;assembly=Rg.Plugins.Popup"  
+                 CloseWhenBackgroundIsClicked="True"  
+                 x:Class="ZborMob.Views.AdministracijaPopupPage">
+    <popup:PopupPage.Content>
+        <StackLayout Padding="10"  
+                     BackgroundColor="White"  
+                     HorizontalOptions="Center"  
+                     VerticalOptions="Center">
+            <Button Text="Postavi moderatora" Clicked="PostaviModeratora"/>
+            <Button Text="Postavi voditelja" Clicked="PostaviVoditelja"/>
+            <Button Text="Izbaci" Clicked="Izbaci"/>
+            <Label Text="Promjena glasa"/>
+            <Picker Title="Promjena glasa" x:Name="picker" SelectedIndexChanged="PromjeniGlas">
+                <Picker.Items>
+                    <x:String>Sopran</x:String>
+                    <x:String>Alt</x:String>
+                    <x:String>Tenor</x:String>
+                    <x:String>Bas</x:String>
+                </Picker.Items>
+            </Picker>
+        </StackLayout>
+    </popup:PopupPage.Content>
+</popup:PopupPage>  

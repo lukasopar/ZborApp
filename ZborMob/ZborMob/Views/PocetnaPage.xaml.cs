@@ -25,8 +25,8 @@ namespace ZborMob.Views
         {
             ListView btn = (ListView)sender;
             Zbor zbor = (Zbor)btn.SelectedItem;
-
-            await Navigation.PushAsync(new ObavijestiPage(zbor.Id));
+            App.Zbor = zbor;
+            await Navigation.PushAsync(new ZborMasterPage());
         }
     }
 }

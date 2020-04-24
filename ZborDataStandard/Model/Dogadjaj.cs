@@ -37,5 +37,14 @@ namespace ZborDataStandard.Model
                 return DatumIvrijeme.ToString("dd.MM.yyyy. HH:mm") + " - " + DatumIvrijemeKraja.ToString("HH:mm");
             return DatumIvrijeme.ToString("dd.MM.yyyy. HH:mm") + " - " + DatumIvrijemeKraja.ToString("dd.MM.yyyy. - HH:mm");
         }
+        public string TrajanjeP
+        {
+            get
+            {
+                if (DatumIvrijeme.Date == DatumIvrijemeKraja.Date)
+                    return DatumIvrijeme.ToString("dd.MM.yyyy. HH:mm") + " - " + DatumIvrijemeKraja.ToString("HH:mm");
+                return DatumIvrijeme.ToString("dd.MM.yyyy. HH:mm") + " - " + DatumIvrijemeKraja.ToString("dd.MM.yyyy. - HH:mm");
+            }
+        }
     }
 }

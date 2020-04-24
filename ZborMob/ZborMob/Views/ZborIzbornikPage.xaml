@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:ZborMob.Views"
+             mc:Ignorable="d"
+             x:Class="ZborMob.Views.ZborIzbornikPage"
+             Title="ZborNav">
+    <ContentPage.Content>
+        <StackLayout>
+            <ListView x:Name="listView" x:FieldModifier="public">
+                <ListView.ItemsSource>
+                    <x:Array Type="{x:Type local:MasterPageItem}">
+                        <local:MasterPageItem Title="Obavijesti" TargetType="{x:Type local:ObavijestiPage}" />
+                        <local:MasterPageItem Title="Pitanja" TargetType="{x:Type local:PitanjaPage}" />
+                        <local:MasterPageItem Title="Projekti" TargetType="{x:Type local:ProjektiPage}" />
+                        <local:MasterPageItem Title="Upravljanje zborom" TargetType="{x:Type local:AdministracijaPage}" />
+
+                    </x:Array>
+                </ListView.ItemsSource>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <Grid Padding="5,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="30"/>
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="1" Text="{Binding Title}" />
+                            </Grid>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

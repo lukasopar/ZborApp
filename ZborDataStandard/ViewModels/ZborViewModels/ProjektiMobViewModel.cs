@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -8,7 +7,7 @@ using ZborDataStandard.Model;
 
 namespace ZborDataStandard.ViewModels.ZborViewModels
 {
-    public class ProjektiWebViewModel
+    public class ProjektiMobViewModel
     {
         public Projekt Novi { get; set; }
         public Guid IdZbor { get; set; }
@@ -23,7 +22,7 @@ namespace ZborDataStandard.ViewModels.ZborViewModels
         public IEnumerable<Projekt> ZavrseniProjekti { get; set; }
 
 
-        public List<SelectListItem> VrstePodjele { get; set; }  
+        public List<VrstaPodjele> VrstePodjele { get; set; }
 
     }
 }
