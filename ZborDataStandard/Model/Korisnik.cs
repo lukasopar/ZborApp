@@ -81,5 +81,10 @@ namespace ZborDataStandard.Model
         {
             get { return Ime + " " + Prezime; }
         }
+
+        public string GetLinkSlikaApi()
+        {
+            return "/api/GetRepozitorijKorisnik/" + IdSlika;
+        }
     }
 }

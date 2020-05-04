@@ -8,9 +8,14 @@ using System.Threading.Tasks;
 using ZborDataStandard.ViewModels.JSONModels;
 using ZborDataStandard.Account;
 using ZborDataStandard.Model;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 
 namespace ZborApp.Services
 {
+    [Authorize(AuthenticationSchemes = "Identity.Application" + ","+JwtBearerDefaults.AuthenticationScheme)]
     public class ChatHub : Hub
     {
         private readonly ZborDatabaseContext _ctx;
@@ -20,9 +25,39 @@ namespace ZborApp.Services
             _ctx = ctx;
             _userManager = userManager;
         }
+      
+        public async Task TestReq(string tekst)
+        {
+            string name = Context.User.Identity.Name;
+            await Clients.User("6EBB86DC-D316-4798-2F50-08D7C5CE7CBC".ToLower()).SendAsync("TestRep", name);
 
+        }
+        public override Task OnDisconnectedAsync(Exception exception)
+        {
+            return base.OnDisconnectedAsync(exception);
+        }
+        public async Task NeprocitanePoruke()
+        {
+            var user = new  { Id = Guid.Parse(Context.User.Claims.First(i => i.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value) };
+            int neprocitane = _ctx.Razgovor.Where(r => r.KorisnikUrazgovoru.Where(k => k.IdKorisnik == user.Id && k.Procitano == false).Count() > 0).Count();
+            await Clients.User(user.Id.ToString()).SendAsync("Neprocitane", neprocitane );
+            //poslati poruku da je procitano
+        }
+        public async Task Procitano(Guid idRazg)
+        {
+            var user = new { Id = Guid.Parse(Context.User.Claims.First(i => i.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value) };
+            KorisnikUrazgovoru k = _ctx.KorisnikUrazgovoru.Where(k => k.IdKorisnik == user.Id && k.IdRazgovor == idRazg).SingleOrDefault();
+            k.Procitano = true;
+            _ctx.SaveChanges();
+            await NeprocitanePoruke();
+            await Clients.User(user.Id.ToString()).SendAsync("ProcitanaPoruka", idRazg);
+
+
+        }
         public async Task SendMessage(PorukaModel poruka)
         {
+            string name = Context.User.Identity.Name;
+
             var razg = _ctx.Razgovor.Where(razg => razg.Id == Guid.Parse(poruka.IdRazg)).Include(razg => razg.KorisnikUrazgovoru).SingleOrDefault();
             poruka.Message=poruka.Message.Replace("\n", "<br />");
             var user = _ctx.Korisnik.Where(k => k.Id == Guid.Parse(poruka.IdUser)).SingleOrDefault();
@@ -53,7 +88,7 @@ namespace ZborApp.Services
             _ctx.SaveChanges();
             foreach (KorisnikUrazgovoru k in razg.KorisnikUrazgovoru)
             {
-            
+                await Clients.User(k.IdKorisnik.ToString()).SendAsync("ReceiveMessageMob", new { Id = novaPoruka.Id, IdKorisnik = novaPoruka.IdKorisnik, IdRazgovor=novaPoruka.IdRazgovor, Poruka1 = novaPoruka.Poruka1, DatumIvrijeme = novaPoruka.DatumIvrijeme }) ;
                 await Clients.User(k.IdKorisnik.ToString()).SendAsync("ReceiveMessage", k.IdKorisnik, poruka);
                 await Clients.User(k.IdKorisnik.ToString()).SendAsync("ChangeHeader", new
                 {
@@ -100,6 +135,7 @@ namespace ZborApp.Services
                         k.Procitano = false;
                     else
                         k.Procitano = true;
+                    await Clients.User(k.IdKorisnik.ToString()).SendAsync("ReceiveMessageMob", new { Id = novaPoruka.Id, IdKorisnik = novaPoruka.IdKorisnik, IdRazgovor = novaPoruka.IdRazgovor, Poruka1 = novaPoruka.Poruka1, DatumIvrijeme = novaPoruka.DatumIvrijeme });
                     await Clients.User(k.IdKorisnik.ToString()).SendAsync("ReceiveMessage", k.IdKorisnik, poruka);
                     await Clients.User(k.IdKorisnik.ToString()).SendAsync("ChangeHeader", new
                     {
@@ -156,8 +192,11 @@ namespace ZborApp.Services
 
                 }
                 poruka.Popis = noviRazg.GetPopisKorisnika(novaPoruka.IdKorisnik);
+                
                 foreach (var id in listaId)
                 {
+                    await Clients.User(id.ToString()).SendAsync("ReceiveNewConversationMob", noviRazg);
+
                     await Clients.User(id.ToString()).SendAsync("ReceiveNewConversation", id, poruka);
                     bool flag = false;
                     if (id == user.Id) flag = true;

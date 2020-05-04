@@ -38,6 +38,11 @@ namespace ZborMob.Views
             var vrsta = (VrstaPodjele)picker.SelectedItem;
             model.NoviProjekt(vrsta);
         }
+        private async void Administracija(object sender, EventArgs e)
+        {
+            Button btn = (Button)sender;
+            await Navigation.PushAsync(new AdministracijaProjektaPage(((Projekt)btn.BindingContext).Id));
+        }
         private async void OtvoriProjekt(object o, ItemTappedEventArgs e)
         {
             await Navigation.PushAsync(new ProjektTabbedPage(new ProjektViewModel(((Projekt)e.Item).Id)));

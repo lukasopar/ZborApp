@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+             xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:sync="clr-namespace:Syncfusion.ListView.XForms;assembly=Syncfusion.SfListView.XForms"
+             xmlns:helpers="clr-namespace:ZborMob.Converters"
+             xmlns:local="clr-namespace:ZborMob.Helpers"
+            x:Class="ZborMob.Views.DataTemplateSelector">
+  <ContentPage.Resources>
+    <ResourceDictionary>
+      <local:MessageDataTemplateSelector x:Key="MessageDataTemplateSelector" />
+
+        </ResourceDictionary>
+  </ContentPage.Resources>
+   
+  <ContentPage.Content>
+    <Grid Padding="5" BackgroundColor="White">
+            <ScrollView x:Name="scrollView" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+                <sync:SfListView x:Name="listView" IsStickyFooter="true" ItemSize="100"
+                                 ItemsSource="{Binding MessageInfo}"
+                                 ItemTemplate="{StaticResource MessageDataTemplateSelector}"
+                                 SelectionMode="None"
+								 FocusBorderThickness="0"
+                                 RowSpacing="12" ColumnSpacing="0"
+                                 AutoFitMode="Height">
+                    <sync:SfListView.Behaviors>
+                        <local:DataTemplateSelectorBehavior/>
+                    </sync:SfListView.Behaviors>
+
+                    <sync:SfListView.FooterTemplate>
+                        <DataTemplate>
+                            <Grid Grid.Row="1" x:Name="MessageControls" Padding="5"
+                                  BackgroundColor="#EFEFF4"
+                                  VerticalOptions="FillAndExpand"
+                                  HorizontalOptions="FillAndExpand">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Entry Grid.Column="0" Placeholder="Type your message"
+                                       FontSize="14" Text="{Binding NewText}"></Entry>
+                                <Grid Grid.Column="1">
+                                    <Label x:Name="imagename" Text="{Binding SendIcon}" TextColor="#808080" FontSize="Medium" HorizontalOptions="Center" VerticalOptions="Center"
+                                            Margin="5"/>
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SendCommand}" CommandParameter="{x:Reference listView}"/>
+                                    </Grid.GestureRecognizers>
+                                </Grid>
+                            </Grid>
+                        </DataTemplate>
+                    </sync:SfListView.FooterTemplate>
+                </sync:SfListView>
+            </ScrollView>
+        </Grid>
+  </ContentPage.Content>
+</ContentPage>

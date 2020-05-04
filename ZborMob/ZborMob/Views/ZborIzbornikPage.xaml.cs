@@ -15,6 +15,7 @@ namespace ZborMob.Views
         public ZborIzbornikPage()
         {
             InitializeComponent();
+
         }
     }
 }

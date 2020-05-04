@@ -2,12 +2,17 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Xamarin.Forms.PlatformConfiguration;
 using ZborDataStandard.Model;
+using ZborDataStandard.ViewModels.PorukeViewModels;
+using ZborDataStandard.ViewModels.RepozitorijViewModels;
 using ZborDataStandard.ViewModels.ZborViewModels;
+using ZborMob.Model;
 
 namespace ZborMob.Services
 {
@@ -468,6 +473,362 @@ namespace ZborMob.Services
 
             }
         }
+        public async Task<List<VrstaDogadjaja>> VrsteDogadjajaAsync()
+        {
+            
+            var request = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress + "api/VrsteDogadjaja/");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<List<VrstaDogadjaja>>(content);
+                return obj;
+            }
+            return null;
+        }
+        public async Task DogadjajAsync(Guid id, Dogadjaj dog)
+        {
+            
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/NoviDogadjaj/" +id);
+            request.Content = new StringContent(JsonConvert.SerializeObject(dog).ToString(), Encoding.UTF8, "application/json");
 
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+
+            }
+        }
+        public async Task<DogadjajViewModel> DogadjajViewModelAsync(Guid id)
+        {
+
+            var request = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress + "api/Dogadjaj/" + id);
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<DogadjajViewModel>(content);
+                return obj;
+            }
+            return null;
+        }
+        public async Task<AdministracijaProjektaViewModel> AdministracijaProjektaAsync(Guid id)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress + "api/AdministracijaProjekta/" + id);
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<AdministracijaProjektaViewModel>(content);
+                return obj;
+            }
+            return null;
+        }
+        public async Task<ClanNaProjektu> PrihvatiPrijavuProjektAsync(PrijavaZaProjekt prijava)
+        {
+            var keyValues = new
+            {
+                Value = prijava.Id,
+
+            };
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/PrihvatiPrijavuProjekt/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<ClanNaProjektu>(content);
+                return obj;
+            }
+            return null;
+        }
+        public async Task ObrisiPrijavuProjektAsync(PrijavaZaProjekt prijava)
+        {
+            var keyValues = new
+            {
+                Value = prijava.Id,
+
+            };
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/OdbijPrijavuProjekt/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+
+            }
+        }
+       
+        public async Task<List<Korisnik>> PretraziProjektAsync(Guid id, string uvjet)
+        {
+            var keyValues = new
+            {
+                Id = id,
+                Tekst = uvjet
+
+            };
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/PretragaKorisnikaProjekt/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<List<Korisnik>>(content);
+                return obj;
+            }
+            return null;
+        }
+        public async Task<ClanNaProjektu> DodajClanProjektAsync(Guid idKorisnik, Guid idProjekt)
+        {
+            var keyValues = new
+            {
+                IdKorisnik = idKorisnik,
+                IdCilj = idProjekt
+
+            };
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/DodajClanProjekt/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<ClanNaProjektu>(content);
+                return obj;
+            }
+            return null;
+        }
+        public async Task ObrisiClanProjektaAsync(Guid id)
+        {
+            var keyValues = new AdministracijaViewModel
+            {
+                IdBrisanje = id
+
+            };
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/ObrisiClanaProjekta/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+            }
+        }
+        public async Task PromjenaUlogeAsync(ClanNaProjektu clan)
+        {
+            var keyValues = new
+            {
+                Id = clan.Id,
+                Poruka = clan.Uloga
+            };
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/PromjenaUloge/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+            }
+        }
+        public async Task<Statistika> DohvatiStatistikuAsync(Guid idKorisnik, Guid idProjekt)
+        {
+            var keyValues = new
+            {
+                IdKorisnik = idKorisnik,
+                IdCilj = idProjekt
+
+            };
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/DohvatiStatistiku/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<Statistika>(content);
+                return obj;
+            }
+            return null;
+        }
+        public async Task ZavrsiProjektAsync(Guid id)
+        {
+            var keyValues = new AdministracijaViewModel
+            {
+                IdBrisanje = id
+
+            };
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/ZavrsiProjekt/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+            }
+        }
+        public async Task ObrisiProjektAsync(Guid id)
+        {
+            var keyValues = new AdministracijaViewModel
+            {
+                IdBrisanje = id
+
+            };
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/ObrisiProjekt/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+            }
+        }
+        public async Task<JavniProfilViewModel> JavniProfilAsync(Guid idZbor)
+        {
+          
+            var request = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress + "api/JavniProfil/" + idZbor);
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<JavniProfilViewModel>(content);
+                return obj;
+            }
+            return null;
+        }
+        public async Task SpremiOZboruAsync(Guid id, string tekst)
+        {
+            var keyValues = new
+            {
+                Id = id,
+                Tekst = tekst
+            };
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/Urediozboru/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+            }
+        }
+        public async Task SpremiOVoditeljimauAsync(Guid id, string tekst)
+        {
+            var keyValues = new
+            {
+                Id = id,
+                Tekst = tekst
+            };
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/Urediovoditeljima/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+            }
+        }
+        public async Task SpremiRepertoarAsync(Guid id, string tekst)
+        {
+            var keyValues = new
+            {
+                Id = id,
+                Tekst = tekst
+            };
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/Uredirepertoar/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+            }
+        }
+        public async Task SpremiReprezentacijauAsync(Guid id, string tekst)
+        {
+            var keyValues = new
+            {
+                Id = id,
+                Tekst = tekst
+            };
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/Uredireprezentacija/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+            }
+        }
+        public async Task<RepozitorijZborViewModel> RepozitorijZborAsync(Guid idZbor)
+        {
+
+            var request = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress + "api/ZborRepozitorij/" + idZbor);
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<RepozitorijZborViewModel>(content);
+                return obj;
+            }
+            return null;
+        }
+        public async Task ObrisiRepozitorijZborAsync(Guid id)
+        {
+            var keyValues = new RepozitorijZborViewModel
+            {
+                IdTrazeni = id
+            };
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/DeleteZbor/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+            }
+        }
+        public async Task VidljivostZborAsync(Guid id, string uri)
+        {
+            var keyValues = new
+            {
+                Value = id
+            };
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/"+uri+"/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+            }
+        }
+        public async Task PreuzmiZborAsync(RepozitorijZbor dat)
+        {
+            
+            var request = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress + "api/GetRepozitorijZbor/" + dat.Id);
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                string pathToNewFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), dat.Naziv);
+                Directory.CreateDirectory(pathToNewFolder);
+                var content = await response.Content.ReadAsByteArrayAsync();
+                File.WriteAllBytes(pathToNewFolder, content);
+            }
+        }
+        public async Task<PorukeViewModel> Razgovori()
+        {
+
+            var request = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress + "api/RazgovoriKorisnik/");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<PorukeViewModel>(content);
+                return obj;
+            }
+            return null;
+        }
+        public async Task<List<Poruka>> Poruke(Guid id)
+        {
+
+            var request = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress + "api/Poruke/" + id);
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<List<Poruka>>(content);
+                return obj;
+            }
+            return null;
+        }
+        public async Task<List<Korisnik>> KorisniciAsync()
+        {
+
+            var request = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress + "api/Korisnici/");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<List<Korisnik>>(content);
+                return obj;
+            }
+            return null;
+        }
     }
 }

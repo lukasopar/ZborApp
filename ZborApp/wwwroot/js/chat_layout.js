@@ -95,6 +95,29 @@ connection.on("NovaObavijest", function (response) {
             g = 2;
         });
 });
+connection.on("ProcitanaPoruka", function (id) {
+    let razg = "#Procitano-" + id;
+    $(razg).removeClass("font-weight-bold");
+    $.ajax({
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json;charset=utf-8",
+        url: '/Poruke/DohvatiNeprocitano',
+        xhrFields: {
+            withCredentials: true
+        }
+    }).done(function (broj) {
+        if (broj > 0) {
+            $("#messageCounter").text(broj);
+        }
+        else if (broj === 0) {
+            $("#messageCounter").text("");
+
+        }
+    })
+        .always(function () {
+            g = 2;
+        });});
 connection.on("ChangeHeader", function (response) {
     var porukaDiv = '<a id="Header-' + response.id + '" class="dropdown-item d-flex align-items-center" href="/Poruke/Poruka/' + response.id + '"><div class="dropdown-list-image mr-3"><img class="rounded-circle" src="/repozitorij/get/' + response.slika + '" alt=""></div><div id="Procitano-' + response.id + '"><div class="text-truncate">' + response.poruka + '</div><div class="small text-gray-500">' + response.naziv + ' ' + response.datum + '</div></div></a>'
     var head = "#Header-" + response.id;

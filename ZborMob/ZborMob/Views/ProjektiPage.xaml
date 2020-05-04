@@ -28,7 +28,8 @@
                             <ViewCell.View>
                                 <StackLayout>
                                     <Label Text="{Binding Naziv}"></Label>
-                                </StackLayout>
+                                        <Button Text="Administracija" Clicked="Administracija"/>
+                                    </StackLayout>
                             </ViewCell.View>
                         </ViewCell>
                     </DataTemplate>

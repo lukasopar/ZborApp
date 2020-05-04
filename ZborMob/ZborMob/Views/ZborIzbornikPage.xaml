@@ -16,6 +16,8 @@
                         <local:MasterPageItem Title="Pitanja" TargetType="{x:Type local:PitanjaPage}" />
                         <local:MasterPageItem Title="Projekti" TargetType="{x:Type local:ProjektiPage}" />
                         <local:MasterPageItem Title="Upravljanje zborom" TargetType="{x:Type local:AdministracijaPage}" />
+                        <local:MasterPageItem Title="Javni profil" TargetType="{x:Type local:JavniProfilPage}" />
+                        <local:MasterPageItem Title="Repozitorij" TargetType="{x:Type local:RepozitorijZborPage}" />
 
                     </x:Array>
                 </ListView.ItemsSource>

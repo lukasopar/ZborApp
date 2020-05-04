@@ -1789,7 +1789,7 @@ namespace ZborApp.Controllers
             if (projekt == null)
                 return RedirectToAction("Nema", "Greska");
             if (!IsAdmin(projekt.IdZbor, user.Id))
-                return RedirectToAction("Prava");
+                return RedirectToAction("Pranava");
             if (model.Novi.Naziv.Trim().Equals(""))
                 ModelState.AddModelError("Naziv", "Naziv je obavezan.");
 

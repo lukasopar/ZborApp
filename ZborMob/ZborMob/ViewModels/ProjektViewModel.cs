@@ -19,7 +19,7 @@ namespace ZborMob.ViewModels
 
         private ObservableCollection<Obavijest> obavijesti;
         private ObservableCollection<Dogadjaj> dogadjaji;
-
+        public Guid Id { get; set; }
 
         public ObservableCollection<Obavijest> Obavijesti
         {
@@ -51,6 +51,7 @@ namespace ZborMob.ViewModels
         public ProjektViewModel(Guid id)
         {
             _apiServices = new ApiServices();
+            Id = id;
             GetData(id);
 
         }

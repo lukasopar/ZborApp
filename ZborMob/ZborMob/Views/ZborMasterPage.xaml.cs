@@ -16,6 +16,7 @@ namespace ZborMob.Views
         {
             InitializeComponent();
             ZborIzbornikPage.listView.ItemSelected += ListView_ItemSelected;
+            NavigationPage.SetHasNavigationBar(this, false);
         }
 
         private void ListView_ItemSelected(object sender, SelectedItemChangedEventArgs e)
@@ -28,6 +29,8 @@ namespace ZborMob.Views
             page.Title = item.Title;
 
             Detail = new NavigationPage(page);
+            //Detail.Navigation.PushAsync(page);
+
             IsPresented = false;
 
             ZborIzbornikPage.listView.SelectedItem = null;

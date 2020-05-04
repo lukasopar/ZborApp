@@ -44,6 +44,10 @@ namespace ZborMob.Views
             var obavijest = (Obavijest)((Label)o).BindingContext;
             Navigation.PushModalAsync(new KomentariPage(obavijest));
         }
+        private void Novi(object o, EventArgs e)
+        {
+            Navigation.PushModalAsync(new NoviDogadjajPage(viewmodel.Id));
+        }
         private void ObrisiDogadjaj(object o, EventArgs e)
         {
             var dog = (Dogadjaj)((Button)o).BindingContext;
@@ -66,6 +70,15 @@ namespace ZborMob.Views
 
             }
             int g = 0;
+        }
+        async void UrediDogadjaj(object sender, EventArgs args)
+        {
+            var dog = (Dogadjaj)((Button)sender).BindingContext;
+            await Navigation.PushAsync(new NoviDogadjajPage(dog));
+        }
+        private async void Dogadjaj(object o, ItemTappedEventArgs e)
+        {
+            await Navigation.PushAsync(new DogadjajPage((Dogadjaj)e.Item));
         }
     }
 }

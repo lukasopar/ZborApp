@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+            xmlns:helpers="clr-namespace:ZborMob.Converters"
+             xmlns:views="clr-namespace:ZborMob.Views"
+             x:Class="ZborMob.Views.JavniProfilPage">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <helpers:HtmlSourceConverter x:Key="HtmlSourceConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.Content>
+        <StackLayout>
+            <Label Text="O zboru"/>
+            <views:TEditorHtmlView Html="{Binding OZboru}" SpremiEvent="SpremiOZboru" x:Name="oZboru"/>
+            <Label Text="O voditeljima"/>
+            <views:TEditorHtmlView Html="{Binding OVoditeljima}" SpremiEvent="SpremiOVoditeljima" x:Name="oVoditeljima"/>
+            <Label Text="Repertoar"/>
+            <views:TEditorHtmlView Html="{Binding Repertoar}" SpremiEvent="SpremiRepertoar" x:Name="repertoar"/>
+            <Label Text="Mediji"/>
+            <views:TEditorHtmlView Html="{Binding Reprezentacija}" SpremiEvent="SpremiReprezentacija" x:Name="reprezentacija"/>
+        </StackLayout>
+
+    </ContentPage.Content>
+</ContentPage>

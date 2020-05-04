@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace ZborDataStandard.Model
@@ -14,7 +15,6 @@ namespace ZborDataStandard.Model
         public Guid Id { get; set; }
         public string Naslov { get; set; }
         public DateTime DatumZadnjePoruke { get; set; }
-
         public virtual ICollection<KorisnikUrazgovoru> KorisnikUrazgovoru { get; set; }
         public virtual ICollection<Poruka> Poruka { get; set; }
 

@@ -59,8 +59,6 @@ namespace ZborMob.ViewModels
             else
                 await _apiServices.UnLajkObavijestiAsync(o.Id);
 
-
-
         }
         public async void NovaObavijest()
         {

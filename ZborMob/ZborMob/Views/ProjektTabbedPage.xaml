@@ -42,7 +42,9 @@
 
     </ContentPage>
     <ContentPage Title="Događaji" >
-        <ListView ItemsSource="{Binding Dogadjaji}" x:Name="Dogadjaji" x:FieldModifier="public" HasUnevenRows="True">
+        <StackLayout>
+        <Button Text="Dodaj događaj" Clicked="Novi"/>
+        <ListView ItemsSource="{Binding Dogadjaji}" x:Name="Dogadjaji" x:FieldModifier="public" HasUnevenRows="True" ItemTapped="Dogadjaj">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <ViewCell>
@@ -51,7 +53,7 @@
                                 <Label Text="{Binding Naziv}" FontSize="20"/>
                                 <Label Text="{Binding TrajanjeP}" />
                                 <Button Text="Najavi" Clicked="NajaviDolazak"/>
-                                <Button Text="Uredi"/>
+                                <Button Text="Uredi" Clicked="UrediDogadjaj"/>
                                 <Button Text="Obriši" Clicked="ObrisiDogadjaj"/>
                             </StackLayout>
 
@@ -61,7 +63,7 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        
+        </StackLayout>
         
     </ContentPage>
 </TabbedPage>

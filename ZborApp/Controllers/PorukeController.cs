@@ -23,8 +23,7 @@ using ZborDataStandard.ViewModels.ZborViewModels;
 using ZborApp.Services;
 using ZborDataStandard.Account;
 using ZborDataStandard.Model;
-
-
+using Microsoft.AspNetCore.SignalR;
 
 namespace ZborApp.Controllers
 {
@@ -35,12 +34,16 @@ namespace ZborApp.Controllers
         private readonly ZborDatabaseContext _ctx;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
-        public PorukeController(ILogger<ZborController> logger, ZborDatabaseContext ctx, UserManager<ApplicationUser> userManager)
+        private readonly IHubContext<ChatHub> _hubContext;
+
+        public PorukeController(ILogger<ZborController> logger, ZborDatabaseContext ctx, UserManager<ApplicationUser> userManager, IHubContext<ChatHub> hubContext)
         {
             _logger = logger;
             _ctx = ctx;
             _userManager = userManager;
             _emailSender = new EmailSender();
+            _hubContext = hubContext;
+
         }
         public async Task<IActionResult> Index()
         {
@@ -72,6 +75,8 @@ namespace ZborApp.Controllers
                 return NotFound();
             k.Procitano = true;
             _ctx.SaveChanges();
+            int neprocitane = _ctx.Razgovor.Where(r => r.KorisnikUrazgovoru.Where(k => k.IdKorisnik == user.Id && k.Procitano == false).Count() > 0).Count();
+            await _hubContext.Clients.User(user.Id.ToString()).SendAsync("Neprocitane", neprocitane);
             var m = new StringModel { Value = "Ok" };
             return Ok(m);
         }

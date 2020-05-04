@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace ZborDataStandard.Model
@@ -12,6 +13,7 @@ namespace ZborDataStandard.Model
         public DateTime DatumIvrijeme { get; set; }
 
         public virtual Korisnik IdKorisnikNavigation { get; set; }
+        [JsonIgnore]
         public virtual Razgovor IdRazgovorNavigation { get; set; }
     }
 }

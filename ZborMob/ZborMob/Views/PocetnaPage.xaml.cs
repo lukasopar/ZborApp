@@ -20,6 +20,7 @@ namespace ZborMob.Views
         public PocetnaPage()
         {
             InitializeComponent();
+           
         }
         async void MojZborTapped(object sender, SelectedItemChangedEventArgs e)
         {

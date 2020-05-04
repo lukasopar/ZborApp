@@ -6,13 +6,14 @@
              mc:Ignorable="d"
              x:Class="ZborMob.Views.ZborMasterPage"
              xmlns:pages="clr-namespace:ZborMob.Views">
-  <MasterDetailPage.Master>
+    
+    <MasterDetailPage.Master>
         <pages:ZborIzbornikPage x:Name="ZborIzbornikPage" />
   </MasterDetailPage.Master>
   <MasterDetailPage.Detail>
-    <NavigationPage>
+    <NavigationPage >
       <x:Arguments>
-        <pages:ProjektiPage />
+        <pages:RepozitorijZborPage x:Name="MasterPage"/>
       </x:Arguments>
     </NavigationPage>
   </MasterDetailPage.Detail>

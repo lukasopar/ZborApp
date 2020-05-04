@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:autocomplete="clr-namespace:Syncfusion.SfAutoComplete.XForms;assembly=Syncfusion.SfAutoComplete.XForms"
+
+             mc:Ignorable="d"
+             x:Class="ZborMob.Views.NoviRazgovorPage">
+    <ContentPage.Content>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <autocomplete:SfAutoComplete x:Name="autoComplete"
+                                     HeightRequest="40"
+                                     DisplayMemberPath="ImeIPrezimeP" 
+                                     DataSource="{Binding Korisnici}" MultiSelectMode="Token" Grid.Row="1"  />
+            <Editor Grid.Row="2" Grid.RowSpan="2" Grid.Column="0" Placeholder="Type your message"
+                                       FontSize="14" Text="{Binding NewText}"></Editor>
+            <Grid Grid.Row="4">
+                <Label x:Name="imagename" Text="Pošalji" TextColor="#808080" FontSize="Medium" HorizontalOptions="Center" VerticalOptions="Center"
+                                            Margin="5"/>
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="Posalji"/>
+                </Grid.GestureRecognizers>
+            </Grid>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

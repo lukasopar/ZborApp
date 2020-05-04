@@ -359,6 +359,7 @@ namespace ZborApp.Controllers
 
             return RedirectToAction("Zbor", new { id = dat.IdZbor });
         }
+        [AllowAnonymous]
         public async Task<IActionResult> Get(Guid id)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);

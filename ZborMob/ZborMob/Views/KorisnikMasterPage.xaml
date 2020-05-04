@@ -12,6 +12,8 @@
                 <x:Array Type="{x:Type local:MasterPageItem}">
                     <local:MasterPageItem Title="Početna" TargetType="{x:Type local:PocetnaPage}" />
                     <local:MasterPageItem Title="Forum" TargetType="{x:Type local:ForumPage}" />
+                    <local:MasterPageItem Title="Poruke" TargetType="{x:Type local:PorukePage}" />
+
                 </x:Array>
             </ListView.ItemsSource>
             <ListView.ItemTemplate>

@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             xmlns:helpers="clr-namespace:ZborMob.Converters"
+
+             xmlns:sync="clr-namespace:Syncfusion.ListView.XForms;assembly=Syncfusion.SfListView.XForms"
+             x:Class="ZborMob.Views.PorukePage">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <helpers:NazivRazgovoraConverter x:Key="NazivConverter" />
+            <helpers:PorukaConverter x:Key="PorukaConverter" />
+            <helpers:SlikaConverter x:Key="SlikaConverter" />
+
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.Content>
+        <Grid Margin="0" RowSpacing="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Button Text="Novi razgovor" Clicked="NoviRazgovor" Grid.Row="1" HeightRequest="40" />
+
+            <sync:SfListView x:Name="listView" ItemsSource="{Binding Razgovori}"
+                         Margin="0"
+                         Padding="0,5,0,5"
+                         SelectionMode="None"
+                         BackgroundColor="#F0F0F0"
+                         ItemSpacing="10,5,10,5"
+                             ItemSize="{OnPlatform Android={OnIdiom Phone=100, Tablet=100}}" ItemTapped="Poruka">
+                <sync:SfListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <Grid x:Name="grid" RowSpacing="0">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="1" />
+                                    </Grid.RowDefinitions>
+                                    <Grid RowSpacing="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="70" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Frame CornerRadius="100"  HorizontalOptions="Center" HeightRequest="50"
+           WidthRequest="50"
+           Padding="0"
+           IsClippedToBounds="True">
+                                            <Image Source="{Binding  Converter={StaticResource SlikaConverter}}" VerticalOptions="Center"   HorizontalOptions="Center" HeightRequest="50" WidthRequest="50"/>
+                                        </Frame>
+                                        <Grid Grid.Column="1" RowSpacing="1" Padding="10,0,0,0" VerticalOptions="Center">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="*" />
+                                                <RowDefinition Height="*" />
+                                            </Grid.RowDefinitions>
+
+                                            <Label LineBreakMode="NoWrap"
+                                                   TextColor="#474747"
+                                                   Text="{Binding Converter={StaticResource NazivConverter}}"
+                                                   FontSize="{OnPlatform Android={OnIdiom Phone=16, Tablet=18}}" />
+                                            <Label Grid.Row="1"
+                                                   Grid.Column="0"
+                                                   TextColor="#474747"
+                                                   LineBreakMode="NoWrap"
+                                                   Text="{Binding Converter={StaticResource PorukaConverter}}"
+                                                   FontSize="{OnPlatform Android={OnIdiom Phone=12, Tablet=14}}" />
+                                        </Grid>
+                                        <Grid Grid.Row="0" Grid.Column="2" RowSpacing="0"  HorizontalOptions="End" VerticalOptions="Start" Padding='{OnPlatform Default="0,10,10,0"}'>
+                                            <Label LineBreakMode="NoWrap"
+                                                   TextColor="#474747"
+                                                   Text="{Binding DatumZadnjePoruke}"
+                                                   FontSize="{OnPlatform Android={OnIdiom Phone=10, Tablet=12}}" />
+                                        </Grid>
+                                    </Grid>
+                                    <StackLayout Grid.Row="1" BackgroundColor="#E4E4E4" HeightRequest="1"/>
+                                </Grid>
+                            </ViewCell.View>
+                        </ViewCell>
+                    </DataTemplate>
+                </sync:SfListView.ItemTemplate>
+            </sync:SfListView>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>
