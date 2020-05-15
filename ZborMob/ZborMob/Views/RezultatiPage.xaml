@@ -5,12 +5,54 @@
              xmlns:microcharts="clr-namespace:Microcharts.Forms;assembly=Microcharts.Forms"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
+             xmlns:chart="clr-namespace:Syncfusion.SfChart.XForms;assembly=Syncfusion.SfChart.XForms"
+
              x:Class="ZborMob.Views.RezultatiPage">
     <ContentPage.Content>
         <StackLayout>
 
-            <Label x:Name="Pitanje" FontSize="50"/>
-            <microcharts:ChartView x:Name="chartView" HeightRequest="400" />
+
+            <chart:SfChart x:Name="Chart" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+                <chart:SfChart.Title>
+
+                    <chart:ChartTitle Font="20" x:Name="Pitanje" TextColor="Blue"/>
+
+                </chart:SfChart.Title>
+                <chart:SfChart.PrimaryAxis>
+
+                    <chart:CategoryAxis >
+
+                        <chart:CategoryAxis.LabelStyle>
+
+                            <chart:ChartAxisLabelStyle  Font="20"/>
+
+                        </chart:CategoryAxis.LabelStyle>
+
+                    </chart:CategoryAxis>
+
+                </chart:SfChart.PrimaryAxis>
+
+                <chart:SfChart.SecondaryAxis >
+
+
+                    <chart:NumericalAxis >
+
+                        <chart:NumericalAxis.LabelStyle >
+
+                            <chart:ChartAxisLabelStyle   Font="20"/>
+
+                        </chart:NumericalAxis.LabelStyle>
+
+                    </chart:NumericalAxis>
+
+                </chart:SfChart.SecondaryAxis>
+                <chart:SfChart.Series>
+
+                    <chart:ColumnSeries ItemsSource="{Binding }"/>
+
+                </chart:SfChart.Series>
+            </chart:SfChart>
+           
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

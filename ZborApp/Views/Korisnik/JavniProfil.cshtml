@@ -1,0 +1,119 @@
+﻿@model ZborDataStandard.ViewModels.KorisnikVIewModels.JavniProfilViewModel;
+@using ZborDataStandard.Model
+@{
+    ViewData["Title"] = "Profil";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote.min.css" rel="stylesheet">
+
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <div class="row">
+        <img src="/Repozitorij/Get/@Model.Korisnik.IdSlika" alt="profpic" class="img-profile rounded-circle" style="width:60px; height:60px;"><br />
+
+        <h1 class="h3 mb-0 text-gray-800">@Model.Korisnik.ImeIPrezime()</h1>
+    </div>
+</div>
+
+<div class="row">
+    <a class="btn btn-outline-secondary" asp-controller="Repozitorij" asp-action="Korisnik" asp-route-id="@Model.Korisnik.Id">Repozitorij</a>
+    <a class="btn btn-outline-secondary" asp-controller="Korisnik" asp-action="Galerija" asp-route-id="@Model.Korisnik.Id">Galerija</a>
+  
+
+</div>
+<br />
+<div class="row">
+    <div class="col-7">
+        <!-- Area Chart -->
+        <div class="col-12">
+            
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">O meni</h6>
+                    @if(Model.Aktivni == Model.Korisnik.Id)
+                    { 
+                    <div>
+                        <button id="Uredi-@Model.Korisnik.Id" class="btn btn-outline-secondary" onclick="edit('@Model.Korisnik.Id')" type="button">Uredi</button>
+                        <button id="Spremi-@Model.Korisnik.Id" class="btn btn-outline-secondary" onclick="save('@Model.Korisnik.Id')" type="button" style="display:none">Spremi</button>
+                    </div>
+                    }
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="card-text">
+                        <div id="omeni" class="summernote">@Html.Raw(Model.Korisnik.Opis)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    <div class="col-5">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Zborovi</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="card-text">
+                        @foreach(var zb in Model.Korisnik.ClanZbora)
+                        {
+                        <p><a asp-controller="Zbor" asp-action="JavniProfil" asp-route-id="@zb.IdZbor">@zb.IdZborNavigation.Naziv</a></p>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+    </div>
+</div>
+
+
+
+
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote.min.js"></script>
+    <script>
+        function edit(id) {
+            var spremi = "#Spremi" +"-" + id;
+            var uredi = "#Uredi" +"-" + id;
+            var zapis = "#omeni";
+
+            $(zapis).summernote({ focus: true });
+            $(uredi).hide();
+            $(spremi).show();
+        };
+
+        function save(id) {
+                 var spremi = "#Spremi" +"-" + id;
+            var uredi = "#Uredi" +"-" + id;
+            var zapis = "#omeni";
+            var markup = $(zapis).summernote('code');
+            $(zapis).summernote('destroy');
+
+            data = { Id: id + '', Tekst: $(zapis).html() };
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json;charset=utf-8",
+                url: '/Korisnik/Urediomeni' ,
+                data: JSON.stringify(data),
+                xhrFields: {
+                    withCredentials: true
+                }
+            }).done(function (response) {
+
+            })
+                .always(function () {
+
+                });
+            $(spremi).hide();
+            $(uredi).show();
+        };
+    </script>
+}

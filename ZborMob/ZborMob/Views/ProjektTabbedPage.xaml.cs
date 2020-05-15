@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Syncfusion.XForms.BadgeView;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,19 +24,22 @@ namespace ZborMob.Views
         }
         async void Lajkam(object sender, EventArgs args)
         {
-            var obavijest = (Obavijest)((Button)sender).BindingContext;
+            var obavijest = (Obavijest)((Image)sender).BindingContext;
             viewmodel.Lajk(obavijest);
             if (!obavijest.LajkObavijesti.Select(l => l.IdKorisnik).Contains(App.Korisnik.Id))
             {
                 obavijest.LajkObavijesti.Add(new LajkObavijesti { Id = Guid.NewGuid(), IdKorisnik = App.Korisnik.Id, IdObavijest = obavijest.Id });
-                ((Button)sender).BackgroundColor = Xamarin.Forms.Color.Aqua;
+                ((Image)sender).Source = "likes.png";
+                var v = (SfBadgeView)(((Image)sender).Parent);
+                v.BadgeText = "" + (Int32.Parse(v.BadgeText) + 1);
             }
             else
             {
                 var l = obavijest.LajkObavijesti.Where(l => l.IdKorisnik == App.Korisnik.Id && l.IdObavijest == obavijest.Id).SingleOrDefault();
                 obavijest.LajkObavijesti.Remove(l);
-                ((Button)sender).BackgroundColor = Color.DarkCyan;
-
+                ((Image)sender).Source = "like.png";
+                var v = (SfBadgeView)(((Image)sender).Parent);
+                v.BadgeText = "" + (Int32.Parse(v.BadgeText) - 1);
             }
             int g = 0;
         }
@@ -60,13 +64,13 @@ namespace ZborMob.Views
             if (!dog.NajavaDolaska.Select(l => l.IdKorisnik).Contains(App.Korisnik.Id))
             {
                 dog.NajavaDolaska.Add(new NajavaDolaska { Id = Guid.NewGuid(), IdKorisnik = App.Korisnik.Id, IdDogadjaj = dog.Id });
-                ((Button)sender).BackgroundColor = Xamarin.Forms.Color.Aqua;
+                ((Button)sender).BackgroundColor = Color.FromHex("1C6EBC");
             }
             else
             {
                 var l = dog.NajavaDolaska.Where(l => l.IdKorisnik == App.Korisnik.Id && l.IdDogadjaj == dog.Id).SingleOrDefault();
                 dog.NajavaDolaska.Remove(l);
-                ((Button)sender).BackgroundColor = Color.DarkCyan;
+                ((Button)sender).BackgroundColor = Color.Gray;
 
             }
             int g = 0;

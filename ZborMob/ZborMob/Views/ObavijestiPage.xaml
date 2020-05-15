@@ -6,35 +6,134 @@
              xmlns:local="clr-namespace:ZborMob.ViewModels"
              xmlns:helpers="clr-namespace:ZborMob.Converters"
              mc:Ignorable="d"
+             xmlns:cards="clr-namespace:Syncfusion.XForms.Cards;assembly=Syncfusion.Cards.XForms"
+             xmlns:buttons="clr-namespace:Syncfusion.XForms.Buttons;assembly=Syncfusion.Buttons.XForms"
+                          xmlns:controls="clr-namespace:ImageCircle.Forms.Plugin.Abstractions;assembly=ImageCircle.Forms.Plugin"
+            xmlns:badge ="clr-namespace:Syncfusion.XForms.BadgeView;assembly=Syncfusion.SfBadgeView.XForms"
+
+             Title="Obavijesti"
              x:Class="ZborMob.Views.ObavijestiPage"
              x:Name="ObavijestiStranica">
     <ContentPage.Resources>
-        <ResourceDictionary>
+        <ResourceDictionary >
             <helpers:ObavijestConverter x:Key="ColorConverter" />
+            <helpers:ObavijestVidljivostConverter x:Key="VidljivostConverter" />
+
+            <helpers:SlikaLinkConverter x:Key="ImageConverter" />
+            <OnPlatform x:TypeArguments="x:String" x:Key="IconFont">
+                <On Platform="Android" Value="zboris.ttf#zboris" />
+            </OnPlatform>
         </ResourceDictionary>
     </ContentPage.Resources>
-    <StackLayout>
-        <Entry Text="{Binding Naslov}"/>
-        <Entry Text="{Binding Tekst}"/>
-        <Button Text="Pošalji" Clicked="NovaObavijest"/>
-        <ListView ItemsSource="{Binding Obavijesti}" x:Name="Obavijesti" x:FieldModifier="public" HasUnevenRows="True">
+    <Grid Padding="10,10,10,10">
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="30"/>
+            <RowDefinition/>
+
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Label IsVisible="False" x:Name="HackyBindedKey" Text="{Binding Mod}" />
+        <cards:SfCardView Grid.Row="0" CornerRadius="4" HasShadow="True" WidthRequest="343" BackgroundColor="{DynamicResource Gray-White}" 
+                                          HorizontalOptions="Center" Padding="8,8,8,0">
+            <Grid ColumnSpacing="8" RowSpacing="8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="100"/>
+                    <RowDefinition Height="40"/>
+
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Row="0"   Text="Nova obavijest" FontSize="20"/>
+
+
+                <Entry Grid.Row="1" Grid.Column="0"  Grid.ColumnSpan="2" VerticalOptions="EndAndExpand" Text="{Binding Naslov}" Placeholder="Naslov"/>
+                <Editor Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding Tekst}" Placeholder="Tekst obavijesti"/>
+                <Button Grid.Row="3" Grid.Column="1" HorizontalOptions="End" WidthRequest="100" Text="Pošalji" Clicked="NovaObavijest" BackgroundColor="#1C6EBC" TextColor="White"/>
+            </Grid>
+        </cards:SfCardView>
+        <Label Grid.Row="1" Text="Obavijesti" FontSize="20"/>
+        <ActivityIndicator Grid.Row="2" Color="#1C6EBC" HorizontalOptions="Center" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"/>
+        <ListView Grid.Row="2" ItemsSource="{Binding Obavijesti}" x:Name="Obavijesti" x:FieldModifier="public" HasUnevenRows="True" SelectionMode="None">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <ViewCell>
                         <ViewCell.View>
-                            <StackLayout>
-                                <Label Text="{Binding Naslov}" FontSize="20"/>
-                                <Label Text="{Binding Tekst}" />
-                                <Label Text="{Binding LajkObavijesti.Count, StringFormat='{0} oznaka Sviđa mi se'}" />
-                                <Button Text="Sviđa mi se" x:Name="lajk" Clicked="Lajkam" BackgroundColor="{Binding Converter={StaticResource ColorConverter}}" />
+                            <cards:SfCardView CornerRadius="4" HasShadow="True" WidthRequest="343" BackgroundColor="{DynamicResource Gray-White}" 
+                                          HorizontalOptions="Center" Padding="16,16,8,16">
+                                <Grid ColumnSpacing="8" RowSpacing="8">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
 
-                                <Label Text="{Binding KomentarObavijesti.Count, StringFormat='{0} komentara'}" >
-                                    <Label.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="Komentari" />
-                                    </Label.GestureRecognizers>
-                                </Label>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="50"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
 
-                            </StackLayout>
+                                    <controls:CircleImage Source="{Binding IdKorisnikNavigation.IdSlika, Converter={StaticResource ImageConverter} }" HeightRequest="40" WidthRequest="40" HorizontalOptions="Start"/>
+                                    <Label  LineBreakMode="NoWrap" HorizontalOptions="Start" Grid.Column="1" 
+                                         VerticalOptions="Center" LineHeight="{OnPlatform Default=-1, Android=1.5}" >
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding Naslov}" FontSize="16" TextColor="{DynamicResource Gray-900}" 
+                                                 />
+                                                <Span Text="  "/>
+                                                <Span Text="" FontSize="12" TextColor="{DynamicResource Gray-800}"/>
+
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                    <!--  Delete button command  -->
+                                    <buttons:SfButton  x:Name="DeleteButton" CornerRadius="10" Grid.Column="3" HorizontalOptions="EndAndExpand"
+                                                   VerticalOptions="StartAndExpand"  BackgroundColor="#1C6EBC" Text="&#xe709;" FontFamily="{StaticResource IconFont}"
+                                                       IsVisible="{Binding  Converter={StaticResource VidljivostConverter}, ConverterParameter={x:Reference Name=HackyBindedKey}}"
+                                                   />
+                                    <Label Text="{Binding Tekst}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" 
+                                        LineBreakMode="WordWrap" HorizontalOptions="StartAndExpand" HeightRequest="100"
+                                        VerticalOptions="Start"/>
+
+                                    <Label Grid.Row="2" Grid.ColumnSpan="2" VerticalOptions="Center">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}" FontSize="14" 
+                                                 />
+                                                <Span Text=" | "/>
+                                                <Span Text="{Binding DatumObjave, StringFormat='{0:dd.MM.yyyy. HH:mm}'}" FontSize="10" TextColor="{DynamicResource Gray-800}"/>
+
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                    <badge:SfBadgeView BadgeText="{Binding LajkObavijesti.Count}" Grid.Row="2" Grid.Column="3" HorizontalOptions="End" VerticalOptions="Center">
+                                        <badge:SfBadgeView.Content>
+                                            <Image   x:Name="lajk"  Source="{Binding Converter={StaticResource ColorConverter}}" WidthRequest="30" HeightRequest="30" >
+                                                <Image.GestureRecognizers>
+                                                    <TapGestureRecognizer Tapped="Lajkam" />
+                                                </Image.GestureRecognizers>
+                                            </Image>
+                                        </badge:SfBadgeView.Content>
+                                        <badge:SfBadgeView.BadgeSettings>
+                                            <badge:BadgeSetting   BadgePosition="TopRight"/>
+                                        </badge:SfBadgeView.BadgeSettings>
+                                    </badge:SfBadgeView>
+
+                                    <Label Grid.Row="3" Grid.ColumnSpan="2" Text="Komentari" TextColor="DarkSlateGray" >
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="Komentari" />
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                </Grid>
+                            </cards:SfCardView>
                             
                         </ViewCell.View>
                        
@@ -42,5 +141,5 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-    </StackLayout>
+    </Grid>
 </ContentPage>

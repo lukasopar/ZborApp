@@ -5,37 +5,79 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              x:Class="ZborMob.Views.NovoPitanjePage"
+                          xmlns:cards="clr-namespace:Syncfusion.XForms.Cards;assembly=Syncfusion.Cards.XForms"
+
              xmlns:local="clr-namespace:ZborMob.Views">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <OnPlatform x:TypeArguments="x:String" x:Key="IconFont">
+                <On Platform="Android" Value="zboris.ttf#zboris" />
+            </OnPlatform>
+        </ResourceDictionary>
+
+    </ContentPage.Resources>
     <ContentPage.Content>
         <StackLayout>
-            <Picker x:Name="Visestruki">
-                <Picker.ItemsSource>
-                    <x:Array Type="{x:Type x:String}">
-                        <x:String>Odabir jednog odgovora</x:String>
-                        <x:String>Odabir više odgovora</x:String>
-                    </x:Array>
-                </Picker.ItemsSource>
-            </Picker>
-            <DatePicker Date="{Binding Datum}" x:Name="datumPicker"/>
-            <Entry Text="{Binding Pitanje}" Placeholder="Unesite pitanje"/>
-            <ListView ItemsSource="{Binding Odgovori}" x:Name="Odgovori" x:FieldModifier="public" HasUnevenRows="True">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <ViewCell.View>
-                                <StackLayout Orientation="Vertical">
-                                    <Entry Text="{Binding Value}" Placeholder="Odgovor"/>
-                                    <Button Text="Obriši" Clicked="ObrisiOdgovor"/>
-                                </StackLayout>
+            <cards:SfCardView Grid.Row="0" CornerRadius="4" HasShadow="True" WidthRequest="343" BackgroundColor="{DynamicResource Gray-White}" 
+                                          HorizontalOptions="Center" Padding="8,8,8,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Row="0" Grid.ColumnSpan="2" Text="Novo pitanje" FontSize="20" VerticalOptions="Center"/>
+                    <Entry Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Pitanje}" Placeholder="Unesite pitanje" FontSize="20"/>
+                    <Label Grid.Row="2" Grid.Column="1" Text="Vrsta pitanja:"  VerticalOptions="Center"/>
+                    <Picker Grid.Row="2" Grid.Column="2" x:Name="Visestruki">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>Odabir jednog odgovora</x:String>
+                                <x:String>Odabir više odgovora</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+                    <Label Grid.Row="3" Grid.Column="1" Text="Datum završetka:"  />
+                    <DatePicker  Grid.Row="3" Grid.Column="2" Date="{Binding Datum}" x:Name="datumPicker" Format="dd.MM.yyyy."/>
 
-                            </ViewCell.View>
+                </Grid>
 
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-            <Button Text="Dodaj odgovor" Clicked="DodajOdgovor"/>
-            <Button Text="Završi" Clicked="Zavrsi"/>
+            </cards:SfCardView>
+
+            <cards:SfCardView Grid.Row="0" CornerRadius="4" HasShadow="True" WidthRequest="343" BackgroundColor="{DynamicResource Gray-White}" 
+                                          HorizontalOptions="Center" Padding="8,8,8,0" >
+                <ListView ItemsSource="{Binding Odgovori}" x:Name="Odgovori" x:FieldModifier="public" HasUnevenRows="True" SelectionMode="None">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <ViewCell.View>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                          
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <Entry Text="{Binding Value}" Placeholder="Odgovor" WidthRequest="200"/>
+                                        <Button HorizontalOptions="End" Grid.Column="1" Text="&#xe709;" FontFamily="{StaticResource IconFont}" Clicked="ObrisiOdgovor" BackgroundColor="#1C6EBC" TextColor="White" WidthRequest="35" HeightRequest="35"/>
+                                    </Grid>
+
+                                </ViewCell.View>
+
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </cards:SfCardView>
+            <Button Text="Dodaj odgovor" Clicked="DodajOdgovor" BackgroundColor="#1C6EBC" TextColor="White"/>
+            <Button Text="Završi" Clicked="Zavrsi" BackgroundColor="#1C6EBC" TextColor="White"/>
 
         </StackLayout>
     </ContentPage.Content>

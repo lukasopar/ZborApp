@@ -1,87 +1,165 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+<TabbedPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              x:Class="ZborMob.Views.ProjektiPage"
-             >
-    <ContentPage.Content>
-        <ScrollView>
-        <StackLayout >
-            <StackLayout>
-                <Label Text="Naziv"/>
-                <Entry Text="{Binding Novi.Naziv}"/>
-                <Label Text="Vrsta podjele"/>
-                <Picker ItemsSource="{Binding Vrste}" ItemDisplayBinding="{Binding Podjela}" x:Name="picker"></Picker>
-                <Label Text="Datum početka"/>
-                <DatePicker Date="{Binding Datum}" x:Name="datePicker"/>
-                <Label Text="Opis"/>
-                <Entry Text="{Binding Novi.Opis}"/>
-                    <Button Text="Dodaj" Clicked="NoviProjekt"/>
-                </StackLayout>
-            <Label Text="Moji projekti"/>
-                <ListView ItemsSource="{Binding MojiProjekti}" x:Name="MojiProjekti" x:FieldModifier="public" HasUnevenRows="False" ItemTapped="OtvoriProjekt">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <ViewCell.View>
-                                <StackLayout>
-                                    <Label Text="{Binding Naziv}"></Label>
-                                        <Button Text="Administracija" Clicked="Administracija"/>
-                                    </StackLayout>
-                            </ViewCell.View>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-            <Label Text="Prijavljeni projekti"/>
-                <ListView ItemsSource="{Binding PrijavljeniProjekti}" x:Name="PrijavljeniProjekti" x:FieldModifier="public" HasUnevenRows="False" ItemTapped="OtvoriProjekt">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <ViewCell.View>
-                                    <StackLayout Orientation="Horizontal">
-                                        <Label Text="{Binding Naziv}"></Label>
-                                        <Button Text="PovuciPrijavu" Clicked="ObrisiPrijavu"/>
+                         xmlns:cards="clr-namespace:Syncfusion.XForms.Cards;assembly=Syncfusion.Cards.XForms"
+                         xmlns:list="clr-namespace:Syncfusion.ListView.XForms;assembly=Syncfusion.SfListView.XForms"
 
-                                    </StackLayout>
-                            </ViewCell.View>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-            <Label Text="Ostali projekti"/>
-                <ListView ItemsSource="{Binding OstaliProjekti}" x:Name="OstaliProjekti" x:FieldModifier="public" HasUnevenRows="False" ItemTapped="OtvoriProjekt">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <ViewCell.View>
-                                <StackLayout Orientation="Horizontal">
-                                        <Label Text="{Binding Naziv}"></Label>
-                                        <Button Text="Uključi se" Clicked="PrijavaProjekt"/>
-                                    </StackLayout>
-                            </ViewCell.View>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-            <Label Text="Završeni projekti"/>
-                <ListView ItemsSource="{Binding ZavrseniProjekti}" x:Name="ZavrseniProjekti" x:FieldModifier="public" HasUnevenRows="False" ItemTapped="OtvoriProjekt">
-                    <ListView.ItemTemplate>
+             >
+    <ContentPage Title="Moji projekti">
+        <ContentPage.Resources>
+            <ResourceDictionary >
+                <OnPlatform x:TypeArguments="x:String" x:Key="IconFont">
+                    <On Platform="Android" Value="zboris.ttf#zboris" />
+                </OnPlatform>
+            </ResourceDictionary>
+        </ContentPage.Resources>
+        <ContentPage.Content>
+        <Grid >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="200"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Button Text="Dodaj novi projekt" Grid.Row="0" BackgroundColor="#1C6EBC" TextColor="White" Clicked="Novi"/>
+                <cards:SfCardView CornerRadius="4" HasShadow="True" WidthRequest="343" BackgroundColor="{DynamicResource Gray-White}" 
+                                          HorizontalOptions="Center" Padding="16,16,8,16" Grid.Row="1">
+                    <StackLayout>
+                        <Label Text="Moji projekti" FontSize="16" Grid.Row="1"/>
+                        <ActivityIndicator  Color="#1C6EBC" HorizontalOptions="Center" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"/>
+
+                        <list:SfListView Grid.Row="2" ItemsSource="{Binding MojiProjekti}" x:Name="MojiProjekti" x:FieldModifier="public"  ItemTapped="OtvoriProjekt" SelectionBackgroundColor="#73A5F3">
+                            <list:SfListView.ItemTemplate>
+                                <DataTemplate>
+                                    <ViewCell>
+                                        <ViewCell.View>
+                                            <Grid >
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition></ColumnDefinition>
+                                                    <ColumnDefinition></ColumnDefinition>
+                                                </Grid.ColumnDefinitions>
+                                                <Label Text="{Binding Naziv}" VerticalOptions="Center" FontSize="13"></Label>
+                                                <Button Text="&#xe707;" FontFamily="{StaticResource IconFont}" WidthRequest="35" CornerRadius="10" Clicked="Administracija" HorizontalOptions="End" BackgroundColor="#1C6EBC" TextColor="White" Grid.Column="1" IsVisible="{Binding Mod}"/>
+                                            </Grid>
+                                        </ViewCell.View>
+                                    </ViewCell>
+                                </DataTemplate>
+                            </list:SfListView.ItemTemplate>
+                        </list:SfListView>
+                    </StackLayout>
+                </cards:SfCardView>
+                <cards:SfCardView CornerRadius="4" HasShadow="True" WidthRequest="343" BackgroundColor="{DynamicResource Gray-White}" 
+                                          HorizontalOptions="Center" Padding="16,16,8,16" Grid.Row="2">
+                    <StackLayout>                <Label Text="Prijavljeni projekti" FontSize="16"/>
+                        <list:SfListView Grid.Row="4" ItemsSource="{Binding PrijavljeniProjekti}" x:Name="PrijavljeniProjekti" x:FieldModifier="public" ItemTapped="OtvoriProjekt" SelectionBackgroundColor="#73A5F3">
+                            <list:SfListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <ViewCell.View>
+                                            <Grid >
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition></ColumnDefinition>
+                                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                                </Grid.ColumnDefinitions>
+                                                <Label Text="{Binding Naziv}" VerticalOptions="Center" FontSize="13"></Label>
+
+                                                <Button Text="&#xe707;" FontFamily="{StaticResource IconFont}" WidthRequest="35" CornerRadius="10" Clicked="Administracija" HorizontalOptions="End" BackgroundColor="#1C6EBC" TextColor="White" Grid.Column="1"/>
+                                                <Button Text="&#xe709;" FontFamily="{StaticResource IconFont}" WidthRequest="35" CornerRadius="10" Clicked="ObrisiPrijavu" HorizontalOptions="End" BackgroundColor="#1C6EBC" TextColor="White" Grid.Column="2"/>
+
+                                            </Grid>
+                                   
+                                    </ViewCell.View>
+                                </ViewCell>
+                            </DataTemplate>
+                        </list:SfListView.ItemTemplate>
+                    </list:SfListView>
+                    </StackLayout>
+
+                </cards:SfCardView>
+            </Grid>
+
+    </ContentPage.Content>
+    </ContentPage>
+    <ContentPage Title="Ostali projekti">
+        <ContentPage.Resources>
+            <ResourceDictionary >
+                <OnPlatform x:TypeArguments="x:String" x:Key="IconFont">
+                    <On Platform="Android" Value="zboris.ttf#zboris" />
+                </OnPlatform>
+            </ResourceDictionary>
+        </ContentPage.Resources>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="200"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Button Text="Dodaj novi projekt" Grid.Row="0" BackgroundColor="#1C6EBC" TextColor="White" Clicked="Novi"/>
+            <cards:SfCardView CornerRadius="4" HasShadow="True" WidthRequest="343" BackgroundColor="{DynamicResource Gray-White}" 
+                                          HorizontalOptions="Center" Padding="16,16,8,16" Grid.Row="1">
+                <StackLayout>
+                <Label Text="Ostali projekti" FontSize="16"/>
+                    <ActivityIndicator Color="#1C6EBC" HorizontalOptions="Center" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"/>
+                    <list:SfListView ItemsSource="{Binding OstaliProjekti}" x:Name="OstaliProjekti" x:FieldModifier="public" ItemTapped="OtvoriProjekt" SelectionBackgroundColor="#73A5F3">
+                        <list:SfListView.ItemTemplate>
                         <DataTemplate>
                             <ViewCell>
                                 <ViewCell.View>
-                                    <StackLayout>
-                                        <Label Text="{Binding Naziv}"></Label>
-                                    </StackLayout>
+                                        <Grid >
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition></ColumnDefinition>
+                                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <Label Text="{Binding Naziv}" VerticalOptions="Center" FontSize="13"></Label>
+
+                                            <Button Text="Prijava"   Clicked="PrijavaProjekt" HorizontalOptions="End" BackgroundColor="#1C6EBC" TextColor="White" Grid.Column="1"/>
+
+                                        </Grid>
                                 </ViewCell.View>
                             </ViewCell>
                         </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-            </StackLayout>
-        </ScrollView>
-
-    </ContentPage.Content>
-</ContentPage>
+                    </list:SfListView.ItemTemplate>
+                </list:SfListView>
+                </StackLayout>
+            </cards:SfCardView>
+            <cards:SfCardView CornerRadius="4" HasShadow="True" WidthRequest="343" BackgroundColor="{DynamicResource Gray-White}" 
+                                          HorizontalOptions="Center" Padding="16,16,8,16" Grid.Row="2">
+                <StackLayout>
+                    <Label Text="Završeni projekti" FontSize="16"/>
+                    <list:SfListView ItemsSource="{Binding ZavrseniProjekti}" x:Name="ZavrseniProjekti" x:FieldModifier="public"  ItemTapped="OtvoriProjekt" SelectionBackgroundColor="#73A5F3">
+                        <list:SfListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <ViewCell.View>
+                                        <StackLayout>
+                                            <Label Text="{Binding Naziv}"></Label>
+                                        </StackLayout>
+                                    </ViewCell.View>
+                                </ViewCell>
+                            </DataTemplate>
+                        </list:SfListView.ItemTemplate>
+                    </list:SfListView>
+                </StackLayout>
+            </cards:SfCardView>
+        </Grid>
+    </ContentPage>
+</TabbedPage>

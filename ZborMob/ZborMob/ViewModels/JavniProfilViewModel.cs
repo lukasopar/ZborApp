@@ -25,6 +25,8 @@ namespace ZborMob.ViewModels
         public string OVoditeljima { get { return oVoditeljima; } set { oVoditeljima = value; RaisePropertyChanged("OVoditeljima"); } }
         private string reprezentacija;
         public string Reprezentacija { get { return reprezentacija; } set { reprezentacija = value; RaisePropertyChanged("Reprezentacija"); } }
+        private string tekst;
+        public string Tekst { get { return tekst; } set { tekst = value; RaisePropertyChanged("Tekst"); } }
         private ZborDataStandard.ViewModels.ZborViewModels.JavniProfilViewModel model;
         public ZborDataStandard.ViewModels.ZborViewModels.JavniProfilViewModel Model
         {
@@ -38,10 +40,37 @@ namespace ZborMob.ViewModels
                 RaisePropertyChanged("Model");
             }
         }
+        private bool isBusy;
+        public bool IsBusy
+        {
+            get
+            {
+                return isBusy;
+            }
+            set
+            {
+                isBusy = value;
+                RaisePropertyChanged("IsBusy");
+            }
+        }
+        private bool clan;
+        public bool Clan
+        {
+            get
+            {
+                return clan;
+            }
+            set
+            {
+                clan = value;
+                RaisePropertyChanged("Clan");
+            }
+        }
         public JavniProfilViewModel(Guid id)
         {
             _apiServices = new ApiServices();
             OZboru = ""; OVoditeljima = ""; Reprezentacija = "";Repertoar = "";
+            IsBusy = true;
             GetData(id);
            // OZboru = "<html><body><b>je</b>nije</body></html>";
             /*Repertoar = Model.Zbor.ProfilZbor.Repertoar;
@@ -52,10 +81,13 @@ namespace ZborMob.ViewModels
         private async void GetData(Guid id)
         {
             Model = await _apiServices.JavniProfilAsync(id);
+            IsBusy = false;
             OZboru = Model.Zbor.ProfilZbor.OZboru;
             Repertoar = Model.Zbor.ProfilZbor.Repertoar;
             Reprezentacija = Model.Zbor.ProfilZbor.Reprezentacija;
             OVoditeljima = Model.Zbor.ProfilZbor.OVoditeljima;
+            if (Model.Prijava) Tekst = "Prijava"; else Tekst = "Povuci prijavu";
+            Clan = !(Model.Clan);
         }
         public async void SpremiOZboru(string tekst)
         {
@@ -72,6 +104,13 @@ namespace ZborMob.ViewModels
         public async void SpremiReprezentacija(string tekst)
         {
             await _apiServices.SpremiReprezentacijauAsync(model.Zbor.Id, tekst);
+        }
+        public async void PrijavaZbor(Guid id)
+        {
+            Clan = !Clan;
+            Model.Prijava = !Model.Prijava;
+            if (Model.Prijava) Tekst = "Prijava"; else Tekst = "Povuci prijavu";
+            await _apiServices.PrijavaZborAsync(id);
         }
 
         void RaisePropertyChanged(string propertyName)

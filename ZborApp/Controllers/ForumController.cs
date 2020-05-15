@@ -49,7 +49,8 @@ namespace ZborApp.Controllers
         }
         private bool isMod(Guid id)
         {
-            return _ctx.AdministratorForuma.Find(id) == null ? false : true || _ctx.ModForum.Find(id) == null?false:true;
+
+            return (_ctx.AdministratorForuma.Find(id) == null ? false : true) || (_ctx.ModForum.Find(id) == null?false:true);
         }
         public async Task<IActionResult> Index()
         {
@@ -153,7 +154,7 @@ namespace ZborApp.Controllers
                 teme = 
                        
                      
-                       _ctx.Tema.Where(t => t.IdForum == id).Include(t => t.IdForumNavigation).Include(t => t.Zapis).ThenInclude(z => z.IdKorisnikNavigation).OrderByDescending(orderSelector);
+                       _ctx.Tema.Where(t => t.IdForum == id).Include(t => t.IdKorisnikNavigation).Include(t => t.IdForumNavigation).Include(t => t.Zapis).ThenInclude(z => z.IdKorisnikNavigation).OrderByDescending(orderSelector);
             }
             var trazeneTeme = teme
                         .Skip((page - 1) * pagesize)

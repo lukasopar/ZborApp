@@ -294,12 +294,15 @@
                     $("#dolasci").text("Dolazak na " + response.evidentirani.length + " od " + (response.neevidentirani.length + response.evidentirani.length) + " (" + response.postotak.toFixed(2) + "%).");
                     var i = 0;
                     $("#evidentirano").empty();
-                  
+                    $("#evidentirano").append("<p>Evidentirani događaji</p>")
+
                     for (i = 0; i < response.evidentirani.length; i++) {
                         var newP = '<div class="row d-flex justify-content-between align-items-center " style="padding-left:15px;padding-bottom:7px"><a href="/Zbor/Dogadjaj/' + response.evidentirani[i].id + '">' + response.evidentirani[i].naziv + '</a> ' + response.evidentirani[i].datum + '</div>';
                         $("#evidentirano").append(newP);
                     }
                     $("#neevidentirano").empty();
+                    $("#neevidentirano").append("<p>Neevidentirani događaji</p>")
+
                     for (i = 0; i < response.neevidentirani.length; i++) {
                         var newP = '<div class="row d-flex justify-content-between align-items-center " style="padding-right:15px;padding-left:15px;padding-bottom:7px"><a href="/Zbor/Dogadjaj/' + response.neevidentirani[i].id + '">' + response.neevidentirani[i].naziv + '</a> ' + response.neevidentirani[i].datum + '</div>';
                         $("#neevidentirano").append(newP);

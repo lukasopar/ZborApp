@@ -13,7 +13,7 @@ using ZborMob.ViewModels;
 namespace ZborMob.Views
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ProjektiPage : ContentPage
+    public partial class ProjektiPage : TabbedPage
     {
         private ProjektiViewModel model;
         public ProjektiPage()
@@ -21,7 +21,6 @@ namespace ZborMob.Views
             model = new ProjektiViewModel();
             BindingContext = model;
             InitializeComponent();
-            datePicker.MinimumDate = DateTime.Now;
         }
         private void PrijavaProjekt(object o, EventArgs e)
         {
@@ -33,19 +32,19 @@ namespace ZborMob.Views
             Button btn = (Button)sender;
             model.ObrisiPrijavu((Projekt)btn.BindingContext);
         }
-        private void NoviProjekt(object sender, EventArgs e)
-        {
-            var vrsta = (VrstaPodjele)picker.SelectedItem;
-            model.NoviProjekt(vrsta);
-        }
+      
         private async void Administracija(object sender, EventArgs e)
         {
             Button btn = (Button)sender;
             await Navigation.PushAsync(new AdministracijaProjektaPage(((Projekt)btn.BindingContext).Id));
         }
-        private async void OtvoriProjekt(object o, ItemTappedEventArgs e)
+        private async void Novi(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new ProjektTabbedPage(new ProjektViewModel(((Projekt)e.Item).Id)));
+            await Navigation.PushModalAsync(new NoviProjekt(model));
+        }
+        private async void OtvoriProjekt(object o, Syncfusion.ListView.XForms.ItemTappedEventArgs e)
+        {
+            await Navigation.PushAsync(new ProjektTabbedPage(new ProjektViewModel(((Projekt)e.ItemData).Id)));
         }
     }
 }

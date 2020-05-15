@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Syncfusion.XForms.BadgeView;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,23 +28,29 @@ namespace ZborMob.Views
 
         async void Lajkam(object sender, EventArgs args)
         {
-            var k = (KomentarObavijesti)((Button)sender).BindingContext;
-            viewmodel.Lajk(k);
+            var k = (KomentarObavijesti)((Image)sender).BindingContext;
+            await viewmodel.Lajk(k);
             if (!k.LajkKomentara.Select(l => l.IdKorisnik).Contains(App.Korisnik.Id))
             {
-                ((Button)sender).BackgroundColor = Xamarin.Forms.Color.Aqua;
+                ((Image)sender).Source = "like.png";
+                var v = (SfBadgeView)(((Image)sender).Parent);
+                v.BadgeText = "" + (Int32.Parse(v.BadgeText) - 1);
             }
             else
             {
-                
-                ((Button)sender).BackgroundColor = Color.DarkCyan;
+
+                ((Image)sender).Source = "likes.png";
+                var v = (SfBadgeView)(((Image)sender).Parent);
+                v.BadgeText = "" + (Int32.Parse(v.BadgeText) + 1);
 
             }
             int g = 0;
         }
         async void NoviKomentar(object sender, EventArgs args)
         {
-            viewmodel.DodajNovi();
+            await viewmodel.DodajNovi();
+            Novi.Text = "";
+            listView.ScrollTo(viewmodel.Komentari[viewmodel.Komentari.Count - 1], ScrollToPosition.End, true);
             int g = 0;
         }
     }

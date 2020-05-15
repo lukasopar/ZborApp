@@ -1,7 +1,8 @@
-﻿using Microcharts;
-using SkiaSharp;
+﻿
+using Syncfusion.SfChart.XForms;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,28 +16,24 @@ namespace ZborMob.Views
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class RezultatiPage : ContentPage
     {
+        public ObservableCollection<ChartDataPoint> Podaci { get; set; }
+
         public RezultatiPage(Anketa pitanje)
         {
-            var entries = new List<Microcharts.Entry>();
-            var random = new Random();
+            //var random = new Random();
+            Podaci = new ObservableCollection<ChartDataPoint>();
 
             foreach (var odg in pitanje.OdgovorAnkete)
             {
                 var broj = odg.OdgovorKorisnikaNaAnketu.Count();
-                var color = String.Format("#{0:X6}", random.Next(0x1000000));
-                entries.Add(new Microcharts.Entry(broj)
-                {
-                    Label = "Odgovor: " + odg.Odgovor,
-                    ValueLabel = "Broj odgovora: " + broj + "",
-                    Color = SKColor.Parse(color)
-                }) ;
+                //  var color = String.Format("#{0:X6}", random.Next(0x1000000));
+                Podaci.Add(new ChartDataPoint("Odgovor: " + odg.Odgovor, broj));
+                
             }
-                        
-            var chart = new BarChart() { Entries = entries };
-            chart.LabelTextSize = 30;
+            BindingContext = Podaci;            
          
             InitializeComponent();
-            this.chartView.Chart = chart;
+        //    this.chartView.Chart = chart;
             this.Pitanje.Text = pitanje.Pitanje;
             
 

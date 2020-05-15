@@ -130,5 +130,29 @@ namespace ZborApp.Controllers
 
             return View(model);
         }
+        [HttpGet]
+        public async Task<IActionResult> JavniProfil(Guid id)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            var korisnik = _ctx.Korisnik.Where(k => k.Id == id).Include(k => k.ClanZbora).ThenInclude(c => c.IdZborNavigation).SingleOrDefault();
+            if (korisnik == null)
+                return RedirectToAction("Nema", "Greska");
+
+            JavniProfilViewModel model = new JavniProfilViewModel
+            {
+                Korisnik = korisnik,
+                Aktivni = user.Id 
+            };
+            
+            return View(model);
+        }
+        [HttpPost]
+        public async Task<IActionResult> Urediomeni([FromBody] PretragaModel model)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            _ctx.Korisnik.Find(user.Id).Opis = model.Tekst;
+            _ctx.SaveChanges();
+            return Ok();
+        }
     }
 }

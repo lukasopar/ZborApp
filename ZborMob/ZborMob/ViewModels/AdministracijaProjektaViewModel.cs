@@ -24,7 +24,19 @@ namespace ZborMob.ViewModels
 
         private ObservableCollection<PrijavaZaProjekt> prijave;
         private ObservableCollection<Korisnik> pretraga;
-
+        private bool isBusy;
+        public bool IsBusy
+        {
+            get
+            {
+                return isBusy;
+            }
+            set
+            {
+                isBusy = value;
+                RaisepropertyChanged("IsBusy");
+            }
+        }
 
         public Dictionary<string, ObservableCollection<ClanNaProjektu>> Clanovi
         {
@@ -89,17 +101,19 @@ namespace ZborMob.ViewModels
         public bool Napunjeno { get; set; }
         async void GetData(Guid id)
         {
+            IsBusy = true;
             //model = await _apiServices.PocetnaAsync();
             var model = await _apiServices.AdministracijaProjektaAsync(id);
+            IsBusy = false;
             //var model = new ZborDataStandard.ViewModels.ZborViewModels.AdministracijaProjektaViewModel();
             Projekt = model.Projekt;
+            Nerazvrstani = new ObservableCollection<ClanNaProjektu>(model.Nerazvrstani);
             Clanovi = new Dictionary<string, ObservableCollection<ClanNaProjektu>>();
             foreach(var kljuc in model.Clanovi.Keys)
             {
                 Clanovi[kljuc] = new ObservableCollection<ClanNaProjektu>(model.Clanovi[kljuc]);
             }
             RaisepropertyChanged("Clanovi");
-            Nerazvrstani = new ObservableCollection<ClanNaProjektu>(model.Nerazvrstani);
             Prijave = new ObservableCollection<PrijavaZaProjekt>(model.Projekt.PrijavaZaProjekt);
             Pretraga = new ObservableCollection<Korisnik>();
             Napunjeno = false;

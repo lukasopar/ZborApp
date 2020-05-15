@@ -15,6 +15,9 @@ namespace ZborMob.Views
         public KorisnikMasterPage()
         {
             InitializeComponent();
+            ime.Text = App.Korisnik.ImeIPrezimeP;
+            slika.Source = "test.png";
+            slika.Aspect = Aspect.AspectFit;
         }
     }
 }

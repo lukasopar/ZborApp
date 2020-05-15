@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+                         xmlns:cards="clr-namespace:Syncfusion.XForms.Cards;assembly=Syncfusion.Cards.XForms"
+
+             x:Class="ZborMob.Views.NoviProjekt">
+    <ContentPage.Content>
+        <StackLayout Margin="10,10">
+            <cards:SfCardView CornerRadius="4" HasShadow="True" WidthRequest="343" BackgroundColor="{DynamicResource Gray-White}" 
+                                          HorizontalOptions="Center" Padding="16,16,8,16" Grid.Row="1">
+
+                <StackLayout>
+                    <Label Text="Novi projekt" FontSize="18"/>
+                    <Label Text="Naziv"/>
+                    <Entry Text="{Binding Novi.Naziv}"/>
+                    <Label Text="Vrsta podjele"/>
+                    <Picker ItemsSource="{Binding Vrste}" ItemDisplayBinding="{Binding Podjela}" x:Name="picker"></Picker>
+                    <Label Text="Datum početka"/>
+                    <DatePicker Date="{Binding Datum}" Format="dd.MM.yyyy." x:Name="datePicker"/>
+                    <Label Text="Opis"/>
+                    <Editor Text="{Binding Novi.Opis}" HeightRequest="200"/>
+                    <Button Text="Dodaj" Clicked="Dodaj" BackgroundColor="#1C6EBC" TextColor="White"/>
+                </StackLayout>
+                
+                
+                
+                
+            </cards:SfCardView>
+            
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

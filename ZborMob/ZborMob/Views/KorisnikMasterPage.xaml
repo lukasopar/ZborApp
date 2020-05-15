@@ -4,15 +4,29 @@
              xmlns:local="clr-namespace:ZborMob.Views"
 			 x:Class="ZborMob.Views.KorisnikMasterPage"
 			 Padding="0,40,0,0"
-			 Title="Personal Organiser"
+			 Title="Korisnik"
+             BackgroundColor="#4e73df"
+             xmlns:controls="clr-namespace:ImageCircle.Forms.Plugin.Abstractions;assembly=ImageCircle.Forms.Plugin"
                >
-    <StackLayout>
-        <ListView x:Name="listView" x:FieldModifier="public">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Label Grid.Row ="0" x:Name="ime" TextColor="White" HorizontalOptions="CenterAndExpand" FontSize="20"/>
+
+        <controls:CircleImage Grid.Row="1" x:Name="slika" VerticalOptions="CenterAndExpand" HeightRequest="50" WidthRequest="50" />
+      
+        <ListView Grid.Row="2" x:Name="listView" x:FieldModifier="public">
             <ListView.ItemsSource>
                 <x:Array Type="{x:Type local:MasterPageItem}">
-                    <local:MasterPageItem Title="Početna" TargetType="{x:Type local:PocetnaPage}" />
-                    <local:MasterPageItem Title="Forum" TargetType="{x:Type local:ForumPage}" />
-                    <local:MasterPageItem Title="Poruke" TargetType="{x:Type local:PorukePage}" />
+                    <local:MasterPageItem Title="Početna" TargetType="{x:Type local:PocetnaPage}" IconSource="home.png"/>
+                    <local:MasterPageItem Title="Forum" TargetType="{x:Type local:ForumPage}" IconSource="talking.png"/>
+                    <local:MasterPageItem Title="Poruke" TargetType="{x:Type local:PorukePage}" IconSource="mail.png" />
+                    <local:MasterPageItem Title="Repozitorij" TargetType="{x:Type local:RepozitorijKorisnikPage}" IconSource="save.png" />
+                    <local:MasterPageItem Title="Obavijesti" TargetType="{x:Type local:ObavijestiKorisnikPage}" IconSource="signs.png" />
+                    <local:MasterPageItem Title="Javni profil" TargetType="{x:Type local:JavniProfilKorisnikPage}" IconSource="disk.png" />
 
                 </x:Array>
             </ListView.ItemsSource>
@@ -24,11 +38,12 @@
                                 <ColumnDefinition Width="30"/>
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <Label Grid.Column="1" Text="{Binding Title}" />
+                            <Image Source="{Binding IconSource}" HeightRequest="40" WidthRequest="40" Grid.Column="0"/>
+                            <Label Grid.Column="1" Text="{Binding Title}" TextColor="White"/>
                         </Grid>
                     </ViewCell>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-    </StackLayout>
+    </Grid>
 </ContentPage>

@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 
 namespace ZborApp.Services
 {
@@ -26,12 +27,7 @@ namespace ZborApp.Services
             _userManager = userManager;
         }
       
-        public async Task TestReq(string tekst)
-        {
-            string name = Context.User.Identity.Name;
-            await Clients.User("6EBB86DC-D316-4798-2F50-08D7C5CE7CBC".ToLower()).SendAsync("TestRep", name);
-
-        }
+     
         public override Task OnDisconnectedAsync(Exception exception)
         {
             return base.OnDisconnectedAsync(exception);
@@ -39,8 +35,15 @@ namespace ZborApp.Services
         public async Task NeprocitanePoruke()
         {
             var user = new  { Id = Guid.Parse(Context.User.Claims.First(i => i.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value) };
-            int neprocitane = _ctx.Razgovor.Where(r => r.KorisnikUrazgovoru.Where(k => k.IdKorisnik == user.Id && k.Procitano == false).Count() > 0).Count();
+            var neprocitane = _ctx.Razgovor.Where(r => r.KorisnikUrazgovoru.Where(k => k.IdKorisnik == user.Id && k.Procitano == false).Count() > 0).Select(r => r.Id.GetHashCode()).ToList();
             await Clients.User(user.Id.ToString()).SendAsync("Neprocitane", neprocitane );
+            //poslati poruku da je procitano
+        }
+        public async Task NeprocitaneObavijesti()
+        {
+            var user = new { Id = Guid.Parse(Context.User.Claims.First(i => i.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value) };
+            var neprocitane = _ctx.OsobneObavijesti.Where(r => r.IdKorisnik == user.Id && r.Procitano == false).Select(r => r.Id.GetHashCode()).ToList();
+            await Clients.User(user.Id.ToString()).SendAsync("NeprocitaneObavijesti", neprocitane);
             //poslati poruku da je procitano
         }
         public async Task Procitano(Guid idRazg)
@@ -88,7 +91,7 @@ namespace ZborApp.Services
             _ctx.SaveChanges();
             foreach (KorisnikUrazgovoru k in razg.KorisnikUrazgovoru)
             {
-                await Clients.User(k.IdKorisnik.ToString()).SendAsync("ReceiveMessageMob", new { Id = novaPoruka.Id, IdKorisnik = novaPoruka.IdKorisnik, IdRazgovor=novaPoruka.IdRazgovor, Poruka1 = novaPoruka.Poruka1, DatumIvrijeme = novaPoruka.DatumIvrijeme }) ;
+                await Clients.User(k.IdKorisnik.ToString()).SendAsync("ReceiveMessageMob", new { Id = novaPoruka.Id, IdKorisnik = novaPoruka.IdKorisnik, IdRazgovor=novaPoruka.IdRazgovor, Poruka1 = novaPoruka.Poruka1.Replace("<br />", "\n"), DatumIvrijeme = novaPoruka.DatumIvrijeme }, user.ImeIPrezime()) ;
                 await Clients.User(k.IdKorisnik.ToString()).SendAsync("ReceiveMessage", k.IdKorisnik, poruka);
                 await Clients.User(k.IdKorisnik.ToString()).SendAsync("ChangeHeader", new
                 {
@@ -135,7 +138,7 @@ namespace ZborApp.Services
                         k.Procitano = false;
                     else
                         k.Procitano = true;
-                    await Clients.User(k.IdKorisnik.ToString()).SendAsync("ReceiveMessageMob", new { Id = novaPoruka.Id, IdKorisnik = novaPoruka.IdKorisnik, IdRazgovor = novaPoruka.IdRazgovor, Poruka1 = novaPoruka.Poruka1, DatumIvrijeme = novaPoruka.DatumIvrijeme });
+                    await Clients.User(k.IdKorisnik.ToString()).SendAsync("ReceiveMessageMob", new { Id = novaPoruka.Id, IdKorisnik = novaPoruka.IdKorisnik, IdRazgovor = novaPoruka.IdRazgovor, Poruka1 = novaPoruka.Poruka1.Replace("<br />", "\n"), DatumIvrijeme = novaPoruka.DatumIvrijeme }, user.ImeIPrezime());
                     await Clients.User(k.IdKorisnik.ToString()).SendAsync("ReceiveMessage", k.IdKorisnik, poruka);
                     await Clients.User(k.IdKorisnik.ToString()).SendAsync("ChangeHeader", new
                     {
@@ -192,10 +195,27 @@ namespace ZborApp.Services
 
                 }
                 poruka.Popis = noviRazg.GetPopisKorisnika(novaPoruka.IdKorisnik);
-                
+
+                var list = new List<Poruka>();
+                list.Add(new Poruka
+                {
+                    DatumIvrijeme = novaPoruka.DatumIvrijeme,
+                    Id = novaPoruka.Id,
+                    IdKorisnik = novaPoruka.IdKorisnik,
+                    IdRazgovor = novaPoruka.IdRazgovor,
+                    Poruka1 = novaPoruka.Poruka1.Replace("<br />", "\n")
+                });
+                var copyRazg = new Razgovor
+                {
+                    Id = noviRazg.Id,
+                    Naslov = noviRazg.Naslov,
+                    DatumZadnjePoruke = noviRazg.DatumZadnjePoruke,
+                    KorisnikUrazgovoru = noviRazg.KorisnikUrazgovoru,
+                    Poruka = list
+                };
                 foreach (var id in listaId)
                 {
-                    await Clients.User(id.ToString()).SendAsync("ReceiveNewConversationMob", noviRazg);
+                    await Clients.User(id.ToString()).SendAsync("ReceiveNewConversationMob", copyRazg, user.ImeIPrezime());
 
                     await Clients.User(id.ToString()).SendAsync("ReceiveNewConversation", id, poruka);
                     bool flag = false;

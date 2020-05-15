@@ -38,8 +38,23 @@ namespace ZborMob.Converters
             var obj = (Razgovor)value;
             var poruka  = obj.Poruka.First();
             if (poruka.IdKorisnik == App.Korisnik.Id)
-                return "Ti: " + poruka.Poruka1;
-            else return poruka.Poruka1;
+                return "Ti: " + poruka.Poruka1.Replace("<br />", "\n");
+            else return poruka.Poruka1.Replace("<br />", "\n");
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class BoolConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null) return null;
+            var obj = (bool)value;
+
+            return !obj;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -91,5 +106,42 @@ namespace ZborMob.Converters
             throw new NotImplementedException();
         }
     }
+    public class SlikaLinkConverter : IValueConverter
+    {
+        static WebClient Client = new WebClient();
 
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null) return null;
+            var obj = (Guid)value;
+            
+            var link = App.BackendUrl + "/api/getrepozitorijkorisnik/" + obj.ToString();
+            var byteArray = Client.DownloadData(link);
+            return ImageSource.FromStream(() => new MemoryStream(byteArray));
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class SlikaLinkZborConverter : IValueConverter
+    {
+        static WebClient Client = new WebClient();
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null) return null;
+            var obj = (Guid)value;
+
+            var link = App.BackendUrl + "/api/getrepozitorijzbor/" + obj.ToString();
+            var byteArray = Client.DownloadData(link);
+            return ImageSource.FromStream(() => new MemoryStream(byteArray));
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

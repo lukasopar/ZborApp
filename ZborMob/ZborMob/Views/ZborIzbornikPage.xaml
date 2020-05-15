@@ -6,18 +6,30 @@
              xmlns:local="clr-namespace:ZborMob.Views"
              mc:Ignorable="d"
              x:Class="ZborMob.Views.ZborIzbornikPage"
+             xmlns:controls="clr-namespace:ImageCircle.Forms.Plugin.Abstractions;assembly=ImageCircle.Forms.Plugin"
+             BackgroundColor="#4e73df"
              Title="ZborNav">
     <ContentPage.Content>
-        <StackLayout>
-            <ListView x:Name="listView" x:FieldModifier="public">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Label Grid.Row ="0" x:Name="ime" TextColor="White" HorizontalOptions="CenterAndExpand" FontSize="20"/>
+
+            <controls:CircleImage Grid.Row="1" x:Name="slika" VerticalOptions="CenterAndExpand" HeightRequest="50" WidthRequest="50" />
+
+            <ListView Grid.Row="2" x:Name="listView" x:FieldModifier="public">
                 <ListView.ItemsSource>
                     <x:Array Type="{x:Type local:MasterPageItem}">
-                        <local:MasterPageItem Title="Obavijesti" TargetType="{x:Type local:ObavijestiPage}" />
-                        <local:MasterPageItem Title="Pitanja" TargetType="{x:Type local:PitanjaPage}" />
-                        <local:MasterPageItem Title="Projekti" TargetType="{x:Type local:ProjektiPage}" />
-                        <local:MasterPageItem Title="Upravljanje zborom" TargetType="{x:Type local:AdministracijaPage}" />
-                        <local:MasterPageItem Title="Javni profil" TargetType="{x:Type local:JavniProfilPage}" />
-                        <local:MasterPageItem Title="Repozitorij" TargetType="{x:Type local:RepozitorijZborPage}" />
+                        <local:MasterPageItem Title="Obavijesti" TargetType="{x:Type local:ObavijestiPage}" IconSource="openfolder.png" />
+                        <local:MasterPageItem Title="Pitanja" TargetType="{x:Type local:PitanjaPage}" IconSource="question.png"/>
+                        <local:MasterPageItem Title="Projekti" TargetType="{x:Type local:ProjektiPage}" IconSource="inbox.png"/>
+                        <local:MasterPageItem Title="Upravljanje zborom" TargetType="{x:Type local:AdministracijaPage}" IconSource="setting.png"/>
+                        <local:MasterPageItem Title="Javni profil" TargetType="{x:Type local:JavniProfilPage}" IconSource="disk.png"/>
+                        <local:MasterPageItem Title="Repozitorij" TargetType="{x:Type local:RepozitorijZborPage}" IconSource="save.png"/>
+                        <local:MasterPageItem Title="Pretplate" TargetType="{x:Type local:PretplatePage}" IconSource="save.png"/>
 
                     </x:Array>
                 </ListView.ItemsSource>
@@ -29,12 +41,13 @@
                                     <ColumnDefinition Width="30"/>
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <Label Grid.Column="1" Text="{Binding Title}" />
+                                <Image Source="{Binding IconSource}" HeightRequest="40" WidthRequest="40" Grid.Column="0"/>
+                                <Label Grid.Column="1" Text="{Binding Title}" TextColor="White" VerticalOptions="Center"/>
                             </Grid>
                         </ViewCell>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-        </StackLayout>
+        </Grid>
     </ContentPage.Content>
 </ContentPage>

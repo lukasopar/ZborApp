@@ -16,7 +16,7 @@ namespace ZborApp.Services
             try
             {
                 // Credentials
-                var credentials = new NetworkCredential("acczaslanje@gmail.com", "acczaslanje123");
+                var credentials = new NetworkCredential("acczaslanje123@gmail.com", "acczaslanje123");
                 // Mail message
                 var mail = new MailMessage()
                 {

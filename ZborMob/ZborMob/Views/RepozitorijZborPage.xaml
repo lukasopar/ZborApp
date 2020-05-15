@@ -4,32 +4,75 @@
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
+             xmlns:system="clr-namespace:System;assembly=netstandard"
+                  xmlns:cards="clr-namespace:Syncfusion.XForms.Cards;assembly=Syncfusion.Cards.XForms"
+             Title="Zborski repozitorij"
+                          xmlns:buttons="clr-namespace:Syncfusion.XForms.Buttons;assembly=Syncfusion.Buttons.XForms"
+
              x:Class="ZborMob.Views.RepozitorijZborPage">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <OnPlatform x:TypeArguments="x:String" x:Key="IconFont">
+                <On Platform="Android" Value="zboris.ttf#zboris" />
+            </OnPlatform>
+        </ResourceDictionary>
+
+    </ContentPage.Resources>
     <ContentPage.Content>
         <StackLayout>
+
+            <Button Text="Dodavanje nove datoteke" Clicked="Upload" BackgroundColor="#1C6EBC" TextColor="White" IsVisible="{Binding Clan}"/>
+            <ActivityIndicator Color="#1C6EBC" HorizontalOptions="Center" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"/>
+
             <ListView ItemsSource="{Binding Datoteke}" x:Name="Datoteke" x:FieldModifier="public" HasUnevenRows="True">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
                             <ViewCell.View>
-                                <StackLayout>
-                                    <StackLayout Orientation="Horizontal" >
-                                        <Label Text="{Binding Naziv}" FontSize="20">
+                                <cards:SfCardView CornerRadius="4" HasShadow="True" WidthRequest="343" BackgroundColor="{DynamicResource Gray-White}" 
+                                          HorizontalOptions="Center" Padding="16,16,8,16">
+                                    <Grid ColumnSpacing="8" RowSpacing="8">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                        
+
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="160"/>
+                                            <ColumnDefinition Width="160"/>
+                                
+
+                                        </Grid.ColumnDefinitions>
+                                        <Label Text="{Binding Naziv}" FontSize="16" Grid.Row="0" Grid.Column="0" >
                                             <Label.GestureRecognizers>
                                                 <TapGestureRecognizer Tapped="Preuzmi" />
                                             </Label.GestureRecognizers>
                                         </Label>
-                                        <Label Text="{Binding DatumPostavljanja}" />
-                                        <Label Text="Privatno" />
-                                        <Switch IsToggled="{Binding Privatno}" Toggled="Vidljivost"/>
 
-                                    </StackLayout>
-                                    <StackLayout Orientation="Horizontal">
-                                        <Button Text="Podijeli" Clicked="Podijeli"/>
-                                        <Button Text="Obriši" Clicked="Obrisi"/>
+                                        <Label  LineBreakMode="NoWrap"  Grid.Column="1"  HorizontalOptions="End" 
+                                         VerticalOptions="Center" LineHeight="{OnPlatform Default=-1, Android=1.5}" >
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}"  TextColor="{DynamicResource Gray-900}"/>
+                                       
 
-                                    </StackLayout>
-                                </StackLayout>
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                        <StackLayout Orientation="Horizontal" Grid.Row="1" Grid.Column="0" IsVisible="{Binding Clan}">
+                                            <Label Text="Privatno" VerticalOptions="Center" />
+                                            <Switch IsToggled="{Binding Privatno}" Toggled="Vidljivost" ThumbColor="#1C6EBC" OnColor="#1C6EBC"/>
+
+                                        </StackLayout>
+                                        <StackLayout Orientation="Horizontal" Grid.Row="1" Grid.Column="1" HorizontalOptions="EndAndExpand" IsVisible="{Binding Clan}">
+                                            <Button  Text="&#xe701;" FontFamily="{StaticResource IconFont}" Clicked="Podijeli" BackgroundColor="#1C6EBC" TextColor="White" WidthRequest="40" HeightRequest="35" CornerRadius="10"/>
+                                            <Button Text="&#xe708;" FontFamily="{StaticResource IconFont}" Clicked="Obrisi" BackgroundColor="#1C6EBC" TextColor="White" WidthRequest="40" HeightRequest="35" CornerRadius="10"/>
+
+                                        </StackLayout>
+                                    </Grid>
+                                </cards:SfCardView>
+                               
 
                             </ViewCell.View>
 

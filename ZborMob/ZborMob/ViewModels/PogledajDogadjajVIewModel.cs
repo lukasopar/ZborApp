@@ -27,14 +27,41 @@ namespace ZborMob.ViewModels
             GetData(id);
             
         }
+        private bool isBusy;
+        public bool IsBusy
+        {
+            get
+            {
+                return isBusy;
+            }
+            set
+            {
+                isBusy = value;
+                RaisePropertyChanged("IsBusy");
+            }
+        }
+        private Guid id;
         private async void GetData(Guid id)
         {
+            IsBusy = false;
             model = await _apiServices.DogadjajViewModelAsync(id);
+            IsBusy = true;
+            this.id = id;
         }
         void RaisePropertyChanged(string propertyName)
         {
             if (PropertyChanged != null)
                 PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        public void Spremi(List<Guid> guids)
+        {
+            var mod = new ZborDataStandard.ViewModels.ZborViewModels.DogadjajViewModel
+            {
+                IdDogadjaj = id,
+                Evidencija = guids
+            };
+            model.Evidencija = guids;
+            _apiServices.EvidentirajAsync(mod);
         }
     }
 }

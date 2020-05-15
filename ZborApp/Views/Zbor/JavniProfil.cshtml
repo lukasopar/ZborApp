@@ -8,24 +8,37 @@
 
 <!-- Page Heading -->
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">@Model.Zbor.Naziv</h1>
+    <div class="row">
+        <img src="/Repozitorij/GetZbor/@Model.Zbor.IdSlika" alt="profpic" class="img-profile rounded-circle" style="width:60px; height:60px;"><br />
+
+        <h1 class="h3 mb-0 text-gray-800">@Model.Zbor.Naziv</h1>
+    </div>
 </div>
+<div class="row">
+    <a class="btn btn-outline-secondary" asp-controller="Repozitorij" asp-action="Zbor" asp-route-id="@Model.Zbor.Id">Repozitorij</a>
+    <a class="btn btn-outline-secondary" asp-controller="Zbor" asp-action="Galerija" asp-route-id="@Model.Zbor.Id">Galerija</a>
+    <a class="btn btn-outline-secondary" asp-controller="Zbor" asp-action="PrijavaZbor" asp-route-id="@Model.Zbor.Id" style="@if (Model.Clan) {<text>display:none</text> } ">
+        @if (Model.Prijava) { <text>Povuci prijavu</text>}
+        else { <text>Prijava</text>}
+    </a>
 
-
+</div>
+<br />
 <div class="row">
     <div class="col-7">
         <!-- Area Chart -->
         <div class="col-12">
+
             <div class="card shadow mb-4">
                 <!-- Card Header - Dropdown -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">O zboru</h6>
-                    @if(Model.Mod)
-                    { 
-                    <div>
-                        <button id="Urediozboru-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="edit('@Model.Zbor.Id', 'ozboru')" type="button">Uredi</button>
-                        <button id="Spremiozboru-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="save('@Model.Zbor.Id', 'ozboru')" type="button" style="display:none">Spremi</button>
-                    </div>
+                    @if (Model.Mod)
+                    {
+                        <div>
+                            <button id="Urediozboru-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="edit('@Model.Zbor.Id', 'ozboru')" type="button">Uredi</button>
+                            <button id="Spremiozboru-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="save('@Model.Zbor.Id', 'ozboru')" type="button" style="display:none">Spremi</button>
+                        </div>
                     }
                 </div>
                 <!-- Card Body -->
@@ -63,23 +76,24 @@
             <div class="card shadow mb-4">
                 <!-- Card Header - Dropdown -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Poveznice</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Repertoar</h6>
                     @if (Model.Mod)
                     {
                         <div>
-                            <button id="Uredireprezentacija-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="edit('@Model.Zbor.Id', 'reprezentacija')" type="button">Uredi</button>
-                            <button id="Spremireprezentacija-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="save('@Model.Zbor.Id', 'reprezentacija')" type="button" style="display:none">Spremi</button>
+                            <button id="Uredirepertoar-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="edit('@Model.Zbor.Id', 'repertoar')" type="button">Uredi</button>
+                            <button id="Spremirepertoar-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="save('@Model.Zbor.Id', 'repertoar')" type="button" style="display:none">Spremi</button>
                         </div>
                     }
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
                     <div class="card-text">
-                        <div id="reprezentacija-@Model.Zbor.Id" class="summernote">@Html.Raw(Model.Zbor.ProfilZbor.Reprezentacija)</div>
+                        <div id="repertoar-@Model.Zbor.Id" class="summernote">@Html.Raw(Model.Zbor.ProfilZbor.Repertoar)</div>
                     </div>
                 </div>
             </div>
         </div>
+       
     </div>
     <div class="col-5">
         <div class="col-12">
@@ -97,7 +111,7 @@
                             <div class="row">Voditelj: @Model.Zbor.Voditelj.First().IdKorisnikNavigation.ImeIPrezime()</div>
 
                         </div>
-                        
+
                     </div>
                 </div>
             </div>
@@ -107,19 +121,19 @@
             <div class="card shadow mb-4">
                 <!-- Card Header - Dropdown -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Repertoar</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Poveznice</h6>
                     @if (Model.Mod)
                     {
                         <div>
-                            <button id="Uredirepertoar-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="edit('@Model.Zbor.Id', 'repertoar')" type="button">Uredi</button>
-                            <button id="Spremirepertoar-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="save('@Model.Zbor.Id', 'repertoar')" type="button" style="display:none">Spremi</button>
+                            <button id="Uredireprezentacija-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="edit('@Model.Zbor.Id', 'reprezentacija')" type="button">Uredi</button>
+                            <button id="Spremireprezentacija-@Model.Zbor.Id" class="btn btn-outline-secondary" onclick="save('@Model.Zbor.Id', 'reprezentacija')" type="button" style="display:none">Spremi</button>
                         </div>
                     }
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
                     <div class="card-text">
-                        <div id="repertoar-@Model.Zbor.Id" class="summernote">@Html.Raw(Model.Zbor.ProfilZbor.Repertoar)</div>
+                        <div id="reprezentacija-@Model.Zbor.Id" class="summernote">@Html.Raw(Model.Zbor.ProfilZbor.Reprezentacija)</div>
                     </div>
                 </div>
             </div>

@@ -124,6 +124,7 @@ namespace ZborApp.Controllers
                 };
                 model.Novi.Voditelj.Add(voditelj);
                 model.Novi.ClanZbora.Add(clan);
+                model.Novi.ProfilZbor = new ProfilZbor();
                 _ctx.Add(model.Novi);
                 _ctx.SaveChanges();
                 return RedirectToAction(nameof(Index));
@@ -136,6 +137,7 @@ namespace ZborApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Profil(Guid id)
         {
+
             if (!Exists(id))
                 return RedirectToAction("Nema", "Greska");
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
@@ -1007,6 +1009,8 @@ namespace ZborApp.Controllers
             _ctx.ClanZbora.Remove(clan);
             var pretplata = _ctx.PretplataNaZbor.Where(p => p.IdKorisnik == clan.IdKorisnik && p.IdZbor == clan.IdZbor).ToList();
             _ctx.RemoveRange(pretplata);
+            var clanProjekta = _ctx.ClanNaProjektu.Where(p => p.IdKorisnik == clan.IdKorisnik && p.IdProjektNavigation.IdZbor == clan.IdZbor).ToList();
+            _ctx.RemoveRange(clanProjekta);
             var mod = _ctx.ModeratorZbora.Where(mod => mod.IdKorisnik == clan.IdKorisnik && mod.IdZbor == clan.IdZbor).SingleOrDefault();
             if (mod != null)
                 _ctx.ModeratorZbora.Remove(mod);
@@ -1475,14 +1479,14 @@ namespace ZborApp.Controllers
                 return BadRequest();
             var dogadaji = _ctx.Dogadjaj.Where(d => d.IdProjekt == idProjekt)
                 .Include(d => d.EvidencijaDolaska).OrderByDescending(d => d.DatumIvrijeme);
-            var ev = dogadaji.Where(d => d.EvidencijaDolaska.Select(e => e.IdKorisnik).Contains(idKorisnik)).Select(d => new { Id = d.Id, Datum = d.DatumIvrijeme.ToString("dd.MM.yyyy. hh:mm"), Naziv = d.Naziv }).ToList();
+            var ev = dogadaji.Where(d => d.EvidencijaDolaska.Select(e => e.IdKorisnik).Contains(idKorisnik)).Select(d => new { Id = d.Id, Datum = d.DatumIvrijeme.ToString("dd.MM.yyyy. HH:mm"), Naziv = d.Naziv }).ToList();
             double postotak = 0.0;
             if(dogadaji.Count() > 0)
                 postotak = 1.0* ev.Count / (dogadaji.Count()) * 100;
             var response = new
             {
                 Evidentirani = ev,
-                Neevidentirani = dogadaji.Where(d => !d.EvidencijaDolaska.Select(e => e.IdKorisnik).Contains(idKorisnik)).Select(d => new { Id = d.Id, Datum = d.DatumIvrijeme.ToString("dd.MM.yyyy. hh:mm"), Naziv = d.Naziv }).ToList(),
+                Neevidentirani = dogadaji.Where(d => !d.EvidencijaDolaska.Select(e => e.IdKorisnik).Contains(idKorisnik)).Select(d => new { Id = d.Id, Datum = d.DatumIvrijeme.ToString("dd.MM.yyyy. HH:mm"), Naziv = d.Naziv }).ToList(),
                 Postotak = postotak
             };
             return Ok(response);
@@ -2201,14 +2205,19 @@ namespace ZborApp.Controllers
                 return RedirectToAction("Nema", "Greska");
             var zbor = _ctx.Zbor.Where(z => z.Id == id).Include(z => z.ProfilZbor)
                 .Include(z => z.Voditelj).ThenInclude(v => v.IdKorisnikNavigation).SingleOrDefault();
-            
+
             JavniProfilViewModel model = new JavniProfilViewModel
             {
                 Zbor = zbor,
-                Mod = IsAdmin(id, user.Id)
+                Mod = IsAdmin(id, user.Id),
+                Prijava = false
             };
+            var prijava = _ctx.PrijavaZaZbor.Where(p => p.IdKorisnik == user.Id && p.IdZbor == id).SingleOrDefault();
+            if(prijava != null)
+                model.Prijava = true;
             if(CheckRights(id, user.Id))
             {
+                model.Clan = true;
                 ViewData["zborId"] = id;
                 ViewData["zborIme"] = zbor.Naziv;
                 ViewData["idSlika"] = zbor.IdSlika;
@@ -2438,10 +2447,59 @@ namespace ZborApp.Controllers
                     continue;
                 };
             }
-            System.IO.Directory.Delete(LOCATION + "/Zbor/" + zbor.Id);
+            try { System.IO.Directory.Delete(LOCATION + "/Zbor/" + zbor.Id); }
+            catch (Exception) {  }
 
 
             return;
+        }
+        [HttpGet]
+        public async Task<IActionResult> PrijavaZbor(Guid id)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+           
+            if (!Exists(id))
+                return NotFound();
+            var prijavaZaZbor = _ctx.PrijavaZaZbor.Where(p => p.IdKorisnik == user.Id && p.IdZbor == id).SingleOrDefault();
+            if (prijavaZaZbor != null)
+            {
+                _ctx.Remove(prijavaZaZbor);
+                _ctx.SaveChanges();
+                return RedirectToAction("JavniProfil", new { id = id });
+            }
+                
+            var clan = _ctx.ClanZbora.Where(p => p.IdKorisnik == user.Id && p.IdZbor == id).SingleOrDefault();
+            if (clan != null)
+                return Ok();
+            var pr = new PrijavaZaZbor
+            {
+                Id = Guid.NewGuid(),
+                IdKorisnik = user.Id,
+                IdZbor = id,
+                Poruka = "",
+                DatumPrijave = DateTime.Now
+            };
+            _ctx.PrijavaZaZbor.Add(pr);
+            var pretplatnici = _ctx.ModeratorZbora.Where(p => p.IdZbor == id).Select(p => p.IdKorisnik).ToHashSet();
+            pretplatnici.Add(_ctx.Voditelj.Where(v => v.IdZbor == id).Select(p => p.IdKorisnik).FirstOrDefault());
+            foreach (var pret in pretplatnici)
+            {
+                OsobneObavijesti ob = new OsobneObavijesti
+                {
+                    Id = Guid.NewGuid(),
+                    IdKorisnik = pret,
+                    Tekst = String.Format("<b>{0}</b> se prijavljuje za zbor <b>{1}</b>.", _ctx.Korisnik.Find(user.Id).ImeIPrezime(), _ctx.Zbor.Find(id).Naziv),
+                    Procitano = false,
+                    Poveznica = "/Zbor/Administracija/" + id
+                };
+                _ctx.Add(ob);
+                await _hubContext.Clients.User(pret.ToString()).SendAsync("NovaObavijest", new { id = ob.Id, poveznica = ob.Poveznica, procitano = ob.Procitano, datum = ob.Datum, tekst = ob.Tekst });
+
+            }
+
+
+            _ctx.SaveChanges();
+            return RedirectToAction("JavniProfil", new { id = id });
         }
     }
 }

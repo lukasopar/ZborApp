@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.Forms;
 using ZborDataStandard.Model;
@@ -51,7 +52,7 @@ namespace ZborMob.ViewModels
             if (PropertyChanged != null)
                 PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-        public async void Zavrsi(bool vis)
+        public async Task<Anketa> Zavrsi(bool vis)
         {
             Anketa pitanje = new Anketa
             {
@@ -63,6 +64,8 @@ namespace ZborMob.ViewModels
             int i = 0;
             foreach(var odgovor in Odgovori)
             {
+                if (odgovor.Value.Trim() == "")
+                    throw new ArgumentException();
                 pitanje.OdgovorAnkete.Add(new OdgovorAnkete
                 {
                     Odgovor = odgovor.Value,
@@ -70,7 +73,8 @@ namespace ZborMob.ViewModels
                 });
                 i++;
             }
-            await _apiServices.NovoPitanjeAsync(App.Zbor.Id, pitanje);
+            var novo = await _apiServices.NovoPitanjeAsync(App.Zbor.Id, pitanje);
+            return novo;
         }
     }
     public class StringValue

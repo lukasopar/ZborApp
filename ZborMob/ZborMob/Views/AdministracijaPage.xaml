@@ -1,154 +1,248 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+<TabbedPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
+            Title="Upravljanje zborom"
              x:Class="ZborMob.Views.AdministracijaPage"
+             xmlns:list="clr-namespace:Syncfusion.ListView.XForms;assembly=Syncfusion.SfListView.XForms"
+
              >
+    <ContentPage Title="Članovi">
     <ContentPage.Content>
-        <ScrollView>
-        <StackLayout >
-            <Label Text="Soprani"/>
-                <ListView ItemsSource="{Binding Soprani}" x:Name="Soprani" x:FieldModifier="public" HasUnevenRows="False" ItemTapped="PokreniPopup">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <ViewCell.View>
-                                <StackLayout>
-                                    <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}"></Label>
-                                </StackLayout>
-                            </ViewCell.View>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-            <Label Text="Alti"/>
-                <ListView ItemsSource="{Binding Alti}" x:Name="Alti" x:FieldModifier="public" HasUnevenRows="False" ItemTapped="PokreniPopup">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <ViewCell.View>
-                                <StackLayout>
-                                    <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}"></Label>
-                                </StackLayout>
-                            </ViewCell.View>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-            <Label Text="Tenori"/>
-                <ListView ItemsSource="{Binding Tenori}" x:Name="Tenori" x:FieldModifier="public" HasUnevenRows="False" ItemTapped="PokreniPopup">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <ViewCell.View>
-                                <StackLayout>
-                                    <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}"></Label>
-                                </StackLayout>
-                            </ViewCell.View>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-            <Label Text="Basi"/>
-                <ListView ItemsSource="{Binding Basi}" x:Name="Basi" x:FieldModifier="public" HasUnevenRows="False" ItemTapped="PokreniPopup">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <ViewCell.View>
-                                <StackLayout>
-                                    <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}"></Label>
-                                </StackLayout>
-                            </ViewCell.View>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-            <Label Text="Nerazvrstani"/>
-                <ListView ItemsSource="{Binding Nerazvrstani}" x:Name="Nerazvrstani" x:FieldModifier="public" HasUnevenRows="False" ItemTapped="PokreniPopup">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <ViewCell.View>
-                                <StackLayout>
-                                    <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}"></Label>
-                                </StackLayout>
-                            </ViewCell.View>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-                <Label Text="Moderatori"/>
-                <ListView ItemsSource="{Binding Moderatori}" x:Name="Moderatori" x:FieldModifier="public" HasUnevenRows="False" >
+            <Grid ColumnSpacing="8" RowSpacing="15" Padding="10,10">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <ActivityIndicator Grid.Row="0" Color="#1C6EBC" HorizontalOptions="Center" VerticalOptions="Center" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"/>
+
+                <StackLayout Grid.Row="0" Grid.Column="0" >
+                    <Label Text="Soprani" FontSize="16" FontAttributes="Bold"/>
+                    <list:SfListView ItemsSource="{Binding Soprani}" x:Name="Soprani" x:FieldModifier="public" ItemTapped="PokreniPopup"  SelectionBackgroundColor="#73A5F3">
+                        <list:SfListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <ViewCell.View>
+                                        <StackLayout>
+                                            <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}"></Label>
+                                        </StackLayout>
+                                    </ViewCell.View>
+                                </ViewCell>
+                            </DataTemplate>
+                        </list:SfListView.ItemTemplate>
+                    </list:SfListView>
+                </StackLayout>
+                <StackLayout Grid.Row="0" Grid.Column="1">
+                    <Label Text="Alti" FontSize="16" FontAttributes="Bold"/>
+                    <list:SfListView ItemsSource="{Binding Alti}" x:Name="Alti" x:FieldModifier="public" SelectionBackgroundColor="#73A5F3" ItemTapped="PokreniPopup">
+                        <list:SfListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <ViewCell.View>
+                                        <StackLayout>
+                                            <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}"></Label>
+                                        </StackLayout>
+                                    </ViewCell.View>
+                                </ViewCell>
+                            </DataTemplate>
+                        </list:SfListView.ItemTemplate>
+                    </list:SfListView>
+                </StackLayout>
+                <StackLayout Grid.Row="1" Grid.Column="0">
+                    <Label Text="Tenori" FontSize="16" FontAttributes="Bold"/>
+                    <list:SfListView ItemsSource="{Binding Tenori}" x:Name="Tenori" x:FieldModifier="public" SelectionBackgroundColor="#73A5F3" ItemTapped="PokreniPopup">
+                        <list:SfListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <ViewCell.View>
+                                        <StackLayout>
+                                            <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}"></Label>
+                                        </StackLayout>
+                                    </ViewCell.View>
+                                </ViewCell>
+                            </DataTemplate>
+                        </list:SfListView.ItemTemplate>
+                    </list:SfListView>
+                </StackLayout>
+                <StackLayout Grid.Row="1" Grid.Column="1">
+                    <Label Text="Basi" FontSize="16" FontAttributes="Bold"/>
+                    <list:SfListView ItemsSource="{Binding Basi}" x:Name="Basi" x:FieldModifier="public" SelectionBackgroundColor="#73A5F3" ItemTapped="PokreniPopup">
+                        <list:SfListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <ViewCell.View>
+                                        <StackLayout>
+                                            <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}"></Label>
+                                        </StackLayout>
+                                    </ViewCell.View>
+                                </ViewCell>
+                            </DataTemplate>
+                        </list:SfListView.ItemTemplate>
+                    </list:SfListView>
+                </StackLayout>
+                <StackLayout Grid.Row="2" Grid.ColumnSpan="2" HorizontalOptions="Center">
+                    <Label Text="Nerazvrstani" FontSize="16" FontAttributes="Bold"/>
+                    <list:SfListView ItemsSource="{Binding Nerazvrstani}" x:Name="Nerazvrstani" x:FieldModifier="public" SelectionBackgroundColor="#73A5F3" ItemTapped="PokreniPopup">
+                        <list:SfListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <ViewCell.View>
+                                        <StackLayout>
+                                            <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}"></Label>
+                                        </StackLayout>
+                                    </ViewCell.View>
+                                </ViewCell>
+                            </DataTemplate>
+                        </list:SfListView.ItemTemplate>
+
+                    </list:SfListView>
+                </StackLayout>
+                
+            
+        </Grid>
+
+    </ContentPage.Content>
+    </ContentPage>
+    <ContentPage Title="Ostalo">
+        <ContentPage.Resources>
+            <ResourceDictionary>
+                <OnPlatform x:TypeArguments="x:String" x:Key="IconFont">
+                    <On Platform="Android" Value="zboris.ttf#zboris" />
+                </OnPlatform>
+            </ResourceDictionary>
+            
+        </ContentPage.Resources>
+        <Grid ColumnSpacing="8" RowSpacing="15" Padding="10,10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <StackLayout Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0">
+                <Label Text="Moderatori" FontSize="16" FontAttributes="Bold"/>
+                <ListView ItemsSource="{Binding Moderatori}" x:Name="Moderatori" x:FieldModifier="public" HasUnevenRows="False" SelectionMode="None">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <ViewCell>
                                 <ViewCell.View>
-                                    <StackLayout Orientation="Horizontal">
-                                        <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}"></Label>
-                                        <Button Text="Obriši" Clicked="ObrisiModeratora"/>
+                                    <Grid >
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}" VerticalOptions="Center" Grid.Column="0"></Label>
+                                        <Button  Text="&#xe709;" FontFamily="{StaticResource IconFont}" WidthRequest="40"  CornerRadius="10" Clicked="ObrisiModeratora" Grid.Column="1" HorizontalOptions="End" TextColor="White" BackgroundColor="#1C6EBC" />
 
-                                    </StackLayout>
+                                    </Grid>
                                 </ViewCell.View>
                             </ViewCell>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
-                <Label Text="Prijave za zbor"/>
-            <ListView ItemsSource="{Binding Prijave}" x:Name="Prijave" x:FieldModifier="public" HasUnevenRows="True" ItemTapped="OdabranaPrijava">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <ViewCell.View>
-                                <StackLayout Orientation="Horizontal">
-                                    <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}"></Label>
-                                    <Button Text="Prihvati" Clicked="PrihvatiPrijavu"/>
-                                    <Button Text="Odbij" Clicked="ObrisiPrijavu"/>
-
-                                </StackLayout>
-                            </ViewCell.View>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-            <Label Text="Pozivi za zbor"/>
-            <ListView ItemsSource="{Binding Pozivi}" x:Name="Pozivi" x:FieldModifier="public" HasUnevenRows="True" ItemTapped="OdabraniPoziv">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <ViewCell.View>
-                                <StackLayout Orientation="Horizontal">
-                                    <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}"></Label>
-                                    <Button Text="Odbij" Clicked="ObrisiPoziv"/>
-                                </StackLayout>
-                            </ViewCell.View>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-            <ListView ItemsSource="{Binding Pretraga}" x:Name="Pretraga" x:FieldModifier="public" HasUnevenRows="True" >
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <ViewCell.View>
-                                <StackLayout Orientation="Horizontal">
-                                    <Label Text="{Binding ImeIPrezimeP}"></Label>
-                                    <Button Text="Pozovi" Clicked="Pozovi"/>
-                                </StackLayout>
-                            </ViewCell.View>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-            <StackLayout Orientation="Horizontal">
-                <Label Text="Pretraga"/>
-                <Entry Text="{Binding Uvjet}"/>
-                <Button Text="Pretraga" Clicked="Pretrazi"/>
             </StackLayout>
-            
-        </StackLayout>
-        </ScrollView>
+            <StackLayout  Grid.Row="0"  Grid.Column="0">
+                <Label Text="Prijave za zbor" FontSize="16" FontAttributes="Bold"/>
+                <list:SfListView ItemsSource="{Binding Prijave}" x:Name="Prijave" x:FieldModifier="public"  ItemTapped="OdabranaPrijava" SelectionBackgroundColor="#73A5F3">
+                    <list:SfListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <ViewCell.View>
+                                    
+                                    <Grid >
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
 
-    </ContentPage.Content>
-</ContentPage>
+                                        <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}" VerticalOptions="Center"></Label>
+                                        <StackLayout Orientation="Horizontal" HorizontalOptions="End" Grid.Column="1">
+                                            <Button  Text="&#xe705;" FontFamily="{StaticResource IconFont}" Clicked="PrihvatiPrijavu" WidthRequest="40" TextColor="White" BackgroundColor="#1C6EBC" CornerRadius="10"/>
+                                            <Button  Text="&#xe709;" FontFamily="{StaticResource IconFont}" Clicked="ObrisiPrijavu" WidthRequest="40" TextColor="White" BackgroundColor="#1C6EBC" CornerRadius="10"/>
+                                        </StackLayout>
+
+                                    </Grid>
+                                </ViewCell.View>
+                            </ViewCell>
+                        </DataTemplate>
+                    </list:SfListView.ItemTemplate>
+                </list:SfListView>
+            </StackLayout>
+            <StackLayout  Grid.Row="0"  Grid.Column="1">
+                <Label Text="Pozivi za zbor" FontSize="16" FontAttributes="Bold"/>
+                <list:SfListView ItemsSource="{Binding Pozivi}" x:Name="Pozivi" x:FieldModifier="public"  ItemTapped="OdabraniPoziv" SelectionBackgroundColor="#73A5F3" RowSpacing="30">
+                    <list:SfListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <ViewCell.View>
+                                    <Grid >
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}" VerticalOptions="Center"></Label>
+                                        <Button Text="&#xe709;" FontFamily="{StaticResource IconFont}"  WidthRequest="40"   Clicked="ObrisiPoziv" HorizontalOptions="End" Grid.Column="1" TextColor="White" BackgroundColor="#1C6EBC" CornerRadius="10"/>
+                                    </Grid>
+                                </ViewCell.View>
+                            </ViewCell>
+                        </DataTemplate>
+                    </list:SfListView.ItemTemplate>
+                </list:SfListView>
+            </StackLayout>
+
+            <StackLayout  Grid.Row="2"  Grid.Column="0" Grid.ColumnSpan="2">
+                <Label Text="Pretraga" FontSize="16" FontAttributes="Bold" />
+                <StackLayout >
+                    
+                    <Entry Text="{Binding Uvjet}" Grid.Row="0" Grid.Column="0" />
+                    <Button Text="Traži" Clicked="Pretrazi" HorizontalOptions="End" Grid.Column="1" TextColor="White" BackgroundColor="#1C6EBC"/>
+                </StackLayout>
+                <ListView ItemsSource="{Binding Pretraga}" x:Name="Pretraga" x:FieldModifier="public" HasUnevenRows="True" SelectionMode="None">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <ViewCell.View>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Text="{Binding ImeIPrezimeP}" VerticalOptions="Center"></Label>
+                                        <Button Text="Pozovi" Clicked="Pozovi" Grid.Column="1" TextColor="White" BackgroundColor="#1C6EBC" HorizontalOptions="End" HeightRequest="40" CornerRadius="10"/>
+                                    </Grid>
+                                </ViewCell.View>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+               
+            </StackLayout>
+        </Grid>
+    </ContentPage>
+</TabbedPage>

@@ -2,7 +2,8 @@
 <ViewCell xmlns="http://xamarin.com/schemas/2014/forms"
           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
           xmlns:local="clr-namespace:ZborMob.Helpers"
-                    xmlns:helpers="clr-namespace:ZborMob.Converters"
+             xmlns:helpers="clr-namespace:ZborMob.Converters"
+         xmlns:controls="clr-namespace:ImageCircle.Forms.Plugin.Abstractions;assembly=ImageCircle.Forms.Plugin"
 
           x:Class="ZborMob.Views.IncomingTextTemplate">
     
@@ -20,7 +21,7 @@
             <ColumnDefinition Width="Auto"></ColumnDefinition>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <local:SfImage Grid.Column="0" Margin="12,16,0,16" Source="{Binding ProfileImage, Converter={StaticResource SlikaConverter}}"
+        <controls:CircleImage Grid.Column="0" Margin="12,16,0,16" Source="{Binding ProfileImage, Converter={StaticResource SlikaConverter}}"
                HeightRequest="48" WidthRequest="48" 
                HorizontalOptions="Center" VerticalOptions="Start"/>
         <Grid x:Name="gridLayout" Grid.Column="1" Margin="0,16,24,16" 

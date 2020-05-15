@@ -6,20 +6,24 @@ using System.Threading.Tasks;
 
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
-using ZborDataStandard.Model;
 using ZborMob.ViewModels;
 
 namespace ZborMob.Views
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class RazgovorPage : ContentPage
+    public partial class PretplatePage : ContentPage
     {
-        RazgovorViewModel model;
-        public RazgovorPage(Razgovor razgovor, PorukeViewModel model)
+        PretplateViewModel model;
+        public PretplatePage()
         {
-            this.model = new RazgovorViewModel(razgovor);
+            model = new PretplateViewModel();
             BindingContext = model;
             InitializeComponent();
+        }
+        async void Spremi(object o, EventArgs e)
+        {
+            model.Spremi();
+            await DisplayAlert("Spremljeno", "Promjene su spremljenje", "Ok");
         }
     }
 }

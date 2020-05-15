@@ -19,7 +19,6 @@ namespace ZborMob.ViewModels
 
         private ObservableCollection<Anketa> ankete;
 
-        public Dictionary<Guid, List<int>> KorisnickiOdgovori;
 
         public ObservableCollection<Anketa> Ankete
         {
@@ -33,19 +32,53 @@ namespace ZborMob.ViewModels
                 RaisepropertyChanged("Ankete");
             }
         }
-      
+        private ObservableCollection<Anketa> stareAnkete;
+
+
+        public ObservableCollection<Anketa> StareAnkete
+        {
+            get
+            {
+                return stareAnkete;
+            }
+            set
+            {
+                stareAnkete = value;
+                RaisepropertyChanged("StareAnkete");
+            }
+        }
+        public Dictionary<Guid, List<int>> KorisnickiOdgovori;
+
+
+        private bool isBusy;
+        public bool IsBusy
+        {
+            get
+            {
+                return isBusy;
+            }
+            set
+            {
+                isBusy = value;
+                RaisepropertyChanged("IsBusy");
+            }
+        }
         private ZborDataStandard.ViewModels.ZborViewModels.PitanjaViewModel model;
 
         public PitanjaViewModel()
         {
             _apiServices = new ApiServices();
+            IsBusy = true;
             GetData();
 
         }
         async void GetData()
         {
             model = await _apiServices.PitanjaAsync(App.Zbor.Id);
+            IsBusy = false;
             Ankete = new ObservableCollection<Anketa>(model.AktivnaPitanja);
+            StareAnkete = new ObservableCollection<Anketa>(model.GotovaPitanja);
+
             KorisnickiOdgovori = model.KorisnickiOdgovori;
            
 

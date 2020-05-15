@@ -5,25 +5,56 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              x:Class="ZborMob.Views.NoviDogadjajPage"
+             xmlns:cards="clr-namespace:Syncfusion.XForms.Cards;assembly=Syncfusion.Cards.XForms"
              xmlns:local="clr-namespace:ZborMob.Views">
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="Naziv"/>
-            <Entry Text="{Binding Dogadjaj.Naziv}"/>
-            <Label Text="Lokacija"/>
-            <Entry Text="{Binding Dogadjaj.Lokacija}"/>
-            <StackLayout Orientation="Horizontal">
-                <DatePicker Date="{Binding DatumPocetka}" x:Name="datumPocetka" DateSelected="PromjenaPocetka"/>
-                <TimePicker Time="{Binding VrijemePocetka}" x:Name="vrijemePocetka" />
-            </StackLayout>
-            <StackLayout Orientation="Horizontal">
-                <DatePicker Date="{Binding DatumKraja}" x:Name="datumKraja" DateSelected="PromjenaKraja"/>
-                <TimePicker Time="{Binding VrijemeKraja}" x:Name="vrijemeKraja" />
-            </StackLayout>
-            <Picker ItemsSource="{Binding Vrste}" ItemDisplayBinding="{Binding Naziv}" x:Name="VrsteDog"  />
-            <Label Text="Opis"/>
-            <Entry Text="{Binding Dogadjaj.DodatanOpis}"/>
-            <Button Text="Spremi" Clicked="Zavrsi"/>
+        <StackLayout Padding="10,10">
+            <cards:SfCardView CornerRadius="4" HasShadow="True" WidthRequest="343" BackgroundColor="{DynamicResource Gray-White}" 
+                                          HorizontalOptions="Center" Padding="16,16,8,16"  >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Label Text="Novi događaj" FontSize="20" />
+                    <Label Text="Naziv:" Grid.Row="1" VerticalOptions="Center"/>
+                    <Entry Text="{Binding Dogadjaj.Naziv}" Grid.Row="1" Grid.Column="1"/>
+                    <Label Text="Lokacija:" Grid.Row="2" VerticalOptions="Center"/>
+                    <Entry Text="{Binding Dogadjaj.Lokacija}"  Grid.Row="2" Grid.Column="1"/>
+                    <StackLayout Orientation="Horizontal"  Grid.Row="3" Grid.ColumnSpan="2">
+                        <Label Text="Datum početka:" VerticalOptions="Center"/>
+                        <DatePicker Date="{Binding DatumPocetka}" Format="dd.MM.yyyy." x:Name="datumPocetka" DateSelected="PromjenaPocetka"/>
+                        <Label Text="Vrijeme početka:" VerticalOptions="Center"/>
+                        <TimePicker Time="{Binding VrijemePocetka}" Format="HH:mm" x:Name="vrijemePocetka" />
+                    </StackLayout>
+                    <StackLayout Orientation="Horizontal"  Grid.Row="4" Grid.ColumnSpan="2">
+                        <Label Text="Datum kraja: " VerticalOptions="Center"/>
+                        <DatePicker Date="{Binding DatumKraja}" Format="dd.MM.yyyy." x:Name="datumKraja" DateSelected="PromjenaKraja"/>
+                        <Label Text="Vrijeme kraja:  " VerticalOptions="Center"/>
+                        <TimePicker Time="{Binding VrijemeKraja}" Format="HH:mm" x:Name="vrijemeKraja" />
+                    </StackLayout>
+                    <Label Text="Vrsta događaja:"  Grid.Row="5" Grid.Column="0" VerticalOptions="Center"/>
+                    <Picker ItemsSource="{Binding Vrste}" ItemDisplayBinding="{Binding Naziv}" x:Name="VrsteDog"  Grid.Row="5" Grid.Column="1" />
+                    <Label Text="Opis:"  Grid.Row="6" />
+                    <Editor Text="{Binding Dogadjaj.DodatanOpis}"  Grid.Row="7" Grid.ColumnSpan="2"/>
+                    <Button Text="Spremi" Clicked="Zavrsi"  Grid.Row="8" Grid.Column="1" TextColor="White" BackgroundColor="#1C6EBC"/>
+                </Grid>
+                
+                
+                
+            </cards:SfCardView>
+            
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

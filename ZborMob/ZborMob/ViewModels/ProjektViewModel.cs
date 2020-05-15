@@ -20,7 +20,32 @@ namespace ZborMob.ViewModels
         private ObservableCollection<Obavijest> obavijesti;
         private ObservableCollection<Dogadjaj> dogadjaji;
         public Guid Id { get; set; }
-
+        private bool isBusy;
+        public bool IsBusy
+        {
+            get
+            {
+                return isBusy;
+            }
+            set
+            {
+                isBusy = value;
+                RaisepropertyChanged("IsBusy");
+            }
+        }
+        private bool mod;
+        public bool Mod
+        {
+            get
+            {
+                return mod;
+            }
+            set
+            {
+                mod = value;
+                RaisepropertyChanged("Mod");
+            }
+        }
         public ObservableCollection<Obavijest> Obavijesti
         {
             get
@@ -52,12 +77,15 @@ namespace ZborMob.ViewModels
         {
             _apiServices = new ApiServices();
             Id = id;
+            IsBusy = true;
             GetData(id);
 
         }
         async void GetData(Guid id)
         {
             model = await _apiServices.ProjektAsync(id);
+            IsBusy = false;
+            Mod = model.Admin;
             Obavijesti = new ObservableCollection<Obavijest>(model.Obavijesti);
             //IdKorisnik = model.IdKorisnik;
             Dogadjaji = new ObservableCollection<Dogadjaj>(model.AktivniDogadjaji);

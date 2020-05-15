@@ -4,6 +4,13 @@
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
+                         xmlns:cards="clr-namespace:Syncfusion.XForms.Cards;assembly=Syncfusion.Cards.XForms"
+             xmlns:buttons="clr-namespace:Syncfusion.XForms.Buttons;assembly=Syncfusion.Buttons.XForms"
+                          xmlns:controls="clr-namespace:ImageCircle.Forms.Plugin.Abstractions;assembly=ImageCircle.Forms.Plugin"
+            xmlns:badge ="clr-namespace:Syncfusion.XForms.BadgeView;assembly=Syncfusion.SfBadgeView.XForms"
+            Title="Projekt"
+                         xmlns:list="clr-namespace:Syncfusion.ListView.XForms;assembly=Syncfusion.SfListView.XForms"
+
              xmlns:helpers="clr-namespace:ZborMob.Converters"
              x:Class="ZborMob.Views.ProjektTabbedPage">
     <!--Pages can be added as references or inline-->
@@ -11,59 +18,147 @@
         <ContentPage.Resources>
             <ResourceDictionary>
                 <helpers:ObavijestConverter x:Key="ColorConverter" />
+                <helpers:SlikaLinkConverter x:Key="ImageConverter" />
+                <helpers:ObavijestVidljivostConverter x:Key="VidljivostConverter" />
+
             </ResourceDictionary>
         </ContentPage.Resources>
-        <ListView ItemsSource="{Binding Obavijesti}" x:Name="Obavijesti" x:FieldModifier="public" HasUnevenRows="True">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <ViewCell>
-                        <ViewCell.View>
-                            <StackLayout>
-                                <Label Text="{Binding Naslov}" FontSize="20"/>
-                                <Label Text="{Binding Tekst}" />
-                                <Label Text="{Binding LajkObavijesti.Count, StringFormat='{0} oznaka Sviđa mi se'}" />
-                                <Button Text="Sviđa mi se" x:Name="lajk" Clicked="Lajkam" BackgroundColor="{Binding Converter={StaticResource ColorConverter}}" />
+        <StackLayout>
+            <Label IsVisible="False" x:Name="HackyBindedKey" Text="{Binding Mod}" />
 
-                                <Label Text="{Binding KomentarObavijesti.Count, StringFormat='{0} komentara'}" >
-                                    <Label.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="Komentari" />
-                                    </Label.GestureRecognizers>
-                                </Label>
+            <ActivityIndicator  Color="#1C6EBC" HorizontalOptions="Center" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"/>
+            <ListView Grid.Row="2" ItemsSource="{Binding Obavijesti}" x:Name="Obavijesti" x:FieldModifier="public" HasUnevenRows="True" SelectionMode="None">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <cards:SfCardView CornerRadius="4" HasShadow="True" WidthRequest="343" BackgroundColor="{DynamicResource Gray-White}" 
+                                          HorizontalOptions="Center" Padding="16,16,8,16">
+                                    <Grid ColumnSpacing="8" RowSpacing="8">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
 
-                            </StackLayout>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="50"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
 
-                        </ViewCell.View>
+                                        <controls:CircleImage Source="{Binding IdKorisnikNavigation.IdSlika, Converter={StaticResource ImageConverter} }" HeightRequest="40" WidthRequest="40" HorizontalOptions="Start"/>
+                                        <Label  LineBreakMode="NoWrap" HorizontalOptions="Start" Grid.Column="1" 
+                                         VerticalOptions="Center" LineHeight="{OnPlatform Default=-1, Android=1.5}" >
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding Naslov}" FontSize="16" TextColor="{DynamicResource Gray-900}" 
+                                                 />
+                                                    <Span Text="  "/>
+                                                    <Span Text="" FontSize="12" TextColor="{DynamicResource Gray-800}"/>
 
-                    </ViewCell>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                        <!--  Delete button command  -->
+                                        <buttons:SfButton  x:Name="DeleteButton" CornerRadius="4" Grid.Column="3" HorizontalOptions="EndAndExpand"
+                                                   VerticalOptions="StartAndExpand"  Text="X" BackgroundColor="#1C6EBC"
+                                                  IsVisible="{Binding  Converter={StaticResource VidljivostConverter}, ConverterParameter={x:Reference Name=HackyBindedKey}}"
+
+                                                   />
+                                        <Label Text="{Binding Tekst}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" 
+                                        LineBreakMode="WordWrap" HorizontalOptions="StartAndExpand" HeightRequest="100"
+                                        VerticalOptions="Start"/>
+
+                                        <Label Grid.Row="2" Grid.ColumnSpan="2" VerticalOptions="Center">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}" FontSize="14" 
+                                                 />
+                                                    <Span Text=" | "/>
+                                                    <Span Text="{Binding DatumObjave, StringFormat='{0:dd.MM.yyyy. HH:mm}'}" FontSize="10" TextColor="{DynamicResource Gray-800}"/>
+
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                        <badge:SfBadgeView BadgeText="{Binding LajkObavijesti.Count}" Grid.Row="2" Grid.Column="3" HorizontalOptions="End" VerticalOptions="Center">
+                                            <badge:SfBadgeView.Content>
+                                                <Image   x:Name="lajk"  Source="{Binding Converter={StaticResource ColorConverter}}" WidthRequest="30" HeightRequest="30" >
+                                                    <Image.GestureRecognizers>
+                                                        <TapGestureRecognizer Tapped="Lajkam" />
+                                                    </Image.GestureRecognizers>
+                                                </Image>
+                                            </badge:SfBadgeView.Content>
+                                            <badge:SfBadgeView.BadgeSettings>
+                                                <badge:BadgeSetting   BadgePosition="TopRight"/>
+                                            </badge:SfBadgeView.BadgeSettings>
+                                        </badge:SfBadgeView>
+
+                                        <Label Grid.Row="3" Grid.ColumnSpan="2" Text="Komentari" TextColor="DarkSlateGray" >
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Tapped="Komentari" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                    </Grid>
+                                </cards:SfCardView>
+
+                            </ViewCell.View>
+
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackLayout>
 
 
     </ContentPage>
     <ContentPage Title="Događaji" >
+        <ContentPage.Resources>
+            <ResourceDictionary >
+                <OnPlatform x:TypeArguments="x:String" x:Key="IconFont">
+                    <On Platform="Android" Value="zboris.ttf#zboris" />
+                </OnPlatform>
+                <helpers:NajavaConverter x:Key="NajavaConverter" />
+
+            </ResourceDictionary>
+        </ContentPage.Resources>
         <StackLayout>
-        <Button Text="Dodaj događaj" Clicked="Novi"/>
-        <ListView ItemsSource="{Binding Dogadjaji}" x:Name="Dogadjaji" x:FieldModifier="public" HasUnevenRows="True" ItemTapped="Dogadjaj">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <ViewCell>
-                        <ViewCell.View>
-                            <StackLayout Orientation="Horizontal">
-                                <Label Text="{Binding Naziv}" FontSize="20"/>
-                                <Label Text="{Binding TrajanjeP}" />
-                                <Button Text="Najavi" Clicked="NajaviDolazak"/>
-                                <Button Text="Uredi" Clicked="UrediDogadjaj"/>
-                                <Button Text="Obriši" Clicked="ObrisiDogadjaj"/>
-                            </StackLayout>
+            <Button Grid.Row="0" Text="Dodaj događaj" Clicked="Novi" BackgroundColor="#1C6EBC" TextColor="White"/>
+            <ListView Grid.Row="1" ItemsSource="{Binding Dogadjaji}" x:Name="Dogadjaji" x:FieldModifier="public"  ItemTapped="Dogadjaj" HasUnevenRows="True">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <cards:SfCardView CornerRadius="4" HasShadow="True" WidthRequest="343" BackgroundColor="{DynamicResource Gray-White}" 
+                                          HorizontalOptions="Center" Padding="16,16,8,16"  >
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="35"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Text="{Binding Naziv}" FontSize="20" Grid.Row="0" Grid.Column="0" VerticalOptions="Center"/>
+                                        <Button Text="&#xe706;" FontFamily="{StaticResource IconFont}"  WidthRequest="35"  CornerRadius="10" Clicked="UrediDogadjaj" Grid.Row="0" Grid.Column="1" HorizontalOptions="End" BackgroundColor="#1C6EBC" TextColor="White" IsVisible="{Binding Mod}"/>
+                                        <Button  Text="&#xe708;" FontFamily="{StaticResource IconFont}"  WidthRequest="35"  CornerRadius="10" Clicked="ObrisiDogadjaj" Grid.Row="0" Grid.Column="2" HorizontalOptions="End" BackgroundColor="#1C6EBC" TextColor="White" IsVisible="{Binding Mod}"/>
+                                        <Label Text="{Binding TrajanjeP}" FontSize="16" Grid.Row="1"  VerticalOptions="Center"/>
+                                        <Button Text="Najavi" Clicked="NajaviDolazak" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" HorizontalOptions="End" BackgroundColor="{Binding Converter={StaticResource NajavaConverter}}" TextColor="White"/>
 
-                        </ViewCell.View>
+                                    </Grid>
+                                </cards:SfCardView>
 
-                    </ViewCell>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+
+                            </ViewCell.View>
+
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
         </StackLayout>
-        
     </ContentPage>
 </TabbedPage>

@@ -1,48 +1,68 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<popup:PopupPage xmlns="http://xamarin.com/schemas/2014/forms"  
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"  
                  xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"  
-                 xmlns:popup="clr-namespace:Rg.Plugins.Popup.Pages;assembly=Rg.Plugins.Popup"  
-                 CloseWhenBackgroundIsClicked="True"  
+                          xmlns:cards="clr-namespace:Syncfusion.XForms.Cards;assembly=Syncfusion.Cards.XForms"
+
                  x:Class="ZborMob.Views.StatistikaPopupPage">
-    <popup:PopupPage.Content>
-        <StackLayout Padding="100"  
-                     BackgroundColor="White"  
-                     HorizontalOptions="Center"  
-                     VerticalOptions="Center">
-            <Label Text="Postotak: "/>
-            <Label Text="{Binding Postotak}"/>
-            <Label Text="Evidentirani: "/>
+    <ContentPage.Content>
+        <cards:SfCardView Grid.Row="0" CornerRadius="4" HasShadow="True" WidthRequest="343" BackgroundColor="{DynamicResource Gray-White}" 
+                                          HorizontalOptions="Center" Padding="10, 10" Margin="10,10">
+            <StackLayout>
+                <Label Text="Statistika dolazaka" FontSize="17"/>
+                <StackLayout Orientation="Horizontal">
+                    <Label Text="Postotak dolazaka:"/>
+                    <Label Text="{Binding Postotak}"/>
+                    <Label Text="%"/>
+                </StackLayout>
+              
+                <Label Text="Evidentirani dolasci: "/>
 
-            <ListView ItemsSource="{Binding Evidentirani}" x:Name="Evidentirani" x:FieldModifier="public" HasUnevenRows="False">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <ViewCell.View>
-                                <StackLayout Orientation="Horizontal">
-                                    <Label Text="{Binding Naziv}"></Label>
-                                    <Label Text="{Binding TrajanjeP}"/>
-                                </StackLayout>
-                            </ViewCell.View>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-            <Label Text="Neevidentirani: "/>
+                <ListView ItemsSource="{Binding Evidentirani}" x:Name="Evidentirani" x:FieldModifier="public" HasUnevenRows="False" HeightRequest="250">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <ViewCell.View>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Text="{Binding Naziv}" VerticalOptions="Center"></Label>
+                                        <Label Text="{Binding TrajanjeP}" Grid.Column="1" VerticalOptions="Center" HorizontalOptions="End"/>
+                                    </Grid>
+                                </ViewCell.View>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+                <Label Text="Neevidentirani dolasci: "/>
 
-            <ListView ItemsSource="{Binding Neevidentirani}" x:Name="Neevidentirani" x:FieldModifier="public" HasUnevenRows="False">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <ViewCell.View>
-                                <StackLayout Orientation="Horizontal">
-                                    <Label Text="{Binding Naziv}"></Label>
-                                    <Label Text="{Binding TrajanjeP}"/>
-                                </StackLayout>
-                            </ViewCell.View>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </StackLayout>
-    </popup:PopupPage.Content>
-</popup:PopupPage>  
+                <ListView ItemsSource="{Binding Neevidentirani}" x:Name="Neevidentirani" x:FieldModifier="public" HasUnevenRows="False" HeightRequest="250">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <ViewCell.View>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Text="{Binding Naziv}" VerticalOptions="Center"></Label>
+                                        <Label Text="{Binding TrajanjeP}" Grid.Column="1" VerticalOptions="Center" HorizontalOptions="End"/>
+                                    </Grid>
+                                </ViewCell.View>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackLayout>
+        </cards:SfCardView>
+    </ContentPage.Content>
+        
+</ContentPage>  

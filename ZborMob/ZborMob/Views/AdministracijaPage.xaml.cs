@@ -13,7 +13,7 @@ using ZborMob.ViewModels;
 namespace ZborMob.Views
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class AdministracijaPage : ContentPage
+    public partial class AdministracijaPage : TabbedPage
     {
         private AdministracijaViewModel model;
         public AdministracijaPage()
@@ -37,13 +37,13 @@ namespace ZborMob.Views
             Button btn = (Button)sender;
             model.ObrisiPoziv((PozivZaZbor)btn.BindingContext);
         }
-        private async void OdabranaPrijava(object sender, ItemTappedEventArgs e)
+        private async void OdabranaPrijava(object sender, Syncfusion.ListView.XForms.ItemTappedEventArgs  e)
         {
-            await DisplayAlert("Poruka kandidata", (e.Item as PrijavaZaZbor).Poruka, "OK");
+            await DisplayAlert("Poruka kandidata", (e.ItemData as PrijavaZaZbor).Poruka, "OK");
         }
-        private async void OdabraniPoziv(object sender, ItemTappedEventArgs e)
+        private async void OdabraniPoziv(object sender, Syncfusion.ListView.XForms.ItemTappedEventArgs  e)
         {
-            await DisplayAlert("Poruka voditelja", (e.Item as PozivZaZbor).Poruka, "OK");
+            await DisplayAlert("Poruka voditelja", (e.ItemData as PozivZaZbor).Poruka, "OK");
         }
         private void Pretrazi(object sender, EventArgs e)
         {
@@ -61,9 +61,9 @@ namespace ZborMob.Views
 
             model.Pozovi((Korisnik)btn.BindingContext);
         }
-        private async void PokreniPopup(object o, ItemTappedEventArgs e)
+        private async void PokreniPopup(object o, Syncfusion.ListView.XForms.ItemTappedEventArgs e)
         {
-            await Navigation.PushPopupAsync(new AdministracijaPopupPage(model, e.Item as ClanZbora));
+            await Navigation.PushPopupAsync(new AdministracijaPopupPage(model, e.ItemData as ClanZbora));
         }
     }
 }

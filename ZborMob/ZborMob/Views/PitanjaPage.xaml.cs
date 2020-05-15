@@ -12,7 +12,7 @@ using ZborMob.ViewModels;
 namespace ZborMob.Views
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class PitanjaPage : ContentPage
+    public partial class PitanjaPage : TabbedPage
     {
         PitanjaViewModel model;
         public PitanjaPage()
@@ -25,6 +25,7 @@ namespace ZborMob.Views
         {
             var pitanje = (Anketa)((CustomPitanjeCell)o).Pitanje;
             var list = new List<int>();
+            
             if(pitanje.VisestrukiOdgovor)
             {
                 var hls = (((CustomPitanjeCell)o).switchers.Children);
@@ -35,6 +36,7 @@ namespace ZborMob.Views
                     {
                         if (((Switch)hl).IsToggled)
                             list.Add(((OdgovorAnkete)hl.BindingContext).Redoslijed);
+                       
                     }
                     catch(InvalidCastException)
                     {
@@ -47,6 +49,8 @@ namespace ZborMob.Views
             {
                 var picker = (Picker)((CustomPitanjeCell)o).picker;
                 list.Add(((OdgovorAnkete)picker.SelectedItem).Redoslijed);
+                if (pitanje.DatumKraja < DateTime.Now)
+                    ((Picker)((CustomPitanjeCell)o).picker).IsEnabled = false;
             }
             model.OdgovoriNaPitanje(pitanje.Id, list);
             
@@ -60,7 +64,7 @@ namespace ZborMob.Views
         private void NovoPitanje(object o, EventArgs e)
         {
             
-            Navigation.PushModalAsync(new NovoPitanjePage());
+            Navigation.PushModalAsync(new NovoPitanjePage(model));
         }
     }
 }

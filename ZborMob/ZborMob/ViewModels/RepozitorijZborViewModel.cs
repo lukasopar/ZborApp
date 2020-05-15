@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Plugin.FilePicker.Abstractions;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -31,10 +32,37 @@ namespace ZborMob.ViewModels
                 RaisePropertyChanged("Datoteke");
             }
         }
+        private bool isBusy;
+        public bool IsBusy
+        {
+            get
+            {
+                return isBusy;
+            }
+            set
+            {
+                isBusy = value;
+                RaisePropertyChanged("IsBusy");
+            }
+        }
+        private bool clan;
+        public bool Clan
+        {
+            get
+            {
+                return clan;
+            }
+            set
+            {
+                clan = value;
+                RaisePropertyChanged("Clan");
+            }
+        }
         public ZborDataStandard.ViewModels.RepozitorijViewModels.RepozitorijZborViewModel model { get; set; }
         public RepozitorijZborViewModel(Guid id)
         {
             _apiServices = new ApiServices();
+            IsBusy = true;
             GetData();
 
         }
@@ -42,6 +70,8 @@ namespace ZborMob.ViewModels
         private async void GetData()
         {
             model = await _apiServices.RepozitorijZborAsync(App.Zbor.Id);
+            IsBusy = false;
+            Clan = model.Clan;
             Datoteke = new ObservableCollection<RepozitorijZbor>(model.Datoteke);
         }
         public async void Vidljivost(RepozitorijZbor dat)
@@ -58,6 +88,12 @@ namespace ZborMob.ViewModels
         {
 
             _apiServices.PreuzmiZborAsync(dat);
+        }
+        public async void Upload(FileData data)
+        {
+
+            var dat = await _apiServices.UploadZborAsync(App.Zbor.Id, data.FilePath, data.FileName);
+            Datoteke.Insert(0, dat);
         }
 
         void RaisePropertyChanged(string propertyName)

@@ -4,23 +4,45 @@
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
+                          xmlns:cards="clr-namespace:Syncfusion.XForms.Cards;assembly=Syncfusion.Cards.XForms"
              x:Class="ZborMob.Views.DogadjajPage">
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="Naziv:"/>
-            <Label Text="{Binding Naziv}"/>
-            <Label Text="Lokacija:"/>
-            <Label Text="{Binding Lokacija}"/>
-            <Label Text="DodatanOpis:"/>
-            <Label Text="{Binding DodatanOpis}"/>
-            <Label Text="Trajanje:"/>
-            <Label Text="{Binding TrajanjeP}"/>
-            <Label Text="Najave">
-                <Label.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="Najave" />
-                </Label.GestureRecognizers>
-            </Label>
-            <Button Text="Evidencija" Clicked="Evidencija"/>
+        <StackLayout Padding="10,10">
+            <cards:SfCardView Grid.Row="0" CornerRadius="4" HasShadow="True" WidthRequest="343" BackgroundColor="{DynamicResource Gray-White}" 
+                                          HorizontalOptions="Center" Padding="8,8,8,8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Label Text="Događaj" FontSize="20"/>
+                    <Label Text="Naziv:" Grid.Row="1" Grid.Column="0"/>
+                    <Label Text="{Binding Naziv}" Grid.Row="1" Grid.Column="1"/>
+                    <Label Text="Lokacija:" Grid.Row="2" Grid.Column="0"/>
+                    <Label Text="{Binding Lokacija}" Grid.Row="2" Grid.Column="1"/>
+                    <Label Text="Dodatan opis:" Grid.Row="3" Grid.Column="0"/>
+                    <Label Text="{Binding DodatanOpis}" Grid.Row="4" Grid.ColumnSpan="2"/>
+                    <Label Text="Trajanje:" Grid.Row="5" Grid.Column="0"/>
+                    <Label Text="{Binding TrajanjeP}" Grid.Row="5" Grid.Column="1"/>
+                    <Label Text="Najave" Grid.Row="6" Grid.Column="0" TextColor="DarkBlue">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="Najave" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </Grid>
+
+            </cards:SfCardView>
+            <Button Text="Evidencija" Clicked="Evidencija" Grid.Row="7" TextColor="White" BackgroundColor="#1C6EBC" IsEnabled="{Binding IsBusy}"/>
+
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

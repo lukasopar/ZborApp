@@ -75,7 +75,7 @@ namespace ZborApp.Controllers
                 return NotFound();
             k.Procitano = true;
             _ctx.SaveChanges();
-            int neprocitane = _ctx.Razgovor.Where(r => r.KorisnikUrazgovoru.Where(k => k.IdKorisnik == user.Id && k.Procitano == false).Count() > 0).Count();
+            var neprocitane = _ctx.Razgovor.Where(r => r.KorisnikUrazgovoru.Where(k => k.IdKorisnik == user.Id && k.Procitano == false).Count() > 0).Select(r => r.Id.GetHashCode()).ToList();
             await _hubContext.Clients.User(user.Id.ToString()).SendAsync("Neprocitane", neprocitane);
             var m = new StringModel { Value = "Ok" };
             return Ok(m);

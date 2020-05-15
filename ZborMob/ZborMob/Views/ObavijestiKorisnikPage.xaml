@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+                          xmlns:helpers="clr-namespace:ZborMob.Converters"
+
+             xmlns:cards="clr-namespace:Syncfusion.XForms.Cards;assembly=Syncfusion.Cards.XForms"
+             x:Class="ZborMob.Views.ObavijestiKorisnikPage">
+    <ContentPage.Resources>
+        <ResourceDictionary >
+            <helpers:TekstConverter x:Key="TekstConverter" />
+            
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.Content>
+            <cards:SfCardView Grid.Row="0" CornerRadius="4" HasShadow="True" WidthRequest="343" BackgroundColor="{DynamicResource Gray-White}" 
+                                          HorizontalOptions="Center" Padding="8,8,8,0">
+            <StackLayout>
+
+                <Label Text="Obavijesti" FontSize="17"/>
+                <ListView ItemsSource="{Binding Obavijesti}" SelectionMode="None" x:Name="Obavijesti">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <ViewCell.View>
+                                    <Label Text="{Binding Tekst, Converter={StaticResource TekstConverter}}"/>
+                                </ViewCell.View>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackLayout>
+
+        </cards:SfCardView>
+    </ContentPage.Content>
+</ContentPage>

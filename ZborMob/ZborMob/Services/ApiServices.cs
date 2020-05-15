@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,8 +9,10 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Xamarin.Forms;
 using Xamarin.Forms.PlatformConfiguration;
 using ZborDataStandard.Model;
+using ZborDataStandard.ViewModels.KorisnikVIewModels;
 using ZborDataStandard.ViewModels.PorukeViewModels;
 using ZborDataStandard.ViewModels.RepozitorijViewModels;
 using ZborDataStandard.ViewModels.ZborViewModels;
@@ -190,7 +194,7 @@ namespace ZborMob.Services
               
             }
         }
-        public async Task NovoPitanjeAsync(Guid id, Anketa pitanje)
+        public async Task<Anketa> NovoPitanjeAsync(Guid id, Anketa pitanje)
         {
             
             var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/NovoPitanje/" + id);
@@ -198,8 +202,11 @@ namespace ZborMob.Services
             var response = await _httpClient.SendAsync(request);
             if (response.IsSuccessStatusCode)
             {
-
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<Anketa>(content);
+                return obj;
             }
+            return null;
         }
         public async Task<AdministracijaViewModel> AdministracijaAsync(Guid id)
         {
@@ -670,7 +677,7 @@ namespace ZborMob.Services
             {
             }
         }
-        public async Task<JavniProfilViewModel> JavniProfilAsync(Guid idZbor)
+        public async Task<ZborDataStandard.ViewModels.ZborViewModels.JavniProfilViewModel> JavniProfilAsync(Guid idZbor)
         {
           
             var request = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress + "api/JavniProfil/" + idZbor);
@@ -678,7 +685,7 @@ namespace ZborMob.Services
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
-                var obj = JsonConvert.DeserializeObject<JavniProfilViewModel>(content);
+                var obj = JsonConvert.DeserializeObject<ZborDataStandard.ViewModels.ZborViewModels.JavniProfilViewModel>(content);
                 return obj;
             }
             return null;
@@ -785,11 +792,113 @@ namespace ZborMob.Services
             var response = await _httpClient.SendAsync(request);
             if (response.IsSuccessStatusCode)
             {
-                string pathToNewFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), dat.Naziv);
-                Directory.CreateDirectory(pathToNewFolder);
                 var content = await response.Content.ReadAsByteArrayAsync();
-                File.WriteAllBytes(pathToNewFolder, content);
+                DependencyService.Get<IFileService>().Save(dat.Naziv, content);
+
             }
+        }
+        public async Task<RepozitorijZbor> UploadZborAsync(Guid idZbor, string path, string name)
+        {
+            var file = File.ReadAllBytes(path);         
+            var fileContent = new ByteArrayContent(file);
+
+            fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+            fileContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+            {
+                Name = "file",
+                FileName = name
+            };
+
+            string boundary = "---8d0f01e6b3b5dafaaadaad";
+            MultipartFormDataContent multipartContent = new MultipartFormDataContent(boundary);
+            multipartContent.Add(fileContent);
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/UploadRepozitorijZbor/" + idZbor);
+            request.Content = multipartContent;
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<RepozitorijZbor>(content);
+                return obj;
+            }
+            return null;
+        }
+        public async Task<RepozitorijViewModel> RepozitorijKorisnikAsync(Guid idKorisnik)
+        {
+
+            var request = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress + "api/KorisnikRepozitorij/" + idKorisnik);
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<RepozitorijViewModel>(content);
+                return obj;
+            }
+            return null;
+        }
+        public async Task ObrisiRepozitorijKorisnikAsync(Guid id)
+        {
+            var keyValues = new RepozitorijViewModel
+            {
+                IdTrazeni = id
+            };
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/ObrisiKorisnikRep/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+            }
+        }
+        public async Task VidljivostKorisnikAsync(Guid id, string uri)
+        {
+            var keyValues = new
+            {
+                Value = id
+            };
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/" + uri + "/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+            }
+        }
+        public async Task PreuzmiKorisnikAsync(RepozitorijKorisnik dat)
+        {
+
+            var request = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress + "api/GetKorisnikRep/" + dat.Id);
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsByteArrayAsync();
+                DependencyService.Get<IFileService>().Save(dat.Naziv, content);
+
+            }
+        }
+        public async Task<RepozitorijKorisnik> UploadKorisnikAsync(Guid idZbor, string path, string name)
+        {
+            var file = File.ReadAllBytes(path);
+            var fileContent = new ByteArrayContent(file);
+
+            fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+            fileContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+            {
+                Name = "file",
+                FileName = name
+            };
+
+            string boundary = "---8d0f01e6b3b5dafaaadaad";
+            MultipartFormDataContent multipartContent = new MultipartFormDataContent(boundary);
+            multipartContent.Add(fileContent);
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/UploadRepozitorijZbor/" + idZbor);
+            request.Content = multipartContent;
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<RepozitorijKorisnik>(content);
+                return obj;
+            }
+            return null;
         }
         public async Task<PorukeViewModel> Razgovori()
         {
@@ -829,6 +938,140 @@ namespace ZborMob.Services
                 return obj;
             }
             return null;
+        }
+        public async Task<PretplateViewModel> PretplateAsync(Guid id)
+        {
+            
+            var request = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress + "api/Pretplate/" + id);
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<PretplateViewModel>(content);
+                return obj;
+            }
+            return null;
+        }
+        public async Task<PretplateViewModel> PretplateSpremiAsync(Guid id, PretplateViewModel model)
+        {
+
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/Pretplate/" + id);
+            request.Content = new StringContent(JsonConvert.SerializeObject(model).ToString(), Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<PretplateViewModel>(content);
+                return obj;
+            }
+            return null;
+        }
+        public async Task EvidentirajAsync(DogadjajViewModel model)
+        {
+
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/Evidentiraj/" );
+            request.Content = new StringContent(JsonConvert.SerializeObject(model).ToString(), Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+            }
+        }
+        public async Task<ObavijestiViewModel> Obavijesti()
+        {
+
+            var request = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress + "api/ObavijestiOsobne/");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<ObavijestiViewModel>(content);
+                return obj;
+            }
+            return null;
+        }
+        public async Task<ZborDataStandard.ViewModels.ZborViewModels.GalerijaViewModel> GalerijaZbor(Guid id)
+        {
+
+            var request = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress + "api/GalerijaZbor/" +id);
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<ZborDataStandard.ViewModels.ZborViewModels.GalerijaViewModel>(content);
+                return obj;
+            }
+            return null;
+        }
+        public async Task ProfilnaZborAsync(Guid id)
+        {
+
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/PromjenaProfilneZbor/" + id);
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                
+            }
+        }
+        public async Task<ZborDataStandard.ViewModels.KorisnikVIewModels.GalerijaViewModel> GalerijaKorisnik(Guid id)
+        {
+
+            var request = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress + "api/GalerijaKorisnik/" + id);
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<ZborDataStandard.ViewModels.KorisnikVIewModels.GalerijaViewModel>(content);
+                return obj;
+            }
+            return null;
+        }
+        public async Task ProfilnaKorisnikAsync(Guid id)
+        {
+
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/PromjenaProfilneKorisnik/" + id);
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+
+            }
+        }
+        public async Task PrijavaZborAsync(Guid id)
+        {
+
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/PrijavaZbor/" + id);
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+
+            }
+        }
+        public async Task<ZborDataStandard.ViewModels.KorisnikVIewModels.JavniProfilViewModel> JavniProfilKorisnikAsync(Guid id)
+        {
+
+            var request = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress + "api/JavniProfilKorisnik/" + id);
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<ZborDataStandard.ViewModels.KorisnikVIewModels.JavniProfilViewModel>(content);
+                return obj;
+            }
+            return null;
+        }
+        public async Task Spremiomeni( string tekst)
+        {
+            var keyValues = new
+            {
+                Tekst = tekst
+            };
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/Urediomeni/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+            }
         }
     }
 }

@@ -29,6 +29,9 @@ namespace ZborMob.Views
         public TEditorHtmlView()
         {
             this.Orientation = StackOrientation.Vertical;
+           
+            _displayWebView = new WebView() { HeightRequest = 500 };
+            this.Children.Add(_displayWebView);
             this.Children.Add(new Button
             {
                 Text = "Uredi",
@@ -36,10 +39,11 @@ namespace ZborMob.Views
                 Command = new Command(async (obj) =>
                 {
                     await ShowTEditor();
-                })
-            });
-            _displayWebView = new WebView() { HeightRequest = 500 };
-            this.Children.Add(_displayWebView);
+                }),
+                TextColor = Color.White,
+                BackgroundColor = Color.FromHex("#1C6EBC")
+                
+            }) ;
         }
 
         async Task ShowTEditor()

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ZborDataStandard.Model
 {
-    public partial class Korisnik
+    public partial class Korisnik : INotifyPropertyChanged
     {
         public Korisnik()
         {
@@ -86,5 +88,27 @@ namespace ZborDataStandard.Model
         {
             return "/api/GetRepozitorijKorisnik/" + IdSlika;
         }
+        #region Procitano event za poruke
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotMapped]
+        public Guid SlikaProp
+        {
+            get
+            {
+                return IdSlika;
+            }
+            set
+            {
+                IdSlika = value;
+                RaisepropertyChanged("SlikaProp");
+            }
+        }
+        private void RaisepropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        #endregion
     }
 }

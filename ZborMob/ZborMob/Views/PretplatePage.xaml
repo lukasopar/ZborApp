@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             xmlns:cards="clr-namespace:Syncfusion.XForms.Cards;assembly=Syncfusion.Cards.XForms"
+            Title="Pretplate"
+             x:Class="ZborMob.Views.PretplatePage">
+    <ContentPage.Content>
+        <StackLayout>
+            <cards:SfCardView Grid.Row="0" CornerRadius="4" HasShadow="True" WidthRequest="343" BackgroundColor="{DynamicResource Gray-White}" 
+                                          HorizontalOptions="Center" Padding="8,8,8,0" HeightRequest="250">
+                <Grid x:Name="zborske">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Label Text="Zborske pretplate" FontSize="17" Grid.ColumnSpan="3" Grid.Row="0" Grid.Column="0"/>
+                    <StackLayout  Grid.Row="1" Grid.Column="0">
+                        <Label Text="Obavijesti"/>
+                        <Switch IsToggled="{Binding PretplataNaZbor.Obavijesti}" ThumbColor="#1C6EBC" OnColor="#1C6EBC"/>
+                    </StackLayout>
+                    <StackLayout  Grid.Row="1" Grid.Column="1">
+                        <Label Text="Pitanja"/>
+                        <Switch IsToggled="{Binding PretplataNaZbor.Pitanja}" ThumbColor="#1C6EBC" OnColor="#1C6EBC"/>
+                    </StackLayout>
+                    <StackLayout  Grid.Row="1" Grid.Column="2" >
+                        <Label Text="Repozitorij"/>
+                        <Switch IsToggled="{Binding PretplataNaZbor.Repozitorij}" ThumbColor="#1C6EBC" OnColor="#1C6EBC"/>
+                    </StackLayout>
+
+                </Grid>
+                
+                
+                
+            </cards:SfCardView>
+            <cards:SfCardView Grid.Row="0" CornerRadius="4" HasShadow="True" WidthRequest="343" BackgroundColor="{DynamicResource Gray-White}" 
+                                          HorizontalOptions="Center" Padding="8,8,8,0">
+                <ListView SelectionMode="None" ItemsSource="{Binding PretplataNaProjekt}" HasUnevenRows="True">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <ViewCell.View>
+                                    <Grid >
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Text="{Binding IdProjektNavigation.Naziv}" FontSize="15"/>
+                                        <StackLayout  Grid.Column="1" > 
+                                            <Label Text="Obavijesti" />
+                                            <Switch IsToggled="{Binding Obavijesti}" ThumbColor="#1C6EBC" OnColor="#1C6EBC"/>
+                                        </StackLayout>
+                                        <StackLayout  Grid.Column="2">
+                                            <Label Text="Događaji"/>
+                                            <Switch IsToggled="{Binding Dogadjaji}" ThumbColor="#1C6EBC" OnColor="#1C6EBC"/>
+                                        </StackLayout>
+
+                                    </Grid>
+                                </ViewCell.View>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+
+                </ListView>
+                
+            </cards:SfCardView>
+            <Button Text="Spremi" Clicked="Spremi" BackgroundColor="#1C6EBC" TextColor="White"/>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

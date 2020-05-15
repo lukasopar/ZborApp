@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.Forms;
 using ZborDataStandard.Model;
@@ -33,18 +34,32 @@ namespace ZborMob.ViewModels
                 RaisepropertyChanged("Komentari");
             }
         }
-      
+        private bool isEmpty;
+        public bool IsEmpty
+        {
+            get
+            {
+                return isEmpty;
+            }
+            set
+            {
+                isEmpty = value;
+                RaisepropertyChanged("IsEmpty");
+            }
+        }
+
         private Obavijest model;
         public string Novi { get; set; }
         public KomentariViewModel(Obavijest o)
         {
             _apiServices = new ApiServices();
             model = o;
+            IsEmpty = true;
             Komentari = new ObservableCollection<KomentarObavijesti>(model.KomentarObavijesti);
-
+            IsEmpty =!( Komentari.Count > 0);
         }
        
-        public async void Lajk(KomentarObavijesti o)
+        public async Task Lajk(KomentarObavijesti o)
         {
             if (!o.LajkKomentara.Select(l => l.IdKorisnik).Contains(App.Korisnik.Id))
             {
@@ -61,12 +76,13 @@ namespace ZborMob.ViewModels
             RaisepropertyChanged("Komentari");
 
         }
-        public async void DodajNovi()
+        public async Task  DodajNovi()
         {
             var kom = await _apiServices.NoviKomentarAsync(Novi, model.Id);
+            IsEmpty = false;
             Komentari.Add(kom);
-
-
+            IsEmpty = false;
+            Novi = "";
 
         }
         void RaisepropertyChanged(string propertyName)

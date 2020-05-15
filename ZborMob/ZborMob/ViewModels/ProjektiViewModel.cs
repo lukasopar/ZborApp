@@ -83,16 +83,45 @@ namespace ZborMob.ViewModels
                 RaisepropertyChanged("Vrste");
             }
         }
+        private bool isBusy;
+        public bool IsBusy
+        {
+            get
+            {
+                return isBusy;
+            }
+            set
+            {
+                isBusy = value;
+                RaisepropertyChanged("IsBusy");
+            }
+        }
+        private bool mod;
+        public bool Mod
+        {
+            get
+            {
+                return mod;
+            }
+            set
+            {
+                mod = value;
+                RaisepropertyChanged("Mod");
+            }
+        }
         public DateTime Datum { get; set; }
         public ProjektiViewModel()
         {
             _apiServices = new ApiServices();
+            IsBusy = true;
             GetData();
 
         }
         async void GetData()
         {
             var model = await _apiServices.ProjektiAsync(App.Zbor.Id);
+            IsBusy = false;
+            Mod = model.Admin;
             MojiProjekti = new ObservableCollection<Projekt>(model.MojiProjekti);
             OstaliProjekti = new ObservableCollection<Projekt>(model.OstaliProjekti);
             ZavrseniProjekti = new ObservableCollection<Projekt>(model.ZavrseniProjekti);

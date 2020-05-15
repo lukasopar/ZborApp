@@ -154,11 +154,26 @@ namespace ZborMob.ViewModels
             GetData();
 
         }
+        private bool isBusy;
+        public bool IsBusy
+        {
+            get
+            {
+                return isBusy;
+            }
+            set
+            {
+                isBusy = value;
+                RaisepropertyChanged("IsBusy");
+            }
+        }
         public string Uvjet { get; set; }
         async void GetData()
         {
             //model = await _apiServices.PocetnaAsync();
+            IsBusy = true;
             var model = await _apiServices.AdministracijaAsync(App.Zbor.Id);
+            IsBusy = false;
             Soprani = new ObservableCollection<ClanZbora>(model.Soprani);
             Alti = new ObservableCollection<ClanZbora>(model.Alti);
             Tenori = new ObservableCollection<ClanZbora>(model.Tenori);

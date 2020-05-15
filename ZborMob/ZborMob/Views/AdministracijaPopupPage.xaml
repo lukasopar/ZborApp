@@ -9,10 +9,9 @@
                      BackgroundColor="White"  
                      HorizontalOptions="Center"  
                      VerticalOptions="Center">
-            <Button Text="Postavi moderatora" Clicked="PostaviModeratora"/>
-            <Button Text="Postavi voditelja" Clicked="PostaviVoditelja"/>
-            <Button Text="Izbaci" Clicked="Izbaci"/>
-            <Label Text="Promjena glasa"/>
+            <Button Text="Postavi moderatora" Clicked="PostaviModeratora"  BackgroundColor="#1C6EBC" TextColor="White"/>
+            <Button Text="Postavi voditelja" Clicked="PostaviVoditelja"  BackgroundColor="#1C6EBC" TextColor="White"/>
+            <Button Text="Izbaci" Clicked="Izbaci"  BackgroundColor="#1C6EBC" TextColor="White"/>
             <Picker Title="Promjena glasa" x:Name="picker" SelectedIndexChanged="PromjeniGlas">
                 <Picker.Items>
                     <x:String>Sopran</x:String>

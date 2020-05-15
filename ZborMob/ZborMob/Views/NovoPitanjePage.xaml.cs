@@ -14,9 +14,11 @@ namespace ZborMob.Views
     public partial class NovoPitanjePage : ContentPage
     {
         private NovoPitanjeViewModel model;
-        public NovoPitanjePage()
+        PitanjaViewModel stariModel;
+        public NovoPitanjePage(PitanjaViewModel stariModel)
         {
             model = new NovoPitanjeViewModel();
+            this.stariModel = stariModel;
             this.BindingContext = model;
             InitializeComponent();
             datumPicker.MinimumDate = DateTime.Now;
@@ -31,13 +33,27 @@ namespace ZborMob.Views
             Button btn = (Button)sender;
             model.Odgovori.Remove((StringValue)btn.BindingContext);
         }
-        private void Zavrsi(object sender, EventArgs e)
+        private async void Zavrsi(object sender, EventArgs e)
         {
             bool vis = true;
+            if (Visestruki.SelectedItem == null || model.Datum == null || model.Pitanje == null || model.Pitanje.Trim() == "")
+            {
+                await DisplayAlert("Greška", "Ispunite sva polja za dodavanje pitanja", "Ok");
+                return;
+
+            }
             if (Visestruki.SelectedItem.ToString().Length == 22)
                 vis = false;
-            model.Zavrsi(vis);
-            Navigation.PopAsync();
+            try
+            {
+                var novo = await model.Zavrsi(vis);
+                stariModel.Ankete.Insert(0, novo);
+            }catch(ArgumentException)
+            {
+                await DisplayAlert("Greška", "Ispunite sva polja za dodavanje pitanja", "Ok");
+                return;
+            }
+            await Navigation.PopModalAsync();
         }
     }
 }

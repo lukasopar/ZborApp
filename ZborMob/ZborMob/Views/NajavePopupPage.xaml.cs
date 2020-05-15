@@ -1,5 +1,6 @@
 ﻿using Rg.Plugins.Popup.Extensions;
 using Rg.Plugins.Popup.Pages;
+using Syncfusion.XForms.Cards;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,43 +23,40 @@ namespace ZborMob.Views
 
             InitializeComponent();
                this.model = model;
-            var personDataTemplate = new DataTemplate(() =>
-            {
-                var lay = new StackLayout();
-                var lab = new Label();
-
-
-                lab.SetBinding(Label.TextProperty, "IdKorisnikNavigation.ImeIPrezimeP");
-
-                lay.Children.Add(lab);
-
-                return new ViewCell { View = lay };
-            });
+          
+            ScrollView scrollView = new ScrollView();
+            StackLayout glavni = new StackLayout();
+            glavni.Children.Add(new Label { Text = "Najave", FontSize = 20 , Padding = new Thickness(10,10)});
             foreach (var glas in model.model.Dogadjaj.IdProjektNavigation.IdVrstePodjeleNavigation.Glasovi())
             {
-                Label l = new Label { Text = glas + ": " + model.model.Clanovi[glas].Count };
-                
-                ListView list = new ListView
+                SfCardView view = new SfCardView {Padding = new Thickness(10, 10) };
+                Label l = new Label { Text = glas + ": " + model.model.Clanovi[glas].Count, FontSize=17, FontAttributes=FontAttributes.Bold };
+                StackLayout so = new StackLayout();
+                so.Children.Add(l);
+                foreach(var najava in model.model.Clanovi[glas])
                 {
-                    ItemsSource = model.model.Clanovi[glas],
-                    ItemTemplate = personDataTemplate
-                };
-
-                layout.Children.Add(l);
-                layout.Children.Add(list);
-
-             
+                    var lab = new Label { Text = najava.IdKorisnikNavigation.ImeIPrezimeP };
+                    so.Children.Add(lab);
+                }
+                view.Content = so;
+                glavni.Children.Add(view);
 
             }
-            Label li = new Label { Text = "Nerazvrstani" + ": " + model.model.Nerazvrstani.Count };
-            
-            ListView listi = new ListView
+
+            SfCardView view1 = new SfCardView { Padding = new Thickness(10, 10) };
+            Label li = new Label { Text = "Nerazvrstani" + ": " + model.model.Nerazvrstani.Count, FontSize = 17, FontAttributes = FontAttributes.Bold };
+            StackLayout so1 = new StackLayout();
+            so1.Children.Add(li);
+            foreach (var najava in model.model.Nerazvrstani)
             {
-                ItemsSource = model.model.Nerazvrstani,
-                ItemTemplate = personDataTemplate
-            };
-            layout.Children.Add(li);
-            layout.Children.Add(listi);
+                var lab = new Label { Text = najava.IdKorisnikNavigation.ImeIPrezimeP };
+                so1.Children.Add(lab);
+            }
+            view1.Content = so1;
+            glavni.Children.Add(view1);
+
+            scrollView.Content = glavni;
+            this.Content = scrollView;
 
 
         }

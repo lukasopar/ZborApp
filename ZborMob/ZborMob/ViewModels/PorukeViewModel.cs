@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
+using Syncfusion.DataSource.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -36,6 +37,7 @@ namespace ZborMob.ViewModels
         private ZborDataStandard.ViewModels.PorukeViewModels.PorukeViewModel model;
         public PorukeViewModel()
         {
+            IsBusy = true;
             _apiServices = new ApiServices();
             var uri = $"{App.BackendUrl}/" + "chatHub";
             hubConnection = new HubConnectionBuilder()
@@ -54,9 +56,24 @@ namespace ZborMob.ViewModels
                 .Build();
             GetData();
         }
+        private bool isBusy;
+        public bool IsBusy
+        {
+            get
+            {
+                return isBusy;
+            }
+            set
+            {
+                isBusy = value;
+                RaisepropertyChanged("IsBusy");
+            }
+        }
         private async void GetData()
         {
             model = await _apiServices.Razgovori();
+            model.Razgovori.ForEach(r => r.Procitano = r.KorisnikUrazgovoru.Where(r => r.IdKorisnik == App.Korisnik.Id).SingleOrDefault().Procitano);
+            IsBusy = false;
             Razgovori = new ObservableCollection<Razgovor>(model.Razgovori);
             await Connect();
         }
@@ -64,24 +81,35 @@ namespace ZborMob.ViewModels
         {
             try
             {
-                hubConnection.On<Poruka>("ReceiveMessageMob", (poruka) =>
+                hubConnection.On<Poruka, string>("ReceiveMessageMob", (poruka, ime) =>
                 {
                     var razg = Razgovori.Where(razg => razg.Id == poruka.IdRazgovor).SingleOrDefault();
                     var list = new List<Poruka>();
                     list.Add(poruka);
+                    if (poruka.IdKorisnik == App.Korisnik.Id)
+                        razg.Procitano = true;
+                    else
+                        razg.Procitano = false;
                     razg.Poruka = list;
                     Razgovori.Remove(razg);
                     Razgovori.Insert(0, razg);
                     RaisepropertyChanged("Razgovori");
                 });
-                hubConnection.On<Razgovor>("ReceiveNewConversationMob", (razg) =>
+                hubConnection.On<Razgovor, string>("ReceiveNewConversationMob", (razg, ime) =>
                 {
+                    var poruka = razg.Poruka.First();
+
+                    if (poruka.IdKorisnik == App.Korisnik.Id)
+                        razg.Procitano = true;
+                    else
+                        razg.Procitano = false;
                     Razgovori.Insert(0, razg);
                     RaisepropertyChanged("Razgovori");
                 });
                 hubConnection.On<Guid>("ProcitanaPoruka", (idRazg) =>
                 {
                     var razg = Razgovori.Where(razg => razg.Id == idRazg).SingleOrDefault();
+                    razg.Procitano = true;
                     var kor = razg.KorisnikUrazgovoru.Where(r => r.IdKorisnik == App.Korisnik.Id).SingleOrDefault().Procitano = true;
                     int index = Razgovori.IndexOf(razg);
                     Razgovori.Remove(razg);

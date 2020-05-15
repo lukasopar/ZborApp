@@ -401,7 +401,7 @@ namespace ZborApp.Controllers
             dat.Privatno = false;
             _ctx.Zbor.Find(dat.IdZbor).IdSlika = id;
             _ctx.SaveChanges();
-            return RedirectToAction("Galerija", "Zbor", new { id = user.Id });
+            return RedirectToAction("Galerija", "Zbor", new { id = dat.IdZbor });
         }
        
     }

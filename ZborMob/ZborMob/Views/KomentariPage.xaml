@@ -4,29 +4,86 @@
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                           xmlns:helpers="clr-namespace:ZborMob.Converters"
-
+     xmlns:cards="clr-namespace:Syncfusion.XForms.Cards;assembly=Syncfusion.Cards.XForms"
+             xmlns:buttons="clr-namespace:Syncfusion.XForms.Buttons;assembly=Syncfusion.Buttons.XForms"
+                          xmlns:controls="clr-namespace:ImageCircle.Forms.Plugin.Abstractions;assembly=ImageCircle.Forms.Plugin"
+            xmlns:badge ="clr-namespace:Syncfusion.XForms.BadgeView;assembly=Syncfusion.SfBadgeView.XForms"
              mc:Ignorable="d"
              x:Class="ZborMob.Views.KomentariPage">
     <ContentPage.Resources>
         <ResourceDictionary>
             <helpers:KomentarConverter x:Key="ColorConverter" />
+            <helpers:SlikaLinkConverter x:Key="ImageConverter" />
+            <OnPlatform x:TypeArguments="x:String" x:Key="IconFont">
+                <On Platform="Android" Value="zboris.ttf#zboris" />
+            </OnPlatform>
         </ResourceDictionary>
     </ContentPage.Resources>
     <ContentPage.Content>
         <StackLayout>
-            <ListView ItemsSource="{Binding Komentari}"  x:FieldModifier="public" HasUnevenRows="True">
+            <Label Text="Nema komentara" VerticalOptions="Center" HorizontalOptions="Center" IsVisible="{Binding IsEmpty}"/>
+            <ListView ItemsSource="{Binding Komentari}"  x:FieldModifier="public" HasUnevenRows="True" x:Name="listView">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
                             <ViewCell.View>
-                                <StackLayout>
-                                    <Label Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}" FontSize="20"/>
-                                    <Label Text="{Binding Tekst}" />
-                                    <Label Text="{Binding LajkKomentara.Count, StringFormat='{0} oznaka Sviđa mi se'}" />
-                                    <Button Text="Sviđa mi se" x:Name="lajk" Clicked="Lajkam" BackgroundColor="{Binding Converter={StaticResource ColorConverter}}" />
+                                <cards:SfCardView CornerRadius="4" HasShadow="True" WidthRequest="343" BackgroundColor="{DynamicResource Gray-White}" 
+                                          HorizontalOptions="Center" Padding="16,16,8,16">
+                                    <Grid ColumnSpacing="8" RowSpacing="8">
+                                      
+                                        
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
 
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="50"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
 
-                                </StackLayout>
+                                        <controls:CircleImage Source="{Binding IdKorisnikNavigation.IdSlika, Converter={StaticResource ImageConverter} }" HeightRequest="40" WidthRequest="40" HorizontalOptions="Start"/>
+                                        <Label  LineBreakMode="NoWrap" HorizontalOptions="Start" Grid.Column="1" 
+                                         VerticalOptions="Center" LineHeight="{OnPlatform Default=-1, Android=1.5}" >
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}" FontSize="16" TextColor="{DynamicResource Gray-900}" 
+                                                 />
+                                                    <Span Text="  "/>
+                                                    <Span Text="{Binding DatumObjave}" FontSize="12" TextColor="{DynamicResource Gray-800}"/>
+
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                        <!--  Delete button command  -->
+                                        <buttons:SfButton  x:Name="DeleteButton" CornerRadius="10" Grid.Column="3" HorizontalOptions="EndAndExpand"
+                                                   VerticalOptions="StartAndExpand"  Text="&#xe709;" FontFamily="{StaticResource IconFont}" BackgroundColor="#1C6EBC"
+                                                   />
+                                        <Label Text="{Binding Tekst}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" 
+                                        LineBreakMode="WordWrap" HorizontalOptions="StartAndExpand" 
+                                        VerticalOptions="Start"/>
+                                        <Label Grid.Row="2" Grid.ColumnSpan="2" VerticalOptions="End" Text="{Binding DatumObjave, StringFormat='{0:dd.MM.yyyy. HH:mm}'}" FontSize="12"/>
+
+                                        <badge:SfBadgeView BadgeText="{Binding LajkKomentara.Count}" Grid.Row="2" Grid.Column="3" HorizontalOptions="End" VerticalOptions="Center">
+                                            <badge:SfBadgeView.Content>
+                                                <Image   x:Name="lajk"  Source="{Binding Converter={StaticResource ColorConverter}}" WidthRequest="30" HeightRequest="30" >
+                                                    <Image.GestureRecognizers>
+                                                        <TapGestureRecognizer Tapped="Lajkam" />
+                                                    </Image.GestureRecognizers>
+                                                </Image>
+                                            </badge:SfBadgeView.Content>
+                                            <badge:SfBadgeView.BadgeSettings>
+                                                <badge:BadgeSetting   BadgePosition="TopRight"/>
+                                            </badge:SfBadgeView.BadgeSettings>
+                                        </badge:SfBadgeView>
+
+                                        
+                                    </Grid>
+                                </cards:SfCardView>
+                               
 
                             </ViewCell.View>
 
@@ -34,8 +91,8 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-            <Entry Text="{Binding Novi}"/>
-            <Button Text="Pošalji" Clicked="NoviKomentar"/>
+            <Entry Text="{Binding Novi}" x:Name="Novi" Placeholder="Unesite komentar"/>
+            <Button Text="Pošalji" Clicked="NoviKomentar" TextColor="White" BackgroundColor="#1C6EBC" />
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

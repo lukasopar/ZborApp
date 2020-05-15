@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+<TabbedPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -7,22 +7,61 @@
             xmlns:helpers="clr-namespace:ZborMob.Converters"
              xmlns:views="clr-namespace:ZborMob.Views"
              x:Class="ZborMob.Views.JavniProfilPage">
-    <ContentPage.Resources>
-        <ResourceDictionary>
-            <helpers:HtmlSourceConverter x:Key="HtmlSourceConverter" />
-        </ResourceDictionary>
-    </ContentPage.Resources>
-    <ContentPage.Content>
-        <StackLayout>
-            <Label Text="O zboru"/>
-            <views:TEditorHtmlView Html="{Binding OZboru}" SpremiEvent="SpremiOZboru" x:Name="oZboru"/>
-            <Label Text="O voditeljima"/>
-            <views:TEditorHtmlView Html="{Binding OVoditeljima}" SpremiEvent="SpremiOVoditeljima" x:Name="oVoditeljima"/>
-            <Label Text="Repertoar"/>
-            <views:TEditorHtmlView Html="{Binding Repertoar}" SpremiEvent="SpremiRepertoar" x:Name="repertoar"/>
-            <Label Text="Mediji"/>
-            <views:TEditorHtmlView Html="{Binding Reprezentacija}" SpremiEvent="SpremiReprezentacija" x:Name="reprezentacija"/>
-        </StackLayout>
+    <ContentPage Title="O zboru">
+        <ContentPage.Resources>
+            <ResourceDictionary>
+                <helpers:HtmlSourceConverter x:Key="HtmlSourceConverter" />
+            </ResourceDictionary>
+        </ContentPage.Resources>
+        <ContentPage.Content>
+            <StackLayout>
+                <ActivityIndicator Grid.Row="2" Color="#1C6EBC" HorizontalOptions="Center" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"/>
+                <views:TEditorHtmlView Html="{Binding OZboru}" SpremiEvent="SpremiOZboru" x:Name="oZboru"/>
+                <Button Text="Repozitorij" Clicked="Repozitorij"/>
+                <Button Text="Galerija" Clicked="Galerija"/>
+                <Button Text="{Binding Tekst}" Clicked="Prijava" IsVisible="{Binding Clan}"/>
+            </StackLayout>
 
-    </ContentPage.Content>
-</ContentPage>
+        </ContentPage.Content>
+    </ContentPage>
+    
+    <ContentPage Title="O voditeljima">
+        <ContentPage.Resources>
+            <ResourceDictionary>
+                <helpers:HtmlSourceConverter x:Key="HtmlSourceConverter" />
+            </ResourceDictionary>
+        </ContentPage.Resources>
+        <ContentPage.Content>
+            <StackLayout>
+                <ActivityIndicator Grid.Row="2" Color="#1C6EBC" HorizontalOptions="Center" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"/>
+                <views:TEditorHtmlView Html="{Binding OVoditeljima}" SpremiEvent="SpremiOVoditeljima" x:Name="oVoditeljima"/>
+            </StackLayout>
+        </ContentPage.Content>
+    </ContentPage>
+    <ContentPage Title="Repertoar">
+        <ContentPage.Resources>
+            <ResourceDictionary>
+                <helpers:HtmlSourceConverter x:Key="HtmlSourceConverter" />
+            </ResourceDictionary>
+        </ContentPage.Resources>
+        <ContentPage.Content>
+            <StackLayout>
+                <ActivityIndicator Grid.Row="2" Color="#1C6EBC" HorizontalOptions="Center" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"/>
+                <views:TEditorHtmlView Html="{Binding Repertoar}" SpremiEvent="SpremiRepertoar" x:Name="repertoar"/>
+            </StackLayout>
+        </ContentPage.Content>
+    </ContentPage>
+    <ContentPage Title="Mediji">
+        <ContentPage.Resources>
+            <ResourceDictionary>
+                <helpers:HtmlSourceConverter x:Key="HtmlSourceConverter" />
+            </ResourceDictionary>
+        </ContentPage.Resources>
+        <ContentPage.Content>
+            <StackLayout>
+                <ActivityIndicator Grid.Row="2" Color="#1C6EBC" HorizontalOptions="Center" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"/>
+                <views:TEditorHtmlView Html="{Binding Reprezentacija}" SpremiEvent="SpremiReprezentacija" x:Name="reprezentacija"/>
+            </StackLayout>
+        </ContentPage.Content>
+    </ContentPage>
+</TabbedPage>

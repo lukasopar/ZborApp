@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ZborDataStandard.Model
 {
-    public partial class Zbor
+    public partial class Zbor : INotifyPropertyChanged
     {
         public Zbor()
         {
@@ -41,5 +43,28 @@ namespace ZborDataStandard.Model
         public virtual ICollection<RepozitorijZbor> RepozitorijZbor { get; set; }
         public virtual ProfilZbor ProfilZbor { get; set; }
         public virtual ICollection<Voditelj> Voditelj { get; set; }
+
+        #region Procitano event za poruke
+        public event PropertyChangedEventHandler PropertyChanged;
+        
+        [NotMapped]
+        public Guid SlikaProp
+        {
+            get
+            {
+                return IdSlika;
+            }
+            set
+            {
+                IdSlika = value;
+                RaisepropertyChanged("SlikaProp");
+            }
+        }
+        private void RaisepropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        #endregion
     }
 }

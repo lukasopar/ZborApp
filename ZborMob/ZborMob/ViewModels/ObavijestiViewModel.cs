@@ -35,22 +35,52 @@ namespace ZborMob.ViewModels
                 RaisepropertyChanged("Obavijesti");
             }
         }
-      
+
+        private bool isBusy;
+        public bool IsBusy
+        {
+            get
+            {
+                return isBusy;
+            }
+            set
+            {
+                isBusy = value;
+                RaisepropertyChanged("IsBusy");
+            }
+        }
+
+        private bool mod;
+        public bool Mod
+        {
+            get
+            {
+                return mod;
+            }
+            set
+            {
+                mod = value;
+                RaisepropertyChanged("Mod");
+            }
+        }
         private ProfilViewModel model;
 
         public ObavijestiViewModel(Guid id)
         {
             _apiServices = new ApiServices();
             IdZbor = id;
+            IsBusy = true;
             GetData(id);
 
         }
         async void GetData(Guid id)
         {
             model = await _apiServices.ProfilAsync(id);
+            IsBusy = false;
+            Mod = model.Admin;
             Obavijesti = new ObservableCollection<Obavijest>(model.Obavijesti);
             IdKorisnik = model.IdKorisnik;
-
+            
         }
         public async void Lajk(Obavijest o)
         {

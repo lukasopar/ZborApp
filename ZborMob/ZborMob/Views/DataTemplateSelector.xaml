@@ -9,14 +9,16 @@
   <ContentPage.Resources>
     <ResourceDictionary>
       <local:MessageDataTemplateSelector x:Key="MessageDataTemplateSelector" />
-
+            <OnPlatform x:TypeArguments="x:String" x:Key="IconFont">
+                <On Platform="Android" Value="zboris.ttf#zboris" />
+            </OnPlatform>
         </ResourceDictionary>
   </ContentPage.Resources>
    
   <ContentPage.Content>
     <Grid Padding="5" BackgroundColor="White">
-            <ScrollView x:Name="scrollView" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
-                <sync:SfListView x:Name="listView" IsStickyFooter="true" ItemSize="100"
+            <ScrollView x:Name="scrollView"  HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+                <sync:SfListView x:Name="listView" IsStickyFooter="true" IsStickyHeader="True" ItemSize="100"
                                  ItemsSource="{Binding MessageInfo}"
                                  ItemTemplate="{StaticResource MessageDataTemplateSelector}"
                                  SelectionMode="None"
@@ -26,7 +28,15 @@
                     <sync:SfListView.Behaviors>
                         <local:DataTemplateSelectorBehavior/>
                     </sync:SfListView.Behaviors>
+                    <sync:SfListView.HeaderTemplate>
+                        <DataTemplate>
+                            <StackLayout>
+                                <Label Text="{Binding Korisnici}" FontAttributes="Bold" BackgroundColor="WhiteSmoke"/>
+                                <ActivityIndicator Color="#1C6EBC" HorizontalOptions="Center" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"/>
 
+                            </StackLayout>
+                        </DataTemplate>
+                    </sync:SfListView.HeaderTemplate>
                     <sync:SfListView.FooterTemplate>
                         <DataTemplate>
                             <Grid Grid.Row="1" x:Name="MessageControls" Padding="5"
@@ -40,10 +50,10 @@
                                     <ColumnDefinition Width="*"></ColumnDefinition>
                                     <ColumnDefinition Width="Auto"></ColumnDefinition>
                                 </Grid.ColumnDefinitions>
-                                <Entry Grid.Column="0" Placeholder="Type your message"
+                                <Entry Grid.Column="0" Placeholder="Nova poruka"
                                        FontSize="14" Text="{Binding NewText}"></Entry>
                                 <Grid Grid.Column="1">
-                                    <Label x:Name="imagename" Text="{Binding SendIcon}" TextColor="#808080" FontSize="Medium" HorizontalOptions="Center" VerticalOptions="Center"
+                                    <Label x:Name="imagename" Text="&#xe70b;" FontFamily="{StaticResource IconFont}" TextColor="#808080" FontSize="Medium" HorizontalOptions="Center" VerticalOptions="Center"
                                             Margin="5"/>
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding SendCommand}" CommandParameter="{x:Reference listView}"/>

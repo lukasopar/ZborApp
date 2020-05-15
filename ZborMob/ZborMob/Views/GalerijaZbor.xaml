@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+                          xmlns:cards="clr-namespace:Syncfusion.XForms.Cards;assembly=Syncfusion.Cards.XForms"
+             xmlns:helpers="clr-namespace:ZborMob.Converters"
+Title="Zborska galerija"
+             x:Class="ZborMob.Views.GalerijaZbor">
+    <ContentPage.Resources>
+        <ResourceDictionary >
+            <helpers:SlikaLinkZborConverter x:Key="ImageConverter" />
+  
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.Content>
+        <StackLayout>
+            <cards:SfCardView Grid.Row="0" CornerRadius="4" HasShadow="True" WidthRequest="343" BackgroundColor="{DynamicResource Gray-White}" 
+                                          HorizontalOptions="Center" Padding="8,8,8,0">
+                <StackLayout>
+
+                    <Label Text="Galerija" FontSize="17"/>
+                    <ListView ItemsSource="{Binding Slike}" SelectionMode="None" x:Name="Obavijesti" HasUnevenRows="True" >
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell >
+                                    <ViewCell.View >
+                                        <Grid Margin="10,10">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition/>
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Label Text="{Binding Naziv}" Grid.Row="0" Grid.Column="0" />
+                                            <Button Text="Postavi sliku profila" Grid.Row="0" Grid.Column="1" HorizontalOptions="End" Clicked="Profilna"/>
+
+                                            <Image Source="{Binding Id, Converter={StaticResource ImageConverter}}" Grid.Row="1" Grid.ColumnSpan="2"/>
+                                        </Grid>
+                                    </ViewCell.View>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <ActivityIndicator  Color="#1C6EBC" HorizontalOptions="Center" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"/>
+
+                </StackLayout>
+                
+            </cards:SfCardView>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

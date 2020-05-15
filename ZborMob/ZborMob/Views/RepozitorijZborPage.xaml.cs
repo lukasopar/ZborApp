@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Plugin.FilePicker;
+using Plugin.FilePicker.Abstractions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -32,10 +34,12 @@ namespace ZborMob.Views
             var src = (Button)sender;
             model.Obrisi((RepozitorijZbor)src.BindingContext);
         }
-        private void Preuzmi(object sender, EventArgs e)
+        private async void Preuzmi(object sender, EventArgs e)
         {
             var src = (Label)sender;
             model.Preuzmi((RepozitorijZbor)src.BindingContext);
+            await DisplayAlert("Preuzimanje", "Datoteka je spremljena u direktorij Preuzimanja.", "OK");
+
         }
         private async void Podijeli(object sender, EventArgs e)
         {
@@ -43,6 +47,22 @@ namespace ZborMob.Views
             await Clipboard.SetTextAsync("https://localhost:5001/Repozitorij/GetZbor" + ((RepozitorijZbor)src.BindingContext).Url);
             await DisplayAlert("Kopirano u međuspremnik","Kopirano", "OK");
 
+        }
+        private async void Upload(object sender, EventArgs e)
+        {
+            try
+            {
+                FileData fileData = await CrossFilePicker.Current.PickFile();
+
+                if (fileData == null)
+                    return; // user canceled file picking
+
+                model.Upload(fileData);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine("Exception choosing file: " + ex.ToString());
+            }
         }
     }
 }

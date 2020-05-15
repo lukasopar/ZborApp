@@ -41,7 +41,16 @@ namespace ZborMob.ViewModels
                 RaisepropertyChanged("NewText");
             }
         }
-
+        public string korisnici;
+        public string Korisnici
+        {
+            get { return korisnici; }
+            set
+            {
+                korisnici = value;
+                RaisepropertyChanged("Korisnici");
+            }
+        }
         public string SendIcon
         {
             get
@@ -49,7 +58,19 @@ namespace ZborMob.ViewModels
             set
             { sendIcon = value; }
         }
-
+        private bool isBusy;
+        public bool IsBusy
+        {
+            get
+            {
+                return isBusy;
+            }
+            set
+            {
+                isBusy = value;
+                RaisepropertyChanged("IsBusy");
+            }
+        }
         public Command<object> SendCommand { get; set; }
 
         public Command<object> LoadCommand { get; set; }
@@ -58,6 +79,9 @@ namespace ZborMob.ViewModels
         {
             InitializeSendCommand();
             this.razgovor = razgovor;
+            IsBusy = true;
+
+            Korisnici = razgovor.GetPopisKorisnika(App.Korisnik.Id);
             _apiServices = new ApiServices();
             var uri = $"{App.BackendUrl}/" + "chatHub";
             hubConnection = new HubConnectionBuilder()
@@ -80,22 +104,24 @@ namespace ZborMob.ViewModels
         {
             LoadCommand = new Command<object>(OnLoaded);
             var korisnikId = App.Korisnik.Id;
-            MessageInfo = new ObservableCollection<MessageInfo>((await _apiServices.Poruke(id)).Select(p => new MessageInfo
+            var list = (await _apiServices.Poruke(id)).Select(p => new MessageInfo
             {
-                DateTime = p.DatumIvrijeme.ToString(),
-                Text = p.Poruka1,
+                DateTime = p.DatumIvrijeme.ToString("dd.MM.yyyy. HH:mm"),
+                Text = p.Poruka1.Replace("<br />", "\n"),
                 Username = p.IdKorisnikNavigation.Ime,
                 TemplateType = p.IdKorisnik == korisnikId ? TemplateType.OutGoingText : TemplateType.IncomingText,
-                ProfileImage = App.BackendUrl  + p.IdKorisnikNavigation.GetLinkSlikaApi()
+                ProfileImage = App.BackendUrl + p.IdKorisnikNavigation.GetLinkSlikaApi()
 
-            }));
+            });
+            IsBusy = false;
+            MessageInfo = new ObservableCollection<MessageInfo>(list);
             await Connect();
         }
         async Task Connect()
         {
             try
             {
-                hubConnection.On<Poruka>("ReceiveMessageMob", (poruka) =>
+                hubConnection.On<Poruka, string>("ReceiveMessageMob", (poruka, ime) =>
                 {
                     if (poruka.IdRazgovor != razgovor.Id)
                         return;

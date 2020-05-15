@@ -15,7 +15,9 @@ namespace ZborMob.Views
         public ZborIzbornikPage()
         {
             InitializeComponent();
-
+            ime.Text = App.Zbor.Naziv;
+            slika.Source = "test.png";
+            slika.Aspect = Aspect.AspectFit;
         }
     }
 }

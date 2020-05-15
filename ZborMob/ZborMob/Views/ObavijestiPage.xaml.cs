@@ -1,4 +1,5 @@
 ﻿using Rg.Plugins.Popup.Services;
+using Syncfusion.XForms.BadgeView;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -27,19 +28,22 @@ namespace ZborMob.Views
         }
         async void Lajkam(object sender, EventArgs args)
         {
-            var obavijest = (Obavijest)((Button)sender).BindingContext;
+            var obavijest = (Obavijest)((Image)sender).BindingContext;
             viewmodel.Lajk(obavijest);
             if(!obavijest.LajkObavijesti.Select(l => l.IdKorisnik).Contains(App.Korisnik.Id))
             {
                 obavijest.LajkObavijesti.Add(new LajkObavijesti { Id = Guid.NewGuid(), IdKorisnik = viewmodel.IdKorisnik, IdObavijest = obavijest.Id });
-                ((Button)sender).BackgroundColor = Xamarin.Forms.Color.Aqua;
+                ((Image)sender).Source = "likes.png";
+                var v = (SfBadgeView)(((Image)sender).Parent);
+                v.BadgeText = "" + (Int32.Parse(v.BadgeText) + 1);
             }
             else
             {
                  var l = obavijest.LajkObavijesti.Where(l => l.IdKorisnik == viewmodel.IdKorisnik && l.IdObavijest == obavijest.Id).SingleOrDefault();
                 obavijest.LajkObavijesti.Remove(l);
-                ((Button)sender).BackgroundColor = Color.DarkCyan;
-
+                ((Image)sender).Source = "like.png";
+                var v = (SfBadgeView)(((Image)sender).Parent);
+                v.BadgeText = "" + (Int32.Parse(v.BadgeText) - 1);
             }
             int g = 0;
         }

@@ -14,7 +14,7 @@ using ZborMob.ViewModels;
 namespace ZborMob.Views
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class StatistikaPopupPage : PopupPage
+    public partial class StatistikaPopupPage : ContentPage
     {
         StatistikaViewModel model;
         public StatistikaPopupPage(ClanNaProjektu clan)

@@ -11,7 +11,7 @@ using ZborMob.ViewModels;
 namespace ZborMob.Views
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class JavniProfilPage : ContentPage
+    public partial class JavniProfilPage : TabbedPage
     {
         private JavniProfilViewModel model;
         public JavniProfilPage()
@@ -36,6 +36,18 @@ namespace ZborMob.Views
         public void SpremiReprezentacija(object o, EventArgs args)
         {
             model.SpremiReprezentacija(reprezentacija.Html);
+        }
+        public async void Galerija(object o, EventArgs args)
+        {
+            await Navigation.PushAsync(new GalerijaZbor(App.Zbor.Id));
+        }
+        public async void Repozitorij(object o, EventArgs args)
+        {
+            await Navigation.PushAsync(new RepozitorijZborPage());
+        }
+        public void Prijava(object o, EventArgs args)
+        {
+            model.PrijavaZbor(App.Zbor.Id);
         }
     }
 }
