@@ -71,6 +71,9 @@
     <Compile Update="Views\ObavijestiPage.xaml.cs">
       <DependentUpon>ObavijestiPage.xaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\ZapisiPage.xaml.cs">
+      <DependentUpon>ZapisiPage.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -135,6 +138,9 @@
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Views\RezultatiPage.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\TemePage.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Views\ZborIzbornikPage.xaml">

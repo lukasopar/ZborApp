@@ -12,7 +12,7 @@ namespace ZborMob
         public static string BaseImageUrl { get; } = "https://cdn.syncfusion.com/essential-ui-kit-for-xamarin.forms/common/uikitimages/";
         public static string IPAddress = DeviceInfo.Platform == DevicePlatform.Android ? "10.0.2.2" : "localhost";
         public static string BackendUrl = $"https://{IPAddress}:5001";
-        public static string Token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImFhQG1haWwuY29tIiwibmFtZWlkIjoiNmViYjg2ZGMtZDMxNi00Nzk4LTJmNTAtMDhkN2M1Y2U3Y2JjIiwibmJmIjoxNTg4ODU1NzY5LCJleHAiOjE1ODk0NjA1NjksImlhdCI6MTU4ODg1NTc2OX0.Xgvm5alhxBA97TbNkr0cVfMQNCo1mrKbaKjzd-pn7js";
+        public static string Token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImFhQG1haWwuY29tIiwibmFtZWlkIjoiNmViYjg2ZGMtZDMxNi00Nzk4LTJmNTAtMDhkN2M1Y2U3Y2JjIiwibmJmIjoxNTg5NTM4NTUyLCJleHAiOjE1OTAxNDMzNTIsImlhdCI6MTU4OTUzODU1Mn0.iP37EGuiqOO54-sEEkmd4Hx_inF1nIcGtgwxHDpUnOg";
         public static Korisnik Korisnik = new Korisnik {Ime="Green", Prezime ="Lantern" };
         public static Zbor Zbor = new Zbor();
         public App()

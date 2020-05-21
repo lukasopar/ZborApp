@@ -236,7 +236,9 @@ namespace ZborApp.Controllers
                 model.Novi.Id = Guid.NewGuid();
                 model.Novi.IdKorisnik = user.Id;
                 model.Novi.DatumIvrijeme = DateTime.Now;
-               
+                model.Novi.Tekst = model.Novi.Tekst.Replace("src=\"\\\\", "src=\"https:\\\\");
+                var tema = _ctx.Tema.Find(model.Novi.IdTema);
+                tema.ZadnjiZapis = model.Novi.DatumIvrijeme;
                 _ctx.Zapis.Add(model.Novi);
                 _ctx.SaveChanges();
                 return RedirectToAction("Zapis", new { id = model.Novi.IdTema });

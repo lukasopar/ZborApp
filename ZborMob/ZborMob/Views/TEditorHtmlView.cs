@@ -8,7 +8,7 @@ using Xamarin.Forms;
 
 namespace ZborMob.Views
 {
-    public class TEditorHtmlView : StackLayout
+    public class TEditorHtmlView : Grid
     {
         //create bindable property, html
         private string _html;
@@ -28,22 +28,30 @@ namespace ZborMob.Views
 
         public TEditorHtmlView()
         {
-            this.Orientation = StackOrientation.Vertical;
-           
-            _displayWebView = new WebView() { HeightRequest = 500 };
-            this.Children.Add(_displayWebView);
+            RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
+            RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) });
+
+            _displayWebView = new WebView() {HeightRequest = 200 };
+          
             this.Children.Add(new Button
             {
                 Text = "Uredi",
-                HeightRequest = 100,
+                HeightRequest = 40,
                 Command = new Command(async (obj) =>
                 {
                     await ShowTEditor();
                 }),
                 TextColor = Color.White,
-                BackgroundColor = Color.FromHex("#1C6EBC")
-                
-            }) ;
+                BackgroundColor = Color.FromHex("#1C6EBC"),
+                HorizontalOptions = LayoutOptions.End
+            }, 1, 0) ;
+
+            SetRow(_displayWebView, 1);
+            SetColumnSpan(_displayWebView, 2);
+            this.Children.Add(_displayWebView);
+
         }
 
         async Task ShowTEditor()
@@ -71,6 +79,7 @@ namespace ZborMob.Views
         {
             var control = (TEditorHtmlView)bindable;
             control.Html = newValue.ToString();
+           
             control._displayWebView.Source = new HtmlWebViewSource() { Html = newValue.ToString() };
         }
     }

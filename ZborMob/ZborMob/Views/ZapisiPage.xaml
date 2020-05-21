@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+               xmlns:local="clr-namespace:ZborMob.Views"
+             mc:Ignorable="d"
+                          xmlns:cards="clr-namespace:Syncfusion.XForms.Cards;assembly=Syncfusion.Cards.XForms"
+             xmlns:helpers="clr-namespace:ZborMob.Converters"
+                          xmlns:controls="clr-namespace:ImageCircle.Forms.Plugin.Abstractions;assembly=ImageCircle.Forms.Plugin"
+
+             x:Class="ZborMob.Views.ZapisiPage">
+    <ContentPage.Resources>
+        <ResourceDictionary >
+
+            <helpers:SlikaLinkConverter x:Key="ImageConverter" />
+            <OnPlatform x:TypeArguments="x:String" x:Key="IconFont">
+                <On Platform="Android" Value="zboris.ttf#zboris" />
+            </OnPlatform>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.Content>
+        <StackLayout>
+            <local:PagerView Ukupno="{Binding Stranica}" PromjenaStranice="Promjena" x:Name="pager"/>
+            <Label Text="{Binding Naslov}" FontSize="17"/>
+            <ActivityIndicator Color="#1C6EBC" HorizontalOptions="Center" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"/>
+            <ListView  ItemsSource="{Binding Zapisi}" x:Name="Zapisi" x:FieldModifier="public" HasUnevenRows="True" >
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <cards:SfCardView CornerRadius="4" HasShadow="True" WidthRequest="343" BackgroundColor="{DynamicResource Gray-White}" 
+                                          HorizontalOptions="Center" Padding="16,16,8,16">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <controls:CircleImage Source="{Binding IdKorisnikNavigation.IdSlika, Converter={StaticResource ImageConverter} }" HeightRequest="40" WidthRequest="40" HorizontalOptions="Start"/>
+                                        <Label  Text="{Binding IdKorisnikNavigation.ImeIPrezimeP}" Grid.Column="1" VerticalOptions="Center"/>
+                                        <Button Grid.Column="2" HorizontalOptions="End"  BackgroundColor="#1C6EBC" TextColor="White" Text="&#xe709;" FontFamily="{StaticResource IconFont}" Clicked="Obrisi" WidthRequest="35"/>
+                                        <local:TEditorHtmlView Html="{Binding Tekst}" Grid.ColumnSpan="3" Grid.Row="1" SpremiEvent="Spremi"/>
+                                        <Label Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding DatumIvrijeme, StringFormat='{0:dd.MM.yyyy. HH:mm}'}" VerticalOptions="Center"/>
+                                        <Button Text="Citiraj" Grid.Row="2" Grid.Column="2" HorizontalOptions="End" Clicked="Citiraj"  BackgroundColor="#1C6EBC" TextColor="White"/>
+                                    </Grid>
+
+                                </cards:SfCardView>
+                                
+                            </ViewCell.View>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <cards:SfCardView CornerRadius="4" HasShadow="True" WidthRequest="343" BackgroundColor="{DynamicResource Gray-White}" 
+                                          HorizontalOptions="Center" Padding="16,16,8,16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Editor Grid.Column="0" Text="{Binding Novi.Tekst}" HeightRequest="60" x:Name="Editor" Grid.ColumnSpan="3"/>
+                    <Button Text="Dodaj" Clicked="Dodaj" Grid.Row="1"  BackgroundColor="#1C6EBC" TextColor="White"/>
+
+                </Grid>
+
+            </cards:SfCardView>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

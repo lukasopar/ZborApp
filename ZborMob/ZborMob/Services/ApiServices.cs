@@ -1073,5 +1073,111 @@ namespace ZborMob.Services
             {
             }
         }
+        public async Task<ZborDataStandard.ViewModels.ForumViewModels.IndexViewModel> Forum()
+        {
+           
+            var request = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress + "api/forum/");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<ZborDataStandard.ViewModels.ForumViewModels.IndexViewModel>(content);
+                return obj;
+            }
+            return null;
+        }
+        public async Task<ZborDataStandard.ViewModels.ForumViewModels.TemeViewModel> Teme(Guid id, int stranica = 1)
+        {
+
+            var request = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress + "api/tema/" + id +"?page="+stranica);
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<ZborDataStandard.ViewModels.ForumViewModels.TemeViewModel>(content);
+                return obj;
+            }
+            return null;
+        }
+        public async Task<ZborDataStandard.ViewModels.ForumViewModels.ZapisVIewModel> Zapisi(Guid id, int stranica = 1)
+        {
+
+            var request = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress + "api/zapis/" + id + "?page=" + stranica);
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<ZborDataStandard.ViewModels.ForumViewModels.ZapisVIewModel>(content);
+                return obj;
+            }
+            return null;
+        }
+        public async Task NoviZapis(Zapis novi)
+        {
+            var keyValues = new ZborDataStandard.ViewModels.ForumViewModels.ZapisVIewModel
+            {
+                Novi = novi
+            };
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/NoviZapis/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+            }
+        }
+        public async Task UrediZapis(Guid idZapis, string tekst)
+        {
+            var keyValues = new 
+            {
+                Id = idZapis,
+                Tekst = tekst
+            };
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/UrediZapis/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+            }
+        }
+        public async Task ObrisiZapis(Guid idZapis)
+        {
+            var keyValues = new ZborDataStandard.ViewModels.ForumViewModels.ZapisVIewModel
+            {
+                IdBrisanje = idZapis
+            };
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/ObrisiZapis/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+            }
+        }
+        public async Task NovaTema(Tema nova, string tekst)
+        {
+            var keyValues = new ZborDataStandard.ViewModels.ForumViewModels.TemeViewModel
+            {
+                Nova = nova,
+                Tekst = tekst,
+            };
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/NovaTema/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+            }
+        }
+        public async Task ObrisiTema(Guid idTema)
+        {
+            var keyValues = new ZborDataStandard.ViewModels.ForumViewModels.TemeViewModel
+            {
+                IdBrisanje = idTema
+            };
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/ObrisiTema/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+            }
+        }
     }
 }

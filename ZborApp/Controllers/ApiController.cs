@@ -28,6 +28,7 @@ using JavniProfilViewModel = ZborDataStandard.ViewModels.ZborViewModels.JavniPro
 using ZborDataStandard.ViewModels.RepozitorijViewModels;
 using System.IO;
 using Microsoft.AspNetCore.SignalR;
+using ZborDataStandard.ViewModels;
 
 namespace ZborApp.Controllers
 {
@@ -2187,6 +2188,226 @@ namespace ZborApp.Controllers
         {
             var user = GetUser();
             _ctx.Korisnik.Find(user.Id).Opis = model.Tekst;
+            _ctx.SaveChanges();
+            return Ok();
+        }
+
+        private bool isAdminForum(Guid id)
+        {
+            return _ctx.AdministratorForuma.Find(id) == null ? false : true;
+        }
+        private bool isModForum(Guid id)
+        {
+
+            return (_ctx.AdministratorForuma.Find(id) == null ? false : true) || (_ctx.ModForum.Find(id) == null ? false : true);
+        }
+        public IActionResult Forum()
+        {
+            var user = GetUser();
+            bool mod = isModForum(user.Id);
+            var model = new ZborDataStandard.ViewModels.ForumViewModels.IndexViewModel
+            {
+                KategorijaForuma = _ctx.KategorijaForuma.Include(k => k.Forum).ThenInclude(f => f.Tema).OrderBy(k => k.Redoslijed).ToList(),
+                Mod = mod,
+                Admin = isAdminForum(user.Id)
+            };
+            return Ok(model);
+        }
+        [HttpGet]
+        public IActionResult Tema(Guid id, [FromQuery] int page = 1)
+        {
+            var user = GetUser();
+            bool mod = isModForum(user.Id);
+            int pagesize = appData.PageSize;
+            var forum = _ctx.Forum.Find(id);
+            if (forum == null)
+            {
+                return NotFound();
+            }
+            var teme = _ctx.Tema.Where(t => t.IdForum == id);
+            var pagingInfo = new PagingInfo
+            {
+                CurrentPage = page,
+                ItemsPerPage = pagesize,
+                TotalItems = teme.Count()
+            };
+
+            if (page > pagingInfo.TotalPages && pagingInfo.TotalItems != 0)
+            {
+                return RedirectToAction(nameof(Index), new { page = pagingInfo.TotalPages });
+            }
+
+            System.Linq.Expressions.Expression<Func<Tema, object>> orderSelector = t => t.ZadnjiZapis;
+
+            if (orderSelector != null)
+            {
+                teme =
+
+
+                       _ctx.Tema.Where(t => t.IdForum == id).Include(t => t.IdKorisnikNavigation).Include(t => t.IdForumNavigation).Include(t => t.Zapis).ThenInclude(z => z.IdKorisnikNavigation).OrderByDescending(orderSelector);
+            }
+            var trazeneTeme = teme
+                        .Skip((page - 1) * pagesize)
+                        .Take(pagesize)
+                        .ToList();
+            var model = new ZborDataStandard.ViewModels.ForumViewModels.TemeViewModel()
+            {
+                Teme = trazeneTeme,
+                PagingInfo = pagingInfo,
+                IdForum = id,
+                Mod = mod,
+                IdKorisnik = user.Id,
+                Naslov = forum.Naziv
+            };
+
+            return Ok(model);
+        }
+        [HttpGet]
+        public IActionResult Zapis(Guid id, [FromQuery] int page = 1)
+        {
+            var user = GetUser();
+            bool mod = isModForum(user.Id);
+            int pagesize = appData.PageSize;
+            var tema = _ctx.Tema.Find(id);
+            if (tema == null)
+            {
+                return NotFound();
+            }
+            var teme = _ctx.Zapis.Where(t => t.IdTema == id);
+            var pagingInfo = new PagingInfo
+            {
+                CurrentPage = page,
+                ItemsPerPage = pagesize,
+                TotalItems = teme.Count()
+            };
+            if (page == 0)
+            {
+                pagingInfo.CurrentPage=  pagingInfo.TotalPages ;
+                page = pagingInfo.TotalPages;
+            }
+            if (page > pagingInfo.TotalPages && pagingInfo.TotalItems != 0)
+            {
+                pagingInfo.CurrentPage = pagingInfo.TotalPages;
+                page = pagingInfo.TotalPages;
+            }
+
+            System.Linq.Expressions.Expression<Func<Zapis, object>> orderSelector = t => t.DatumIvrijeme;
+
+            if (orderSelector != null)
+            {
+                teme =
+
+
+                       _ctx.Zapis.Where(t => t.IdTema == id).Include(t => t.IdTemaNavigation).Include(t => t.IdKorisnikNavigation).OrderBy(orderSelector);
+            }
+            var trazeniZapis = teme
+                        .Skip((page - 1) * pagesize)
+                        .Take(pagesize)
+                        .ToList();
+            var model = new ZborDataStandard.ViewModels.ForumViewModels.ZapisVIewModel()
+            {
+                Zapisi = trazeniZapis,
+                PagingInfo = pagingInfo,
+                IdTema = id,
+                IdKorisnik = user.Id,
+                Mod = mod,
+                Naslov = tema.Naslov
+            };
+
+            return Ok(model);
+        }
+        [HttpPost]
+        public  IActionResult NoviZapis([FromBody]ZborDataStandard.ViewModels.ForumViewModels.ZapisVIewModel model)
+        {
+            var user = GetUser();
+            if (model.Novi.Tekst.Trim().Equals(""))
+                ModelState.AddModelError("Tekst", "Zapis je obavezan");
+            if (ModelState.IsValid)
+            {
+                model.Novi.Id = Guid.NewGuid();
+                model.Novi.IdKorisnik = user.Id;
+                model.Novi.DatumIvrijeme = DateTime.Now;
+                model.Novi.Tekst = model.Novi.Tekst.Replace("src=\"\\\\", "src=\"https:\\\\");
+                var tema = _ctx.Tema.Find(model.Novi.IdTema);
+                tema.ZadnjiZapis = model.Novi.DatumIvrijeme;
+                _ctx.Zapis.Add(model.Novi);
+                _ctx.SaveChanges();
+                return Ok();
+            }
+            //model.KategorijaForuma = _ctx.KategorijaForuma.Include(k => k.Forum).ThenInclude(f => f.Tema).OrderBy(k => k.Redoslijed).ToList();
+            return Ok();
+        }
+        [HttpPost]
+        public IActionResult UrediZapis([FromBody] PretragaModel model)
+        {
+            var user = GetUser();
+            Guid idZapis;
+            var flag = Guid.TryParse(model.Id, out idZapis);
+            if (flag == false)
+                return BadRequest();
+            var zapis = _ctx.Zapis.Find(idZapis);
+            if (zapis == null)
+                return NotFound();
+            if (!isModForum(user.Id) && zapis.IdKorisnik != user.Id)
+                return Forbid();
+            zapis.Tekst = model.Tekst;
+            _ctx.SaveChanges();
+            return Ok();
+        }
+        [HttpPost]
+        public IActionResult ObrisiZapis([FromBody]ZborDataStandard.ViewModels.ForumViewModels.ZapisVIewModel model, int page = 1)
+        {
+            var user = GetUser();
+
+            var zapis = _ctx.Zapis.Find(model.IdBrisanje);
+            if (zapis == null)
+                return NotFound();
+            if (!isModForum(user.Id) && zapis.IdKorisnik != user.Id)
+                return Forbid();
+            _ctx.Zapis.Remove(zapis);
+            _ctx.SaveChanges();
+            return Ok();
+        }
+        [HttpPost]
+        public IActionResult NovaTema([FromBody]ZborDataStandard.ViewModels.ForumViewModels.TemeViewModel model)
+        {
+            var user = GetUser();
+            if (model.Nova.Naslov.Trim().Equals(""))
+                ModelState.AddModelError("Naslov", "Naslov je obavezan");
+            if (model.Tekst.Trim().Equals(""))
+                ModelState.AddModelError("Tekst", "Zapis je obavezan");
+            if (ModelState.IsValid)
+            {
+                model.Nova.Id = Guid.NewGuid();
+                Zapis zap = new Zapis
+                {
+                    Id = Guid.NewGuid(),
+                    IdKorisnik = user.Id,
+                    DatumIvrijeme = DateTime.Now,
+                    IdTema = model.Nova.Id,
+                    Tekst = model.Tekst
+                };
+                model.Nova.DatumPocetka = zap.DatumIvrijeme;
+                model.Nova.ZadnjiZapis = zap.DatumIvrijeme;
+                model.Nova.Zapis.Add(zap);
+                model.Nova.IdKorisnik = user.Id;
+                _ctx.Tema.Add(model.Nova);
+                _ctx.SaveChanges();
+                return Ok();
+            }
+            //model.KategorijaForuma = _ctx.KategorijaForuma.Include(k => k.Forum).ThenInclude(f => f.Tema).OrderBy(k => k.Redoslijed).ToList();
+            return Ok();
+        }
+        [HttpPost]
+        public IActionResult ObrisiTema([FromBody]ZborDataStandard.ViewModels.ForumViewModels.TemeViewModel model, int page = 1)
+        {
+            var user = GetUser();
+            var zapis = _ctx.Tema.Find(model.IdBrisanje);
+            if (zapis == null)
+                return NotFound();
+            if (!isModForum(user.Id) && zapis.IdKorisnik != user.Id)
+                return Forbid();
+            _ctx.Tema.Remove(zapis);
             _ctx.SaveChanges();
             return Ok();
         }
