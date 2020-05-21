@@ -73,7 +73,10 @@ namespace ZborApp.Controllers
             if (user == null)
                 return BadRequest(new { message = "Username or password is incorrect" });
 
-            return Ok(user);
+            var korisnik = _ctx.Korisnik.Find(user.Id);
+
+
+            return Ok(new {Token = user.Token, Korisnik = korisnik });
         }
         [AllowAnonymous]
         public IActionResult Pozdrav()

@@ -17,6 +17,7 @@ using ZborDataStandard.ViewModels.PorukeViewModels;
 using ZborDataStandard.ViewModels.RepozitorijViewModels;
 using ZborDataStandard.ViewModels.ZborViewModels;
 using ZborMob.Model;
+using ZborMob.Views;
 
 namespace ZborMob.Services
 {
@@ -44,7 +45,14 @@ namespace ZborMob.Services
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", App.Token);
             
         }
+        private void PotrebanLogin()
+        {
+            string tokenFileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "token.txt");
+            File.WriteAllText(tokenFileName, "");
+            App.Token = "";
 
+            App.Current.MainPage = new LoginPage();
+        }
         public async Task LoginAsync(string username, string password)
         {
             var keyValues = new 
@@ -52,12 +60,26 @@ namespace ZborMob.Services
                 Email = username,
                 password = password
             };
-            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "account/ApiLogin");
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/Token");
             request.Content = new StringContent( JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
             var response = await _httpClient.SendAsync(request);
-            var content = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<Login>(content);
 
-            Debug.WriteLine(content);
+                string fileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "korisnik.txt");
+                File.WriteAllText(fileName, JsonConvert.SerializeObject(obj.Korisnik));
+                App.Korisnik = obj.Korisnik;
+                string tokenFileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "token.txt");
+                File.WriteAllText(tokenFileName, obj.Token);
+                App.Token = obj.Token;
+
+                App.Current.MainPage = new KorisnikMainPage();
+
+
+            }
+
             // In case you need to send an auth token...
         }
         public async Task<IndexViewModel> PocetnaAsync()
@@ -69,6 +91,10 @@ namespace ZborMob.Services
                 var content = await response.Content.ReadAsStringAsync();
                 var zborovi = JsonConvert.DeserializeObject<IndexViewModel>(content);
                 return zborovi;
+            }
+            if(response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
             return null;
         }
@@ -82,6 +108,10 @@ namespace ZborMob.Services
                 var obj = JsonConvert.DeserializeObject<ProfilViewModel>(content);
                 return obj;
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             return null;
         }
         public async Task LajkObavijestiAsync(Guid id)
@@ -93,6 +123,10 @@ namespace ZborMob.Services
             var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/lajkObavijesti");
             request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
             var response = await _httpClient.SendAsync(request);
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             // In case you need to send an auth token...
         }
         public async Task UnLajkObavijestiAsync(Guid id)
@@ -104,6 +138,10 @@ namespace ZborMob.Services
             var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/unlajkObavijesti");
             request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
             var response = await _httpClient.SendAsync(request);
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             // In case you need to send an auth token...
         }
         public async Task LajkKomentaraAsync(Guid id)
@@ -115,6 +153,10 @@ namespace ZborMob.Services
             var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/lajkKomentara");
             request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
             var response = await _httpClient.SendAsync(request);
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             // In case you need to send an auth token...
         }
         public async Task UnLajkKomentaraAsync(Guid id)
@@ -126,6 +168,10 @@ namespace ZborMob.Services
             var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/unlajkKomentara");
             request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
             var response = await _httpClient.SendAsync(request);
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             // In case you need to send an auth token...
         }
         public async Task<KomentarObavijesti> NoviKomentarAsync(string tekst, Guid id)
@@ -145,6 +191,10 @@ namespace ZborMob.Services
                 var obj = JsonConvert.DeserializeObject<KomentarObavijesti>(content);
                 return obj;
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             return null;
         }
         public async Task<Obavijest> NovaObavijest(string naslov, string tekst, Guid id)
@@ -163,6 +213,10 @@ namespace ZborMob.Services
                 var obj = JsonConvert.DeserializeObject<Obavijest>(content);
                 return obj;
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             return null;
         }
         public async Task<PitanjaViewModel> PitanjaAsync(Guid id)
@@ -175,6 +229,10 @@ namespace ZborMob.Services
                 var content = await response.Content.ReadAsStringAsync();
                 var obj = JsonConvert.DeserializeObject<PitanjaViewModel>(content);
                 return obj;
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
             return null;
         }
@@ -193,6 +251,10 @@ namespace ZborMob.Services
             {
               
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
         }
         public async Task<Anketa> NovoPitanjeAsync(Guid id, Anketa pitanje)
         {
@@ -206,6 +268,10 @@ namespace ZborMob.Services
                 var obj = JsonConvert.DeserializeObject<Anketa>(content);
                 return obj;
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             return null;
         }
         public async Task<AdministracijaViewModel> AdministracijaAsync(Guid id)
@@ -217,6 +283,10 @@ namespace ZborMob.Services
                 var content = await response.Content.ReadAsStringAsync();
                 var obj = JsonConvert.DeserializeObject<AdministracijaViewModel>(content);
                 return obj;
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
             return null;
         }
@@ -236,6 +306,10 @@ namespace ZborMob.Services
                 var obj = JsonConvert.DeserializeObject<ClanZbora>(content);
                 return obj;
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             return null;
         }
         public async Task ObrisiPrijavuZborAsync(PrijavaZaZbor prijava)
@@ -252,6 +326,10 @@ namespace ZborMob.Services
             {
 
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
         }
         public async Task ObrisiPozivZborAsync(PozivZaZbor poziv)
         {
@@ -266,6 +344,10 @@ namespace ZborMob.Services
             if (response.IsSuccessStatusCode)
             {
 
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
         }
         public async Task<List<Korisnik>> PretraziAsync(Guid id,string uvjet)
@@ -284,6 +366,10 @@ namespace ZborMob.Services
                 var content = await response.Content.ReadAsStringAsync();
                 var obj = JsonConvert.DeserializeObject<List<Korisnik>>(content);
                 return obj;
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
             return null;
         }
@@ -304,6 +390,10 @@ namespace ZborMob.Services
                 var obj = JsonConvert.DeserializeObject<PozivZaZbor>(content);
                 return obj;
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             return null;
         }
         public async Task ObrisiClanZboraAsync(Guid id)
@@ -318,6 +408,10 @@ namespace ZborMob.Services
             var response = await _httpClient.SendAsync(request);
             if (response.IsSuccessStatusCode)
             {
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
         }
         public async Task<ModeratorZbora> PostaviModeratoraAsync(Guid id, Guid idZbor)
@@ -337,6 +431,10 @@ namespace ZborMob.Services
                 var obj = JsonConvert.DeserializeObject<ModeratorZbora>(content);
                 return obj;
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             return null;
         }
         public async Task ObrisiModeratoraAsync(Guid id)
@@ -352,6 +450,10 @@ namespace ZborMob.Services
             if (response.IsSuccessStatusCode)
             {
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
         }
         public async Task PostaviVoditeljaAsync(Guid id)
         {
@@ -365,6 +467,10 @@ namespace ZborMob.Services
             var response = await _httpClient.SendAsync(request);
             if (response.IsSuccessStatusCode)
             {
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
         }
         public async Task PromjenaGlasaAsync(Guid id, int index)
@@ -380,6 +486,10 @@ namespace ZborMob.Services
             if (response.IsSuccessStatusCode)
             {
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
         }
         public async Task<ProjektiMobViewModel> ProjektiAsync(Guid id)
         {
@@ -390,6 +500,10 @@ namespace ZborMob.Services
                 var content = await response.Content.ReadAsStringAsync();
                 var obj = JsonConvert.DeserializeObject<ProjektiMobViewModel>(content);
                 return obj;
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
             return null;
         }
@@ -406,6 +520,10 @@ namespace ZborMob.Services
             if (response.IsSuccessStatusCode)
             {
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
         }
         public async Task ObrisiPrijavuProjektAsync(Guid id)
         {
@@ -413,6 +531,10 @@ namespace ZborMob.Services
             var response = await _httpClient.SendAsync(request);
             if (response.IsSuccessStatusCode)
             {
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
         }
         public async Task<Projekt> NoviProjektAsync(Projekt model)
@@ -427,6 +549,10 @@ namespace ZborMob.Services
                 var obj = JsonConvert.DeserializeObject<Projekt>(content);
                 return obj;
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             return null;
         }
         public async Task<ProjektViewModel> ProjektAsync(Guid id)
@@ -439,6 +565,10 @@ namespace ZborMob.Services
                 var obj = JsonConvert.DeserializeObject<ProjektViewModel>(content);
                 return obj;
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             return null;
         }
         public async Task<ProjektViewModel> ObrisiDogadjaj(Guid id)
@@ -447,6 +577,10 @@ namespace ZborMob.Services
             var response = await _httpClient.SendAsync(request);
             if (response.IsSuccessStatusCode)
             {
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
             return null;
         }
@@ -464,6 +598,10 @@ namespace ZborMob.Services
             {
                
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
         }
         public async Task UnNajavaDolaska(Guid id)
         {
@@ -479,6 +617,10 @@ namespace ZborMob.Services
             {
 
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
         }
         public async Task<List<VrstaDogadjaja>> VrsteDogadjajaAsync()
         {
@@ -490,6 +632,10 @@ namespace ZborMob.Services
                 var content = await response.Content.ReadAsStringAsync();
                 var obj = JsonConvert.DeserializeObject<List<VrstaDogadjaja>>(content);
                 return obj;
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
             return null;
         }
@@ -504,6 +650,10 @@ namespace ZborMob.Services
             {
 
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
         }
         public async Task<DogadjajViewModel> DogadjajViewModelAsync(Guid id)
         {
@@ -516,6 +666,10 @@ namespace ZborMob.Services
                 var obj = JsonConvert.DeserializeObject<DogadjajViewModel>(content);
                 return obj;
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             return null;
         }
         public async Task<AdministracijaProjektaViewModel> AdministracijaProjektaAsync(Guid id)
@@ -527,6 +681,10 @@ namespace ZborMob.Services
                 var content = await response.Content.ReadAsStringAsync();
                 var obj = JsonConvert.DeserializeObject<AdministracijaProjektaViewModel>(content);
                 return obj;
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
             return null;
         }
@@ -546,6 +704,10 @@ namespace ZborMob.Services
                 var obj = JsonConvert.DeserializeObject<ClanNaProjektu>(content);
                 return obj;
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             return null;
         }
         public async Task ObrisiPrijavuProjektAsync(PrijavaZaProjekt prijava)
@@ -561,6 +723,10 @@ namespace ZborMob.Services
             if (response.IsSuccessStatusCode)
             {
 
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
         }
        
@@ -581,6 +747,10 @@ namespace ZborMob.Services
                 var obj = JsonConvert.DeserializeObject<List<Korisnik>>(content);
                 return obj;
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             return null;
         }
         public async Task<ClanNaProjektu> DodajClanProjektAsync(Guid idKorisnik, Guid idProjekt)
@@ -600,6 +770,10 @@ namespace ZborMob.Services
                 var obj = JsonConvert.DeserializeObject<ClanNaProjektu>(content);
                 return obj;
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             return null;
         }
         public async Task ObrisiClanProjektaAsync(Guid id)
@@ -615,6 +789,10 @@ namespace ZborMob.Services
             if (response.IsSuccessStatusCode)
             {
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
         }
         public async Task PromjenaUlogeAsync(ClanNaProjektu clan)
         {
@@ -628,6 +806,10 @@ namespace ZborMob.Services
             var response = await _httpClient.SendAsync(request);
             if (response.IsSuccessStatusCode)
             {
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
         }
         public async Task<Statistika> DohvatiStatistikuAsync(Guid idKorisnik, Guid idProjekt)
@@ -647,6 +829,10 @@ namespace ZborMob.Services
                 var obj = JsonConvert.DeserializeObject<Statistika>(content);
                 return obj;
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             return null;
         }
         public async Task ZavrsiProjektAsync(Guid id)
@@ -662,6 +848,10 @@ namespace ZborMob.Services
             if (response.IsSuccessStatusCode)
             {
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
         }
         public async Task ObrisiProjektAsync(Guid id)
         {
@@ -676,6 +866,10 @@ namespace ZborMob.Services
             if (response.IsSuccessStatusCode)
             {
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
         }
         public async Task<ZborDataStandard.ViewModels.ZborViewModels.JavniProfilViewModel> JavniProfilAsync(Guid idZbor)
         {
@@ -689,6 +883,10 @@ namespace ZborMob.Services
                 return obj;
             }
             return null;
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
         }
         public async Task SpremiOZboruAsync(Guid id, string tekst)
         {
@@ -702,6 +900,10 @@ namespace ZborMob.Services
             var response = await _httpClient.SendAsync(request);
             if (response.IsSuccessStatusCode)
             {
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
         }
         public async Task SpremiOVoditeljimauAsync(Guid id, string tekst)
@@ -717,6 +919,10 @@ namespace ZborMob.Services
             if (response.IsSuccessStatusCode)
             {
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
         }
         public async Task SpremiRepertoarAsync(Guid id, string tekst)
         {
@@ -730,6 +936,10 @@ namespace ZborMob.Services
             var response = await _httpClient.SendAsync(request);
             if (response.IsSuccessStatusCode)
             {
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
         }
         public async Task SpremiReprezentacijauAsync(Guid id, string tekst)
@@ -745,6 +955,10 @@ namespace ZborMob.Services
             if (response.IsSuccessStatusCode)
             {
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
         }
         public async Task<RepozitorijZborViewModel> RepozitorijZborAsync(Guid idZbor)
         {
@@ -756,6 +970,10 @@ namespace ZborMob.Services
                 var content = await response.Content.ReadAsStringAsync();
                 var obj = JsonConvert.DeserializeObject<RepozitorijZborViewModel>(content);
                 return obj;
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
             return null;
         }
@@ -771,6 +989,10 @@ namespace ZborMob.Services
             if (response.IsSuccessStatusCode)
             {
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
         }
         public async Task VidljivostZborAsync(Guid id, string uri)
         {
@@ -784,6 +1006,10 @@ namespace ZborMob.Services
             if (response.IsSuccessStatusCode)
             {
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
         }
         public async Task PreuzmiZborAsync(RepozitorijZbor dat)
         {
@@ -795,6 +1021,10 @@ namespace ZborMob.Services
                 var content = await response.Content.ReadAsByteArrayAsync();
                 DependencyService.Get<IFileService>().Save(dat.Naziv, content);
 
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
         }
         public async Task<RepozitorijZbor> UploadZborAsync(Guid idZbor, string path, string name)
@@ -821,6 +1051,10 @@ namespace ZborMob.Services
                 var obj = JsonConvert.DeserializeObject<RepozitorijZbor>(content);
                 return obj;
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             return null;
         }
         public async Task<RepozitorijViewModel> RepozitorijKorisnikAsync(Guid idKorisnik)
@@ -833,6 +1067,10 @@ namespace ZborMob.Services
                 var content = await response.Content.ReadAsStringAsync();
                 var obj = JsonConvert.DeserializeObject<RepozitorijViewModel>(content);
                 return obj;
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
             return null;
         }
@@ -848,6 +1086,10 @@ namespace ZborMob.Services
             if (response.IsSuccessStatusCode)
             {
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
         }
         public async Task VidljivostKorisnikAsync(Guid id, string uri)
         {
@@ -861,6 +1103,10 @@ namespace ZborMob.Services
             if (response.IsSuccessStatusCode)
             {
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
         }
         public async Task PreuzmiKorisnikAsync(RepozitorijKorisnik dat)
         {
@@ -872,6 +1118,10 @@ namespace ZborMob.Services
                 var content = await response.Content.ReadAsByteArrayAsync();
                 DependencyService.Get<IFileService>().Save(dat.Naziv, content);
 
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
         }
         public async Task<RepozitorijKorisnik> UploadKorisnikAsync(Guid idZbor, string path, string name)
@@ -898,6 +1148,10 @@ namespace ZborMob.Services
                 var obj = JsonConvert.DeserializeObject<RepozitorijKorisnik>(content);
                 return obj;
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             return null;
         }
         public async Task<PorukeViewModel> Razgovori()
@@ -910,6 +1164,10 @@ namespace ZborMob.Services
                 var content = await response.Content.ReadAsStringAsync();
                 var obj = JsonConvert.DeserializeObject<PorukeViewModel>(content);
                 return obj;
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
             return null;
         }
@@ -924,6 +1182,10 @@ namespace ZborMob.Services
                 var obj = JsonConvert.DeserializeObject<List<Poruka>>(content);
                 return obj;
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             return null;
         }
         public async Task<List<Korisnik>> KorisniciAsync()
@@ -937,6 +1199,10 @@ namespace ZborMob.Services
                 var obj = JsonConvert.DeserializeObject<List<Korisnik>>(content);
                 return obj;
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             return null;
         }
         public async Task<PretplateViewModel> PretplateAsync(Guid id)
@@ -949,6 +1215,10 @@ namespace ZborMob.Services
                 var content = await response.Content.ReadAsStringAsync();
                 var obj = JsonConvert.DeserializeObject<PretplateViewModel>(content);
                 return obj;
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
             return null;
         }
@@ -965,6 +1235,10 @@ namespace ZborMob.Services
                 var obj = JsonConvert.DeserializeObject<PretplateViewModel>(content);
                 return obj;
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             return null;
         }
         public async Task EvidentirajAsync(DogadjajViewModel model)
@@ -977,6 +1251,10 @@ namespace ZborMob.Services
             if (response.IsSuccessStatusCode)
             {
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
         }
         public async Task<ObavijestiViewModel> Obavijesti()
         {
@@ -988,6 +1266,10 @@ namespace ZborMob.Services
                 var content = await response.Content.ReadAsStringAsync();
                 var obj = JsonConvert.DeserializeObject<ObavijestiViewModel>(content);
                 return obj;
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
             return null;
         }
@@ -1002,6 +1284,10 @@ namespace ZborMob.Services
                 var obj = JsonConvert.DeserializeObject<ZborDataStandard.ViewModels.ZborViewModels.GalerijaViewModel>(content);
                 return obj;
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             return null;
         }
         public async Task ProfilnaZborAsync(Guid id)
@@ -1012,6 +1298,10 @@ namespace ZborMob.Services
             if (response.IsSuccessStatusCode)
             {
                 
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
         }
         public async Task<ZborDataStandard.ViewModels.KorisnikVIewModels.GalerijaViewModel> GalerijaKorisnik(Guid id)
@@ -1025,6 +1315,10 @@ namespace ZborMob.Services
                 var obj = JsonConvert.DeserializeObject<ZborDataStandard.ViewModels.KorisnikVIewModels.GalerijaViewModel>(content);
                 return obj;
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             return null;
         }
         public async Task ProfilnaKorisnikAsync(Guid id)
@@ -1036,6 +1330,10 @@ namespace ZborMob.Services
             {
 
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
         }
         public async Task PrijavaZborAsync(Guid id)
         {
@@ -1045,6 +1343,10 @@ namespace ZborMob.Services
             if (response.IsSuccessStatusCode)
             {
 
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
         }
         public async Task<ZborDataStandard.ViewModels.KorisnikVIewModels.JavniProfilViewModel> JavniProfilKorisnikAsync(Guid id)
@@ -1057,6 +1359,10 @@ namespace ZborMob.Services
                 var content = await response.Content.ReadAsStringAsync();
                 var obj = JsonConvert.DeserializeObject<ZborDataStandard.ViewModels.KorisnikVIewModels.JavniProfilViewModel>(content);
                 return obj;
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
             return null;
         }
@@ -1072,6 +1378,10 @@ namespace ZborMob.Services
             if (response.IsSuccessStatusCode)
             {
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
         }
         public async Task<ZborDataStandard.ViewModels.ForumViewModels.IndexViewModel> Forum()
         {
@@ -1083,6 +1393,10 @@ namespace ZborMob.Services
                 var content = await response.Content.ReadAsStringAsync();
                 var obj = JsonConvert.DeserializeObject<ZborDataStandard.ViewModels.ForumViewModels.IndexViewModel>(content);
                 return obj;
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
             return null;
         }
@@ -1097,6 +1411,11 @@ namespace ZborMob.Services
                 var obj = JsonConvert.DeserializeObject<ZborDataStandard.ViewModels.ForumViewModels.TemeViewModel>(content);
                 return obj;
             }
+
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
             return null;
         }
         public async Task<ZborDataStandard.ViewModels.ForumViewModels.ZapisVIewModel> Zapisi(Guid id, int stranica = 1)
@@ -1109,6 +1428,10 @@ namespace ZborMob.Services
                 var content = await response.Content.ReadAsStringAsync();
                 var obj = JsonConvert.DeserializeObject<ZborDataStandard.ViewModels.ForumViewModels.ZapisVIewModel>(content);
                 return obj;
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
             return null;
         }
@@ -1124,6 +1447,10 @@ namespace ZborMob.Services
             if (response.IsSuccessStatusCode)
             {
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
         }
         public async Task UrediZapis(Guid idZapis, string tekst)
         {
@@ -1138,6 +1465,10 @@ namespace ZborMob.Services
             if (response.IsSuccessStatusCode)
             {
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
         }
         public async Task ObrisiZapis(Guid idZapis)
         {
@@ -1150,6 +1481,10 @@ namespace ZborMob.Services
             var response = await _httpClient.SendAsync(request);
             if (response.IsSuccessStatusCode)
             {
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
         }
         public async Task NovaTema(Tema nova, string tekst)
@@ -1165,6 +1500,10 @@ namespace ZborMob.Services
             if (response.IsSuccessStatusCode)
             {
             }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
         }
         public async Task ObrisiTema(Guid idTema)
         {
@@ -1177,6 +1516,10 @@ namespace ZborMob.Services
             var response = await _httpClient.SendAsync(request);
             if (response.IsSuccessStatusCode)
             {
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
             }
         }
     }
