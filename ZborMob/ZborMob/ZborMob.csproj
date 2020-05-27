@@ -44,6 +44,9 @@
     <Compile Update="Views\JavniProfilPage.xaml.cs">
       <DependentUpon>JavniProfilPage.xaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\DodajZborPage.xaml.cs">
+      <DependentUpon>DodajZborPage.xaml</DependentUpon>
+    </Compile>
     <Compile Update="Views\RepozitorijKorisnikPage.xaml.cs">
       <DependentUpon>RepozitorijKorisnikPage.xaml</DependentUpon>
     </Compile>
@@ -135,6 +138,9 @@
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Views\ProjektTabbedPage.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\RegisterPage.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Views\RepozitorijZborPage.xaml">

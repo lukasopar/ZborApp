@@ -50,13 +50,7 @@
                             <span asp-validation-for="Prezime" class="text-danger"></span>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="form-group col-md-6">
-                            <label asp-for="Opis"></label>
-                            <input asp-for="Opis" class="form-control" />
-                            <span asp-validation-for="Opis" class="text-danger"></span>
-                        </div>
-                    </div>
+                  
                     <div class="row">
                         <div class="form-group col-md-6">
                             <label asp-for="DatumRodjenja">Datum rođenja</label>
@@ -75,7 +69,7 @@
                     <div class="row">
                         <div class="form-group col-md-12">
                             <label asp-for="Opis">O meni</label>
-                            <textarea class = "col-md-12"asp-for="Opis"></textarea>
+                            <textarea class = "col-md-12 input-group" asp-for="Opis"></textarea>
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary mb-2">Registriraj se!</button>

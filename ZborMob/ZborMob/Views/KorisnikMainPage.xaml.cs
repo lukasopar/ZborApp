@@ -28,6 +28,7 @@ namespace ZborMob.Views
                 Priority = 0,
                 IconImageSource ="envelope.png"
             };
+            item.Clicked += async (sender, args) => await Navigation.PushAsync(new PorukePage()); 
             ToolbarItem item2 = new ToolbarItem
             {
                 Text = "obavijest",
@@ -35,6 +36,7 @@ namespace ZborMob.Views
                 Priority = 0,
                 IconImageSource = "signs.png"
             };
+            item2.Clicked += async (sender, args) => await Navigation.PushAsync(new ObavijestiKorisnikPage());
             // "this" refers to a Page object
             ToolbarItems.Add(item);
             ToolbarItems.Add(item2);

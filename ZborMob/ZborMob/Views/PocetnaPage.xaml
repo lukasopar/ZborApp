@@ -12,6 +12,7 @@
         <local:PocetnaViewModel x:Name="viewmodel"/>
     </ContentPage.BindingContext>
     <StackLayout>
+        <Button Text="Dodaj zbor" Clicked="Dodaj"/>
         <Label Text="Moji zborovi"/>
         <ListView ItemsSource="{Binding MojiZborovi}" x:Name="MojiZborovi" x:FieldModifier="public" ItemTapped="MojZborTapped" >
             <ListView.ItemTemplate >

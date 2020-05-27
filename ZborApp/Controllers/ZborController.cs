@@ -2204,7 +2204,9 @@ namespace ZborApp.Controllers
             if (!Exists(id))
                 return RedirectToAction("Nema", "Greska");
             var zbor = _ctx.Zbor.Where(z => z.Id == id).Include(z => z.ProfilZbor)
-                .Include(z => z.Voditelj).ThenInclude(v => v.IdKorisnikNavigation).SingleOrDefault();
+                .Include(z => z.Voditelj).ThenInclude(v => v.IdKorisnikNavigation)
+                .Include(z => z.ClanZbora).ThenInclude(v  => v.IdKorisnikNavigation)
+                .SingleOrDefault();
 
             JavniProfilViewModel model = new JavniProfilViewModel
             {

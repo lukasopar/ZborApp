@@ -320,7 +320,53 @@ namespace Lumenn.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> RegisterApi([FromBody]RegisterViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var result = await _userManager.CreateAsync(user, model.Password);
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("User created a new account with password.");
 
+                    //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    //var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
+                    //await _emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
+
+                    //await _signInManager.SignInAsync(user, isPersistent: false);
+                    _logger.LogInformation("User created a new account with password.");
+
+                    Korisnik k = new Korisnik();
+                    k.Id = user.Id;
+                    k.Ime = model.Ime;
+                    k.Prezime = model.Prezime;
+                    k.Opis = model.Opis;
+                    k.IdSlika = Guid.Empty;
+                    k.DatumRodjenja = Convert.ToDateTime(model.DatumRodjenja);
+                    _ctx.Korisnik.Add(k);
+                    _ctx.SaveChanges();
+
+                   
+
+                    return Ok();
+                }
+                AddErrors(result);
+                
+            }
+            var poruke = "";
+            foreach (var modelState in ModelState.Values)
+            {
+                foreach (var error in modelState.Errors)
+                {
+                    poruke += error.ErrorMessage + "\n";
+                }
+            }
+            // If we got this far, something failed, redisplay form
+            return BadRequest(poruke);
+        }
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]

@@ -3,16 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:ViewModels1="clr-namespace:ZborMob.ViewModels"
              mc:Ignorable="d"
-             x:Class="ZborMob.Views.LoginPage">
-    <ContentPage.BindingContext>
-        <ViewModels1:LoginViewModel />
-    </ContentPage.BindingContext>
+             x:Class="ZborMob.Views.DodajZborPage">
     <ContentPage.Content>
-        <StackLayout Orientation="Vertical">
-            <Label Text="Prijava" Margin="10,10" FontSize="20" TextColor="Gray"/>
-            <Grid BackgroundColor="White" Margin="10,10,10,10" Padding="5,5,5,5" >
+        <StackLayout>
+            <Label Text="Dodaj zbor" Margin="10,10" FontSize="20" TextColor="Gray"/>
+            <Grid BackgroundColor="White" Margin="10,10,10,10" Padding="5,5,5,5">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -27,16 +23,15 @@
                     <RowDefinition Height="Auto"/>
 
                 </Grid.RowDefinitions>
-                <Label Text="Email" Grid.Row="0"/>
-                <Entry Text="{Binding Username}" Grid.Row="1"/>
-                <Label Text="Lozinka" Grid.Row="2"/>
-                <Entry Text="{Binding Password}" IsPassword="True" Grid.Row="3"/>
-                <Button Command="{Binding LoginCommand}" Text="Prijava" Grid.Row="4" TextColor="White" BackgroundColor="#1C6EBC" WidthRequest="119" HorizontalOptions="Center"/>
-                <Button Clicked="Reg" Text="Registracija" Grid.Row="5" TextColor="White" BackgroundColor="#1C6EBC" WidthRequest="119" HorizontalOptions="Center"/>
+                <Label Grid.Row="0" Grid.Column="0" Text="Naziv"/>
+                <Entry Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding model.Novi.Naziv}"/>
+                <Label Grid.Row="2" Grid.Column="0" Text="Adresa" />
+                <Entry Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding model.Novi.Adresa}"/>
+            
+                <Label Grid.Row="4" Grid.Column="0" Text="Datum osnutka" VerticalOptions="Center"  />
+                <DatePicker Grid.Row="4" Grid.Column="1" x:Name="datum" Date="{Binding model.Novi.DatumOsnutka}" Format="dd.MM.yyyy."/>
+                <Button Text="Dodaj" Grid.Row="5" Grid.ColumnSpan="2" HorizontalOptions="Center" TextColor="White" BackgroundColor="#1C6EBC" Clicked="Dodaj" x:Name="reg"/>
             </Grid>
-
-          
-
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

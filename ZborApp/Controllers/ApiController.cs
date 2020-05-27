@@ -2414,5 +2414,49 @@ namespace ZborApp.Controllers
             _ctx.SaveChanges();
             return Ok();
         }
+        [HttpPost]
+        public  IActionResult DodajZbor([FromBody]DodajViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                if (model.Novi.Naziv.Trim().Equals(""))
+                {
+                    ModelState.AddModelError("Naziv", "Naziv je obavezan.");
+                }
+                if (model.Novi.Adresa.Trim().Equals(""))
+                {
+                    ModelState.AddModelError("Adresa", "Adresa je obavezna");
+                }
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(model);
+                }
+                model.Novi.Id = Guid.NewGuid();
+                var user = GetUser();
+                Voditelj voditelj = new Voditelj
+                {
+                    DatumPostanka = DateTime.Now,
+                    Id = Guid.NewGuid(),
+                    IdZborNavigation = model.Novi,
+                    IdZbor = model.Novi.Id,
+                    IdKorisnik = user.Id
+                };
+                ClanZbora clan = new ClanZbora
+                {
+                    Id = Guid.NewGuid(),
+                    IdKorisnik = user.Id,
+                    IdZbor = model.Novi.Id,
+                    DatumPridruzivanja = DateTime.Now,
+                    Glas = "ne"
+                };
+                model.Novi.Voditelj.Add(voditelj);
+                model.Novi.ClanZbora.Add(clan);
+                model.Novi.ProfilZbor = new ProfilZbor();
+                _ctx.Add(model.Novi);
+                _ctx.SaveChanges();
+                return Ok(model.Novi);
+            }
+            return BadRequest(model);
+        }
     }
 }

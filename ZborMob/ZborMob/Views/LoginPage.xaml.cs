@@ -16,5 +16,9 @@ namespace ZborMob.Views
         {
             InitializeComponent();
         }
+        public void Reg(object o, EventArgs e)
+        {
+            App.Current.MainPage = new RegisterPage();
+        }
     }
 }

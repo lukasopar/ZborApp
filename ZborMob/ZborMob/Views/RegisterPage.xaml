@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="ZborMob.Views.RegisterPage">
+    <ContentPage.Content>
+        <StackLayout>
+            <Label Text="Registracija" Margin="10,10" FontSize="20" TextColor="Gray"/>
+            <Grid BackgroundColor="White" Margin="10,10,10,10" Padding="5,5,5,5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" Text="Email"/>
+                <Entry Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding model.Email}"/>
+                <Label Grid.Row="2" Grid.Column="0" Text="Lozinka" />
+                <Label Grid.Row="2" Grid.Column="1" Text="Potvrdi lozinku"/>
+                <Entry Grid.Row="3" Grid.Column="0" IsPassword="true" Text="{Binding model.Password}"/>
+                <Entry Grid.Row="3" Grid.Column="1" IsPassword="true" Text="{Binding model.ConfirmPassword}"/>
+                <Label Grid.Row="4" Grid.Column="0" Text="Ime" />
+                <Label Grid.Row="4" Grid.Column="1" Text="Prezime"/>
+                <Entry Grid.Row="5" Grid.Column="0" Text="{Binding model.Ime}"/>
+                <Entry Grid.Row="5" Grid.Column="1" Text="{Binding model.Prezime}"/>
+                <Label Grid.Row="6" Grid.Column="0" Text="Datum rođenja" VerticalOptions="Center"  />
+                <DatePicker Grid.Row="6" Grid.Column="1" x:Name="datum" Date="{Binding model.DatumRodjenja}" Format="dd.MM.yyyy."/>
+                <Label Grid.Row="7" Grid.Column="0" Text="O meni"/>
+                <Editor Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" HeightRequest="150" Text="{Binding model.Opis}" />
+                <ActivityIndicator Grid.Row="9" Color="#1C6EBC"   Grid.ColumnSpan="2" HorizontalOptions="Center" IsRunning="True" IsVisible="False" x:Name="activity"/>
+                <Button Text="Registracija" Grid.Row="9" Grid.ColumnSpan="2" HorizontalOptions="Center" TextColor="White" BackgroundColor="#1C6EBC" Clicked="Reg" x:Name="reg"/>
+                <Button Text="Natrag" Grid.Row="10" Clicked="Prijava" Grid.ColumnSpan="2" HorizontalOptions="Center" TextColor="White" BackgroundColor="#1C6EBC" WidthRequest="119" x:Name="prijava"/>
+            </Grid>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

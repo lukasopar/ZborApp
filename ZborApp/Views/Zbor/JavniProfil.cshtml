@@ -93,7 +93,97 @@
                 </div>
             </div>
         </div>
-       
+        <div class="col-12">
+
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Članovi</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+               
+                    <div class="card-title d-flex flex-row align-items-center justify-content-between">
+                        <div class="col-md-2">
+                            Soprani
+                        </div>
+                        <div class="col-md-2">
+                            Alti
+                        </div>
+                        <div class="col-md-2">
+                            Tenori
+                        </div>
+                        <div class="col-md-2">
+                            Basi
+                        </div>
+                        <div class="col-md-2">
+                            Nerazvrstani
+                        </div>
+                    </div>
+                    <div class="card-text d-flex flex-row align-items-start justify-content-between">
+                        <div class="col-md-2" style="padding-right:0px" id="1">
+                            
+                                @foreach (var clan in Model.Zbor.ClanZbora.Where(c=> c.Glas.Trim().Equals("sopran")))
+                                {
+                                    <div id="Clan-@clan.Id" style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between">
+                                        <a asp-action="JavniProfil" asp-controller="Korisnik" asp-route-id="@clan.IdKorisnik">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>           
+                                    </div>
+
+                                }
+                            
+                        </div>
+                        <div class="col-md-2" id="2">
+                          
+                                @foreach (var clan in Model.Zbor.ClanZbora.Where(c => c.Glas.Trim().Equals("alt")))
+                                {
+                                    <div id="Clan-@clan.Id" style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between">
+                                        <a asp-action="JavniProfil" asp-controller="Korisnik" asp-route-id="@clan.IdKorisnik">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>
+                                    </div>
+                                }
+                            
+                        </div>
+                        <div class="col-md-2" id="3">
+                            
+                                @foreach (var clan in Model.Zbor.ClanZbora.Where(c => c.Glas.Trim().Equals("tenor")))
+                                {
+                                    <div id="Clan-@clan.Id" style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between">
+                                        <a asp-action="JavniProfil" asp-controller="Korisnik" asp-route-id="@clan.IdKorisnik">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>
+                                    </div>
+
+                                }
+                            
+                        </div>
+                        <div class="col-md-2" id="4">
+                          
+                                @foreach (var clan in Model.Zbor.ClanZbora.Where(c => c.Glas.Trim().Equals("bas")))
+                                {
+                                    <div id="Clan-@clan.Id" style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between">
+                                        <a asp-action="JavniProfil" asp-controller="Korisnik" asp-route-id="@clan.IdKorisnik">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>
+                                    </div>
+
+                                }
+                            
+                        </div>
+                        <div id="Nerazvrstani" class="col-md-2">
+                          
+                                @foreach (var clan in Model.Zbor.ClanZbora.Where(c => c.Glas.Trim().Equals("ne")))
+                                {
+                                    <div id="Clan-@clan.Id" style="width:100%; padding-top:7px" class="d-flex flex-row align-items-center justify-content-between">
+                                        <a asp-action="JavniProfil" asp-controller="Korisnik" asp-route-id="@clan.IdKorisnik">@clan.IdKorisnikNavigation.Ime @clan.IdKorisnikNavigation.Prezime</a>
+                                    </div>
+
+                                }
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    Voditelj: <a href="#">@Model.Zbor.Voditelj.First().IdKorisnikNavigation.ImeIPrezime()</a>
+                </div>
+            </div>
+
+
+        </div>
     </div>
     <div class="col-5">
         <div class="col-12">

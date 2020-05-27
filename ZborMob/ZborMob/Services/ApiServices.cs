@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Xamarin.Forms;
 using Xamarin.Forms.PlatformConfiguration;
 using ZborDataStandard.Model;
+using ZborDataStandard.ViewModels.AccountViewModels;
 using ZborDataStandard.ViewModels.KorisnikVIewModels;
 using ZborDataStandard.ViewModels.PorukeViewModels;
 using ZborDataStandard.ViewModels.RepozitorijViewModels;
@@ -1521,6 +1522,65 @@ namespace ZborMob.Services
             {
                 PotrebanLogin();
             }
+        }
+        public async Task<string> RegisterAsync(RegisterViewModel model)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "account/registerapi");
+            request.Content = new StringContent(JsonConvert.SerializeObject(model).ToString(), Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                //sad se logiraj
+                var keyValues = new
+                {
+                    Email = model.Email,
+                    password = model.Password
+                };
+                var requestLog = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/Token");
+                requestLog.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+                var responseLog = await _httpClient.SendAsync(requestLog);
+                if(responseLog.IsSuccessStatusCode)
+                {
+                    var content = await responseLog.Content.ReadAsStringAsync();
+                    var obj = JsonConvert.DeserializeObject<Login>(content);
+
+                    string fileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "korisnik.txt");
+                    File.WriteAllText(fileName, JsonConvert.SerializeObject(obj.Korisnik));
+                    App.Korisnik = obj.Korisnik;
+                    string tokenFileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "token.txt");
+                    File.WriteAllText(tokenFileName, obj.Token);
+                    App.Token = obj.Token;
+
+                    App.Current.MainPage = new KorisnikMainPage();
+                }
+
+                
+            }
+            if(response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                return content;
+            }
+            return "";
+        }
+        public async Task<Zbor> DodajZbor(ZborDataStandard.ViewModels.ZborViewModels.DodajViewModel zbor)
+        {
+            
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/DodajZbor/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(zbor).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<Zbor>(content);
+                return obj;
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
+            return null;
         }
     }
 }
