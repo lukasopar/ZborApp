@@ -66,6 +66,7 @@ namespace ZborApp.Controllers
             _ctx.SaveChanges();
             return Ok();
         }
+        [AllowAnonymous]
         public async Task<IActionResult> Galerija(Guid id)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
@@ -73,14 +74,14 @@ namespace ZborApp.Controllers
             if (korisnik == null)
                 return RedirectToAction("Nema", "Greska");
             var slike = _ctx.RepozitorijKorisnik.Where(z => z.IdKorisnik == id).ToList().Where(s => s.JeSlika()).ToList();
-            if(user.Id != id)
+            if(user==null || user.Id != id)
             {
                 slike = slike.Where(s => s.Privatno == false).ToList();
             }
             GalerijaViewModel model = new GalerijaViewModel
             {
                 Slike = slike,
-                Clan = user.Id == id,
+                Clan = user!=null && user.Id == id,
                 IdKorisnik = id
             };
             return View(model);
@@ -130,6 +131,7 @@ namespace ZborApp.Controllers
 
             return View(model);
         }
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> JavniProfil(Guid id)
         {
@@ -141,7 +143,7 @@ namespace ZborApp.Controllers
             JavniProfilViewModel model = new JavniProfilViewModel
             {
                 Korisnik = korisnik,
-                Aktivni = user.Id 
+                Aktivni = user==null?Guid.Empty:user.Id 
             };
             
             return View(model);

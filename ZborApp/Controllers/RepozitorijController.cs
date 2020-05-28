@@ -369,6 +369,7 @@ namespace ZborApp.Controllers
             return File(System.IO.File.ReadAllBytes(LOCATION + "/" + dat.Url), "application/force-download", dat.Naziv);
             
         }
+        [AllowAnonymous]
         public async Task<IActionResult> GetZbor(Guid id)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);

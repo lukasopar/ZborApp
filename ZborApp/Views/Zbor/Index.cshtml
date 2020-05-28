@@ -3,150 +3,125 @@
 @{
     ViewData["Title"] = "Zborovi";
 }
+    <div class="">
 
+            <h1 class="h3 mb-0 text-gray-800">Moji zborovi</h1>
+        <br/
+            <h4><a asp-action="Dodaj">+ Dodaj vlastiti zbor</a></h4>
 
+    </div>
 
-<div class="container-wrap">
-    <div class="container-wrap" style="margin-left:50px; padding-top:50px">
-        <h4><a asp-action="Dodaj">+ Dodaj vlastiti zbor</a></h4>
-        <hr />
-        @if(Model.MojiPozivi != null && Model.MojiPozivi.Count() > 0)
-        {
-            <h4>Pozivi</h4>
-            @foreach(PozivZaZbor poziv in Model.MojiPozivi)
-            {
     <div class="row">
-        <div class="col-md-3">
-            <a asp-action="Profil" asp-route-id="@poziv.IdZbor">@poziv.IdZborNavigation.Naziv</a>
-        </div>
-        <div class="col-md-3">
-            <a class="btn btn-sm btn-outline-success" asp-action="PrihvatiPoziv" asp-route-id="@poziv.Id">Prihvati</a>
-            <a class="btn btn-sm btn-outline-danger" asp-action="OdbijPoziv" asp-route-id="@poziv.Id">Odbij</a>
-        </div>
-    </div>
-            }
-        }
+        <div class="col-6">
+            <div class="col-12">
 
-        <h4>Moji zborovi</h4>
-        @if (Model.MojiZborovi == null || Model.MojiZborovi.Count() == 0)
-        {
-            <p>Učlanite se u neki zbor!</p>
-        }
-        @foreach (Zbor zbor in Model.MojiZborovi)
-        {
-            <div class="row">
-                <div class="col-md-3"><a asp-action="Profil" asp-route-id="@zbor.Id">@zbor.Naziv</a></div>
-
-            </div>
-
-        }
-        <br />
-
-        @if (Model.PoslanePrijaveZborovi != null && Model.PoslanePrijaveZborovi.Count() > 0)
-        {
-            <h5>Zborovi u koje je poslana prijava</h5>
-        }
-        @foreach (Zbor zbor in Model.PoslanePrijaveZborovi)
-        {
-            <div class="row">
-                <div class="col-md-3"><a asp-action="JavniProfil" asp-route-id="@zbor.Id">@zbor.Naziv</a></div>
-                <div class="col-md-3" id="B-@zbor.Id">
-                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="odbij('@zbor.PrijavaZaZbor.Where(p => p.IdKorisnik == Model.KorisnikId && p.IdZbor==zbor.Id).Single().Id', '@zbor.Id')">Povuci prijavu</button>
-                </div>
-                <div class="col-md-3" id="T-@zbor.Id" style="display: none">
-                    <text class="text-danger">Prijava obrisana.</text>
-
-                </div>
-            </div>
-            <br />
-
-        }
-        <h5>Ostali zborovi</h5>
-        @foreach (Zbor zbor in Model.OstaliZborovi)
-        {
-            <div class="row" style="margin-bottom:3px">
-
-                <div class="col-md-3"><a asp-action="JavniProfil" asp-route-id="@zbor.Id">@zbor.Naziv</a></div>
-
-                <div class="col-md-3" id="B-@zbor.Id">
-                    <button type="button" class="btn btn-sm btn-outline-secondary" data-toggle="modal" data-target="#exampleModal" data-ime="@zbor.Naziv" data-id="@zbor.Id">Učlani se!</button>
-                </div>
-                <div class="col-md-3" id="T-@zbor.Id" style="display: none">
-                    <text class="text-success">Prijava poslana.</text>
-
-                </div>
-            </div>
-        }
-
-
-        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Prijava</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                <div class="card shadow mb-4">
+                    <!-- Card Header - Dropdown -->
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Moji zborovi</h6>
+                       
                     </div>
-                    <div class="modal-body">
-                        <form>
-                            <span><text>Prijavljujete se za zbor </text><text id="imeZbora"></text></span>
-                            <p id="idZbora" hidden></p>
-                            <div class="form-group">
-                                <label for="message-text" class="col-form-label">Poruka za voditelja:</label>
-                                <textarea class="form-control" id="poruka"></textarea>
+                    <!-- Card Body -->
+                    <div class="card-body">
+                        <div class="card-text">
+                            @if (Model.MojiZborovi == null || Model.MojiZborovi.Count() == 0)
+                            {
+                                <p>Učlanite se u neki zbor!</p>
+                            }
+                            @foreach (Zbor zbor in Model.MojiZborovi)
+                            {
+                                <div class="row" style="align-items:center; margin-bottom:5px">
+                                    <div class="col-md-12">
+                                        <img src="/Repozitorij/GetZbor/@zbor.IdSlika" alt="profpic" class="img-profile rounded-circle" style="width:40px; height:40px;"> &nbsp;
+
+                                        <a asp-action="Profil" asp-route-id="@zbor.Id">@zbor.Naziv</a>
+                                    </div>
+
+                                </div>
+
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            @if (Model.MojiPozivi != null && Model.MojiPozivi.Count() > 0)
+            {
+                <div class="col-12">
+
+                    <div class="card shadow mb-4">
+                        <!-- Card Header - Dropdown -->
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">Pozivi za zbor</h6>
+                        </div>
+                        <!-- Card Body -->
+                        <div class="card-body">
+                            <div class="card-text">
+
+                                @foreach (PozivZaZbor poziv in Model.MojiPozivi)
+                                {
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <a asp-action="Profil" asp-route-id="@poziv.IdZbor">@poziv.IdZborNavigation.Naziv</a>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <a class="btn btn-sm btn-outline-success" asp-action="PrihvatiPoziv" asp-route-id="@poziv.Id">Prihvati</a>
+                                            <a class="btn btn-sm btn-outline-danger" asp-action="OdbijPoziv" asp-route-id="@poziv.Id">Odbij</a>
+                                        </div>
+                                    </div>
+                                }
                             </div>
-                        </form>
+                        </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Zatvori</button>
-                        <button type="button" class="btn btn-primary" onclick="prijavaAjax()">Prijavi se</button>
+                </div>
+            }
+            <div class="col-12">
+
+                <div class="card shadow mb-4">
+                    <!-- Card Header - Dropdown -->
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Zborovi u koje ste se prijavili</h6>
+                    </div>
+                    <!-- Card Body -->
+                    <div class="card-body">
+                        <div class="card-text">
+
+                            @if (Model.PoslanePrijaveZborovi == null || Model.PoslanePrijaveZborovi.Count() == 0)
+                            {
+                                <p>Mena prijavljenih zborova</p>
+                            }
+                            @foreach (Zbor zbor in Model.PoslanePrijaveZborovi)
+                            {
+                                <div class="row" style="align-items:center">
+                                    <div class="col-md-9" >
+                                        <img src="/Repozitorij/GetZbor/@zbor.IdSlika" alt="profpic" class="img-profile rounded-circle" style="width:40px; height:40px;"> &nbsp;
+                                        <a asp-action="JavniProfil" asp-route-id="@zbor.Id">@zbor.Naziv</a>
+                                    </div>
+                                    <div class="col-md-3" id="B-@zbor.Id">
+                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="odbij('@zbor.PrijavaZaZbor.Where(p => p.IdKorisnik == Model.KorisnikId && p.IdZbor==zbor.Id).Single().Id', '@zbor.Id')">Povuci prijavu</button>
+                                    </div>
+                                    <div class="col-md-3" id="T-@zbor.Id" style="display: none">
+                                        <text class="text-danger">Prijava obrisana.</text>
+
+                                    </div>
+                                </div>
+                                <br />
+
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
+
     </div>
-</div>
+
+
+
 @section Scripts {
-    <script>
-        $('#exampleModal').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget) // Button that triggered the modal
-            var imeZbora = button.data('ime') // Extract info from data-* attributes
-            var idZbora = button.data('id')
-
-            // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
-            // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
-            var modal = $(this)
-            modal.find('#imeZbora').text(imeZbora)
-            modal.find('#idZbora').text(idZbora)
-        })
-    </script>
-    <script>
-        function prijavaAjax() {
-            modal = $('#exampleModal')
-            data = { Id: modal.find('#idZbora').text() + '', Naziv: modal.find('#imeZbora').text() + '', Poruka: modal.find('#poruka').val() + '' }
-            console.log(data)
-             $.ajax({
-                 type: "POST",
-                 dataType: "json",
-                contentType: "application/json;charset=utf-8",
-                 url: '@Url.Action("PrijavaZaZbor", "Zbor")',
-                 data: JSON.stringify(data),
-                xhrFields: {
-                    withCredentials: true
-                }
-             });
-            modal.modal('toggle')
-            id = modal.find('#idZbora').text() + ''
-            testB = '#B-' + id
-            testC = '#T-' + id
-            $(testB).hide();
-            $(testC).show("slow")
-        }
-
-
-    </script>
+    
     <script>
         function odbij(id, idZb) {
             data = { Value: id + '' }

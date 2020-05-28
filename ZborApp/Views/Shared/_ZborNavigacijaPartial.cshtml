@@ -30,9 +30,7 @@
     <!-- Divider -->
     <hr class="sidebar-divider">
     <!-- Heading -->
-    <div class="sidebar-heading">
-        @Html.Raw("Znaèajke")
-    </div>
+   
     <!-- Nav Item - Dashboard -->
     <li class="nav-item">
         <a class="nav-link" asp-controller="Zbor" asp-action="Profil" asp-route-id="@zborId">
@@ -93,19 +91,12 @@
     <hr class="sidebar-divider">
     <li class="nav-item">
         <a class="nav-link hoverable" data-toggle="modal" data-target="#napustanjeZbora" data-id="@zborId">
-            <i class="fa fa-cog"></i>
+            <i class="fa fa-arrow-circle-o-down"></i>
             <span>Napusti zbor</span>
         </a>
     </li>
 
 
-    <!-- Divider -->
-    <hr class="sidebar-divider d-none d-md-block">
-
-    <!-- Sidebar Toggler (Sidebar) -->
-    <div class="text-center d-none d-md-inline">
-        <button class="rounded-circle border-0" id="sidebarToggle"></button>
-    </div>
 
 
 }
@@ -116,7 +107,7 @@ else if (SignInManager.IsSignedIn(User))
 
     <!-- Nav Item - Dashboard -->
     <li class="nav-item">
-        <a class="nav-link text-center" asp-controller="Korisnik" asp-action="Index" asp-route-id="@kor.Id">
+        <a class="nav-link text-center" asp-controller="Zbor" asp-action="Index">
             <img src="/Repozitorij/Get/@kor.IdSlika" alt="profpic" class="img-profile rounded-circle" style="width:40px; height:40px;"><br />
             <span>@kor.ImeIPrezime()</span>
         </a>
@@ -153,7 +144,7 @@ else if (SignInManager.IsSignedIn(User))
     </li>
     <li class="nav-item">
         <a class="nav-link" asp-controller="Korisnik" asp-action="JavniProfil" asp-route-id="@kor.Id">
-            <i class="fa fa-comments-o"></i>
+            <i class="fa fa-magic"></i>
             <span>Javni profil</span>
         </a>
     </li>

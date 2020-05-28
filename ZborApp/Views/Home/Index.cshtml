@@ -1,10 +1,50 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿
+
+@{
+    ViewData["Title"] = "Početna";
 }
+<link href="~/css/pocetna.css" rel="stylesheet" />
+<h1>Zboris</h1>
+<h5>Informacijski sustav za zborove.</h5>
+<div class="search-sec">
+    <div class="container">
+        <form asp-action="Pretraga" asp-controller="Zbor" method="post" >
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-3 col-sm-12 p-0">
+                            <input type="text" name="upit" class="form-control search-slt" placeholder="Pretraga" value="">
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-12 p-0">
+                            <button type="submit" class="btn btn-secondary wrn-btn"><i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div style="margin-top:0px">
+    <div id="carouselExampleFade" class="carousel slide carousel-fade" data-ride="carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img src="~/haydn.jpg" class="d-block w-100" alt="...">
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    Početna stranica. Potrebno dizajnirati izgled stranice.
-
-    <a asp-controller="Zbor" asp-action="Index">Zborovi</a>
+            </div>
+            <div class="carousel-item">
+                <img src="~/sheet.jpg" class="d-block w-100" alt="...">
+            </div>
+            <div class="carousel-item">
+                <img src="~/sheet2.jpg" class="d-block w-100" alt="...">
+            </div>
+        </div>
+        <a class="carousel-control-prev" href="#carouselExampleFade" role="button" data-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="sr-only">Natrag</span>
+        </a>
+        <a class="carousel-control-next" href="#carouselExampleFade" role="button" data-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="sr-only">Naprijed</span>
+        </a>
+    </div>
 </div>

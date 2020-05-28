@@ -49,11 +49,11 @@
                         </button>
 
                         <!-- Topbar Search -->
-                        <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                        <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search" asp-action="Pretraga" asp-controller="Zbor">
                             <div class="input-group">
-                                <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
+                                <input type="text" class="form-control bg-light border-0 small" placeholder="Pretraži" aria-label="Search" aria-describedby="basic-addon2" value="" name="upit">
                                 <div class="input-group-append">
-                                    <button class="btn btn-primary" type="button">
+                                    <button class="btn btn-primary" type="submit">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </div>
@@ -149,8 +149,8 @@
 
 
     <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2020 - Zboris - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        <div class="container" style="margin-left:0px; padding-left:20px">
+            &copy; 2020 - Zboris - Diplomski rad FER
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

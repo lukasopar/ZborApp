@@ -2198,9 +2198,11 @@ namespace ZborApp.Controllers
             return File(bytes, "text/calendar", "kalendar.ical");
         }
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> JavniProfil(Guid id)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+           
             if (!Exists(id))
                 return RedirectToAction("Nema", "Greska");
             var zbor = _ctx.Zbor.Where(z => z.Id == id).Include(z => z.ProfilZbor)
@@ -2208,16 +2210,17 @@ namespace ZborApp.Controllers
                 .Include(z => z.ClanZbora).ThenInclude(v  => v.IdKorisnikNavigation)
                 .SingleOrDefault();
 
+            bool mod = user == null ? false : IsAdmin(id, user.Id);
             JavniProfilViewModel model = new JavniProfilViewModel
             {
                 Zbor = zbor,
-                Mod = IsAdmin(id, user.Id),
+                Mod = mod,
                 Prijava = false
             };
-            var prijava = _ctx.PrijavaZaZbor.Where(p => p.IdKorisnik == user.Id && p.IdZbor == id).SingleOrDefault();
+            var prijava = user==null?null: _ctx.PrijavaZaZbor.Where(p => p.IdKorisnik == user.Id && p.IdZbor == id).SingleOrDefault();
             if(prijava != null)
                 model.Prijava = true;
-            if(CheckRights(id, user.Id))
+            if(user!= null && CheckRights(id, user.Id))
             {
                 model.Clan = true;
                 ViewData["zborId"] = id;
@@ -2369,13 +2372,14 @@ namespace ZborApp.Controllers
 
             return RedirectToAction("Pretplate", new { id = id });
         }
+        [AllowAnonymous]
         public async Task<IActionResult> Galerija(Guid id)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
             if (!Exists(id))
                 return RedirectToAction("Nema", "Greska");
             var slike = _ctx.RepozitorijZbor.Where(z => z.IdZbor == id).ToList().Where(s => s.JeSlika()).ToList();
-            var clan = CheckRights(id, user.Id);
+            var clan = user==null?false:CheckRights(id, user.Id);
             if(clan == false)
             {
                 slike = slike.Where(s => s.Privatno == false).ToList();
@@ -2429,6 +2433,16 @@ namespace ZborApp.Controllers
 
             return RedirectToAction("Index", "Home");
         }
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult Pretraga(string upit)
+        {
+            var model = new PretragaViewModel();
+            model.Korisnici = _ctx.Korisnik.Where(k => (k.Ime.Trim().ToLower() + ' ' + k.Prezime.Trim().ToLower()).Contains(upit.Trim().ToLower())).ToList();
+            model.Zborovi = _ctx.Zbor.Where(z => z.Naziv.Trim().ToLower().Contains(upit.Trim().ToLower())).ToList();
+            return View(model);
+        }
+
         private async void DeleteAll(Guid id)
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
