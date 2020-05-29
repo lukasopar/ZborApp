@@ -14,6 +14,13 @@ namespace ZborMob.Views
     public partial class JavniProfilKorisnikPage : TabbedPage
     {
         private JavniProfilKorisnikViewModel model;
+        public JavniProfilKorisnikPage(Guid id)
+        {
+            model = new JavniProfilKorisnikViewModel(id);
+            BindingContext = model;
+            InitializeComponent();
+
+        }
         public JavniProfilKorisnikPage()
         {
             model = new JavniProfilKorisnikViewModel(App.Korisnik.Id);

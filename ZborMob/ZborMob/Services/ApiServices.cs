@@ -1582,5 +1582,50 @@ namespace ZborMob.Services
             }
             return null;
         }
+        public async Task PrihvatiPoziv(Guid id)
+        {
+
+            var request = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress + "api/PrihvatiPoziv/" + id);
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
+        }
+        public async Task OdbijPoziv(Guid id)
+        {
+
+            var request = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress + "api/OdbijPoziv/" + id);
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
+        }
+        public async Task<PretragaViewModel> Pretraga(string upit)
+        {
+            var keyValues = new { Value = upit };
+            var request = new HttpRequestMessage(HttpMethod.Post, _httpClient.BaseAddress + "api/Pretraga/");
+            request.Content = new StringContent(JsonConvert.SerializeObject(keyValues).ToString(), Encoding.UTF8, "application/json");
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<PretragaViewModel>(content);
+                return obj;
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
+            return null;
+        }
+
     }
 }

@@ -19,6 +19,13 @@ namespace ZborMob.Views
             model = new JavniProfilViewModel(App.Zbor.Id);
             BindingContext = model;
             InitializeComponent();
+
+        }
+        public JavniProfilPage(Guid id)
+        {
+            model = new JavniProfilViewModel(id);
+            BindingContext = model;
+            InitializeComponent();
             
         }
        public void SpremiOZboru(object o, EventArgs args)

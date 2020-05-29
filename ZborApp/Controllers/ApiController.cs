@@ -2458,5 +2458,73 @@ namespace ZborApp.Controllers
             }
             return BadRequest(model);
         }
+        public IActionResult OdbijPoziv(Guid id)
+        {
+            var user = GetUser();
+            PozivZaZbor poziv = _ctx.PozivZaZbor.Where(p => p.Id == id).SingleOrDefault();
+            if (poziv == null)
+                return NotFound();
+            if (poziv.IdKorisnik != user.Id)
+                return Forbid();
+            _ctx.PozivZaZbor.Remove(poziv);
+            _ctx.SaveChanges();
+            return Ok();
+        }
+        public async Task<IActionResult> PrihvatiPoziv(Guid id)
+        {
+            var user = GetUser();
+            PozivZaZbor poziv = _ctx.PozivZaZbor.Where(p => p.Id == id).SingleOrDefault();
+            if (poziv == null)
+                return NotFound();
+            if (poziv.IdKorisnik != user.Id)
+                return Forbid();
+            _ctx.PozivZaZbor.Remove(poziv);
+            ClanZbora clan = new ClanZbora
+            {
+                Id = Guid.NewGuid(),
+                DatumPridruzivanja = DateTime.Now,
+                Glas = "ne",
+                IdKorisnik = poziv.IdKorisnik,
+                IdZbor = poziv.IdZbor
+            };
+            PretplataNaZbor pr = new PretplataNaZbor
+            {
+                Id = Guid.NewGuid(),
+                IdKorisnik = poziv.IdKorisnik,
+                IdZbor = poziv.IdZbor,
+                Obavijesti = true,
+                Pitanja = true
+            };
+            _ctx.ClanZbora.Add(clan);
+            _ctx.PretplataNaZbor.Add(pr);
+            var pretplatnici = _ctx.ModeratorZbora.Where(p => p.IdZbor == clan.IdZbor).Select(p => p.IdKorisnik).ToHashSet();
+            pretplatnici.Add(_ctx.Voditelj.Where(v => v.IdZbor == clan.IdZbor).Select(p => p.IdKorisnik).FirstOrDefault());
+            foreach (var pret in pretplatnici)
+            {
+                OsobneObavijesti ob = new OsobneObavijesti
+                {
+                    Id = Guid.NewGuid(),
+                    IdKorisnik = pret,
+                    Tekst = String.Format("<b>{0}</b> se prihvaća poziv za zbor <b>{1}</b>.", _ctx.Korisnik.Find(poziv.IdKorisnik).ImeIPrezime(), _ctx.Zbor.Find(poziv.IdZbor).Naziv),
+                    Procitano = false,
+                    Poveznica = "/Korisnik/Index" + poziv.IdKorisnik
+                };
+                _ctx.Add(ob);
+                await _hubContext.Clients.User(pret.ToString()).SendAsync("NovaObavijest", new { id = ob.Id, poveznica = ob.Poveznica, procitano = ob.Procitano, datum = ob.Datum, tekst = ob.Tekst });
+
+            }
+            _ctx.SaveChanges();
+            return Ok();
+        }
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult Pretraga([FromBody]StringModel mod)
+        {
+            var upit = mod.Value;
+            var model = new PretragaViewModel();
+            model.Korisnici = _ctx.Korisnik.Where(k => (k.Ime.Trim().ToLower() + ' ' + k.Prezime.Trim().ToLower()).Contains(upit.Trim().ToLower())).ToList();
+            model.Zborovi = _ctx.Zbor.Where(z => z.Naziv.Trim().ToLower().Contains(upit.Trim().ToLower())).ToList();
+            return Ok(model);
+        }
     }
 }

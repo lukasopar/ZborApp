@@ -1579,16 +1579,28 @@ namespace ZborApp.Controllers
          * 
          * PAZI OVO JAKO DOBROOO!!
          * */
-        public IActionResult OdbijPoziv(Guid id)
+        public async Task<IActionResult> OdbijPoziv(Guid id)
         {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+     
             PozivZaZbor poziv = _ctx.PozivZaZbor.Where(p => p.Id == id).SingleOrDefault();
+            if (poziv == null)
+                return RedirectToAction("Nema", "Greska");
+            if (poziv.IdKorisnik != user.Id)
+                return RedirectToAction("Prava");
             _ctx.PozivZaZbor.Remove(poziv);
             _ctx.SaveChanges();
             return RedirectToAction("Index");
         }
         public async Task< IActionResult > PrihvatiPoziv(Guid id)
         {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+
             PozivZaZbor poziv = _ctx.PozivZaZbor.Where(p => p.Id == id).SingleOrDefault();
+            if (poziv == null)
+                return RedirectToAction("Nema", "Greska");
+            if (poziv.IdKorisnik != user.Id)
+                return RedirectToAction("Prava");
             _ctx.PozivZaZbor.Remove(poziv);
             ClanZbora clan = new ClanZbora
             {

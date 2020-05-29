@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.Forms;
 using ZborDataStandard.Model;
@@ -92,6 +93,24 @@ namespace ZborMob.ViewModels
 
             PrijaveZborovi = new ObservableCollection<Zbor>(model.PoslanePrijaveZborovi);
 
+        }
+        public async Task PrihvatiPoziv(Zbor zbor)
+        {
+            var poziv = model.MojiPozivi.Where(p => p.IdZbor == zbor.Id).SingleOrDefault();
+            await _apiServices.PrihvatiPoziv(poziv.Id);
+            PoziviZborovi.Remove(zbor);
+            MojiZborovi.Add(zbor);
+        }
+        public async Task OdbijPoziv(Zbor zbor)
+        {
+            var poziv = model.MojiPozivi.Where(p => p.IdZbor == zbor.Id).SingleOrDefault();
+            await _apiServices.OdbijPoziv(poziv.Id);
+            PoziviZborovi.Remove(zbor);
+        }
+        public async Task PovuciPrijavu(Zbor zbor)
+        {
+            await _apiServices.ObrisiPrijavuZborAsync(zbor.PrijavaZaZbor.Where(p => p.IdKorisnik == App.Korisnik.Id && p.IdZbor == zbor.Id).Single());
+            PrijaveZborovi.Remove(zbor);
         }
         void RaisepropertyChanged(string propertyName)
         {

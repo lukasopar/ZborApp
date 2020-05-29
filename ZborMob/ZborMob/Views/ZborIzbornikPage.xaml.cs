@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,8 +18,10 @@ namespace ZborMob.Views
         {
             InitializeComponent();
             ime.Text = App.Zbor.Naziv;
-            slika.Source = "test.png";
-            slika.Aspect = Aspect.AspectFit;
+            WebClient client = new WebClient();
+            var link = App.BackendUrl + "/api/getrepozitorijzbor/" + App.Zbor.IdSlika;
+            var byteArray = client.DownloadData(link);
+            slika.Source = ImageSource.FromStream(() => new MemoryStream(byteArray)); slika.Aspect = Aspect.AspectFit;
         }
     }
 }

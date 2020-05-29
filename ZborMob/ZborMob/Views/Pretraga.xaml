@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+                          xmlns:helpers="clr-namespace:ZborMob.Converters"
+                          xmlns:controls="clr-namespace:ImageCircle.Forms.Plugin.Abstractions;assembly=ImageCircle.Forms.Plugin"
+
+             Title="Pretraga"
+             x:Class="ZborMob.Views.Pretraga">
+    <ContentPage.Resources>
+        <ResourceDictionary >
+            <helpers:SlikaLinkZborConverter x:Key="ImageZborConverter" />
+
+            <helpers:SlikaLinkConverter x:Key="ImageConverter" />
+            <OnPlatform x:TypeArguments="x:String" x:Key="IconFont">
+                <On Platform="Android" Value="zboris.ttf#zboris" />
+            </OnPlatform>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.Content>
+            
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+
+                    </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+                    <Entry Text="{Binding Upit}" />
+            <Button Text="&#xe70a;" FontFamily="{StaticResource IconFont}" Grid.Column="1" TextColor="White" BackgroundColor="#1C6EBC" Clicked="PretragaUpit"/>
+                     <ActivityIndicator Grid.ColumnSpan="2" Color="#1C6EBC" HorizontalOptions="Center" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"/>
+
+                    <Label Text="Zborovi" Grid.Row="1" Grid.ColumnSpan="2"/>
+             
+                     <ListView ItemsSource="{Binding Zborovi}" Grid.Row="2" Grid.ColumnSpan="2" x:Name="zborovi" x:FieldModifier="public" ItemSelected="Zbor" >
+                        <ListView.ItemTemplate >
+                            <DataTemplate>
+                                <ViewCell>
+                                    <ViewCell.View>
+                                        <Grid >
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition/>
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition />
+                                            </Grid.ColumnDefinitions>
+                                               <controls:CircleImage Source="{Binding IdSlika, Converter={StaticResource ImageZborConverter} }" HeightRequest="40" WidthRequest="40" HorizontalOptions="Start"/>
+
+                                            <Label Text="{Binding Naziv}" Grid.Column="1" FontSize="20" VerticalOptions="Center"/>
+                                  
+
+                                        </Grid>
+                                    </ViewCell.View>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <StackLayout Grid.Row="3" Grid.ColumnSpan="2" >
+                        <Label Text="Korisnici" />
+                        <ListView ItemsSource="{Binding Korisnici }"   x:Name="korisnici" x:FieldModifier="public" ItemSelected="Korisnik" >
+                            <ListView.ItemTemplate >
+                                <DataTemplate>
+                                    <ViewCell>
+                                        <ViewCell.View>
+                                            <Grid >
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition/>
+                                                </Grid.RowDefinitions>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition/>
+                                                </Grid.ColumnDefinitions>
+                                               <controls:CircleImage Source="{Binding IdSlika, Converter={StaticResource ImageConverter} }" HeightRequest="40" WidthRequest="40" HorizontalOptions="Start"/>
+
+                                                <Label Text="{Binding ImeIPrezimeP}" Grid.Column="1" FontSize="20" VerticalOptions="Center"/>
+
+
+                                            </Grid>
+
+                                        </ViewCell.View>
+                                    </ViewCell>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackLayout>
+                </Grid>
+    </ContentPage.Content>
+</ContentPage>

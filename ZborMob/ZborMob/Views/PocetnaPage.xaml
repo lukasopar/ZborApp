@@ -1,32 +1,105 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+<TabbedPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:local="clr-namespace:ZborMob.ViewModels"
-    
+             Title="Pocetna"
              mc:Ignorable="d"
              x:Class="ZborMob.Views.PocetnaPage"
-             x:Name="Pocetna">
-    <ContentPage.BindingContext>
-        <local:PocetnaViewModel x:Name="viewmodel"/>
-    </ContentPage.BindingContext>
-    <StackLayout>
-        <Button Text="Dodaj zbor" Clicked="Dodaj"/>
-        <Label Text="Moji zborovi"/>
-        <ListView ItemsSource="{Binding MojiZborovi}" x:Name="MojiZborovi" x:FieldModifier="public" ItemTapped="MojZborTapped" >
-            <ListView.ItemTemplate >
-                <DataTemplate>
-                    <ViewCell>
-                        <ViewCell.View>
-                            <StackLayout>
-                                <Label Text="{Binding Naziv}" FontSize="20"/>
-                               
-                            </StackLayout>
-                        </ViewCell.View>
-                    </ViewCell>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-    </StackLayout>
-</ContentPage>
+             x:Name="Početna">
+    <ContentPage Title="Moji zborovi">
+        <StackLayout>
+            <Button Text="Dodaj zbor" Clicked="Dodaj" TextColor="White" BackgroundColor="#1C6EBC"/>
+            <ListView ItemsSource="{Binding MojiZborovi}" x:Name="MojiZborovi" x:FieldModifier="public" ItemSelected="MojZborTapped" >
+                <ListView.ItemTemplate >
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <StackLayout>
+                                    <Label Text="{Binding Naziv}" FontSize="20"/>
+
+                                </StackLayout>
+                            </ViewCell.View>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackLayout>
+    </ContentPage>
+    <ContentPage Title="Pozivi i prijave">
+        <ContentPage.Resources>
+            <ResourceDictionary>
+                <OnPlatform x:TypeArguments="x:String" x:Key="IconFont">
+                    <On Platform="Android" Value="zboris.ttf#zboris" />
+                </OnPlatform>
+            </ResourceDictionary>
+
+        </ContentPage.Resources>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+
+            </Grid.RowDefinitions>
+            <Button Text="Dodaj zbor" Clicked="Dodaj" TextColor="White" BackgroundColor="#1C6EBC"/>
+            <Label Text="Pozivi" Grid.Row="1"/>
+            <ListView ItemsSource="{Binding PoziviZborovi}" Grid.Row="2" x:Name="PozivZborovi" x:FieldModifier="public" ItemSelected="NeMojZbor" >
+                <ListView.ItemTemplate >
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <Grid >
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Label Text="{Binding Naziv}" FontSize="20" VerticalOptions="Center"/>
+                                    <StackLayout Orientation="Horizontal" HorizontalOptions="End" Grid.Column="1">
+                                        <Button  Text="&#xe705;" FontFamily="{StaticResource IconFont}" Clicked="PrihvatiPoziv" WidthRequest="40" TextColor="White" BackgroundColor="#1C6EBC" CornerRadius="10"/>
+                                        <Button  Text="&#xe709;" FontFamily="{StaticResource IconFont}" Clicked="OdbijPoziv" WidthRequest="40" TextColor="White" BackgroundColor="#1C6EBC" CornerRadius="10"/>
+                                    </StackLayout>
+
+                                </Grid>
+                            </ViewCell.View>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <StackLayout Grid.Row="3" >
+            <Label Text="Prijave" />
+            <ListView ItemsSource="{Binding PrijaveZborovi }"   x:Name="PrijaveZborovi" x:FieldModifier="public" ItemSelected="NeMojZbor" >
+                <ListView.ItemTemplate >
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                    <Grid >
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                    <Label Text="{Binding Naziv}" FontSize="20" VerticalOptions="Center"/>
+
+                                    <Button  Text="&#xe709;" FontFamily="{StaticResource IconFont}" WidthRequest="40"  CornerRadius="10" Clicked="ObrisiPrijavu" Grid.Column="1" HorizontalOptions="End" TextColor="White" BackgroundColor="#1C6EBC" />
+
+                                    </Grid>
+
+                            </ViewCell.View>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            </StackLayout>
+        </Grid>
+    </ContentPage>
+</TabbedPage>
