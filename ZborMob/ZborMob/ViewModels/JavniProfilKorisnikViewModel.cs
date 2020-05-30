@@ -86,6 +86,7 @@ namespace ZborMob.ViewModels
             IsBusy = false;
             OMeni = Model.Korisnik.Opis;
             Zbor = new ObservableCollection<ClanZbora>(model.Korisnik.ClanZbora);
+            Clan = Model.Korisnik.Id == Model.Aktivni;
         }
         public async void SpremiOMeni(string tekst)
         {

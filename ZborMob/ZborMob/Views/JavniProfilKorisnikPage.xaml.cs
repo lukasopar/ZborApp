@@ -14,6 +14,7 @@ namespace ZborMob.Views
     public partial class JavniProfilKorisnikPage : TabbedPage
     {
         private JavniProfilKorisnikViewModel model;
+   
         public JavniProfilKorisnikPage(Guid id)
         {
             model = new JavniProfilKorisnikViewModel(id);
@@ -35,7 +36,11 @@ namespace ZborMob.Views
        
         public async void Galerija(object o, EventArgs args)
         {
-            await Navigation.PushAsync(new GalerijaKorisnik(App.Korisnik.Id));
+            await Navigation.PushAsync(new GalerijaKorisnik(model.Model.Korisnik.Id));
+        }
+        public async void Repozitorij(object o, EventArgs args)
+        {
+            await Navigation.PushAsync(new RepozitorijKorisnikPage(model.Model.Korisnik.Id));
         }
     }
 }

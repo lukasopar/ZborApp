@@ -46,11 +46,11 @@ namespace ZborMob.Views
         }
         public async void Galerija(object o, EventArgs args)
         {
-            await Navigation.PushAsync(new GalerijaZbor(App.Zbor.Id));
+            await Navigation.PushAsync(new GalerijaZbor(model.Model.Zbor.Id));
         }
         public async void Repozitorij(object o, EventArgs args)
         {
-            await Navigation.PushAsync(new RepozitorijZborPage());
+            await Navigation.PushAsync(new RepozitorijZborPage(model.Model.Zbor.Id));
         }
         public void Prijava(object o, EventArgs args)
         {

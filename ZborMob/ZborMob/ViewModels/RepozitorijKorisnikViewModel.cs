@@ -63,13 +63,13 @@ namespace ZborMob.ViewModels
         {
             _apiServices = new ApiServices();
             IsBusy = true;
-            GetData();
+            GetData(id);
 
         }
        
-        private async void GetData()
+        private async void GetData(Guid id)
         {
-            model = await _apiServices.RepozitorijKorisnikAsync(App.Korisnik.Id);
+            model = await _apiServices.RepozitorijKorisnikAsync(id);
             IsBusy = false;
             Clan = model.IdTrazeni == App.Korisnik.Id;
             Datoteke = new ObservableCollection<RepozitorijKorisnik>(model.Datoteke);
@@ -92,7 +92,7 @@ namespace ZborMob.ViewModels
         public async void Upload(FileData data)
         {
 
-            var dat = await _apiServices.UploadKorisnikAsync(App.Zbor.Id, data.FilePath, data.FileName);
+            var dat = await _apiServices.UploadKorisnikAsync(App.Korisnik.Id, data.FilePath, data.FileName);
             Datoteke.Insert(0, dat);
         }
 

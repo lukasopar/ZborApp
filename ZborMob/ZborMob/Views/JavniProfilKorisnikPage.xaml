@@ -17,9 +17,11 @@
         </ContentPage.Resources>
         <ContentPage.Content>
             <StackLayout>
-                <ActivityIndicator Grid.Row="2" Color="#1C6EBC" HorizontalOptions="Center" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"/>
-                <views:TEditorHtmlView Html="{Binding OMeni}" SpremiEvent="SpremiOMeni" x:Name="oMeni"/>
-                <Button Text="Galerija" Clicked="Galerija"/>
+                <ActivityIndicator Grid.Row="2" Color="#1C6EBC" HorizontalOptions="Center" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+                <views:TEditorHtmlView Html="{Binding OMeni}" SpremiEvent="SpremiOMeni" x:Name="oMeni" IsVisibleEdit="{Binding Clan}"/>
+                <Button Text="Galerija" Clicked="Galerija" BackgroundColor="#1C6EBC" TextColor="White"/>
+                <Button Text="Repozitorij" Clicked="Repozitorij" BackgroundColor="#1C6EBC" TextColor="White"/>
+
             </StackLayout>
 
         </ContentPage.Content>
@@ -53,6 +55,9 @@
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
+                <Button Text="Galerija" Clicked="Galerija" BackgroundColor="#1C6EBC" TextColor="White"/>
+                <Button Text="Repozitorij" Clicked="Repozitorij" BackgroundColor="#1C6EBC" TextColor="White"/>
+
             </StackLayout>
         </ContentPage.Content>
     </ContentPage>

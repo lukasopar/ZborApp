@@ -16,10 +16,10 @@
         <ContentPage.Content>
             <StackLayout>
                 <ActivityIndicator Grid.Row="2" Color="#1C6EBC" HorizontalOptions="Center" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"/>
-                <views:TEditorHtmlView Html="{Binding OZboru}" SpremiEvent="SpremiOZboru" x:Name="oZboru"/>
-                <Button Text="Repozitorij" Clicked="Repozitorij"/>
-                <Button Text="Galerija" Clicked="Galerija"/>
-                <Button Text="{Binding Tekst}" Clicked="Prijava" IsVisible="{Binding Clan}"/>
+                <views:TEditorHtmlView Html="{Binding OZboru}" SpremiEvent="SpremiOZboru" x:Name="oZboru" IsVisibleEdit="{Binding Mod}"/>
+                <Button Text="Repozitorij" Clicked="Repozitorij" BackgroundColor="#1C6EBC" TextColor="White"/>
+                <Button Text="Galerija" Clicked="Galerija" BackgroundColor="#1C6EBC" TextColor="White"/>
+                <Button Text="{Binding Tekst}" Clicked="Prijava" IsVisible="{Binding Clan}" BackgroundColor="#1C6EBC" TextColor="White" />
             </StackLayout>
 
         </ContentPage.Content>
@@ -34,7 +34,10 @@
         <ContentPage.Content>
             <StackLayout>
                 <ActivityIndicator Grid.Row="2" Color="#1C6EBC" HorizontalOptions="Center" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"/>
-                <views:TEditorHtmlView Html="{Binding OVoditeljima}" SpremiEvent="SpremiOVoditeljima" x:Name="oVoditeljima"/>
+                <views:TEditorHtmlView Html="{Binding OVoditeljima}" SpremiEvent="SpremiOVoditeljima" x:Name="oVoditeljima" IsVisibleEdit="{Binding Mod}"/>
+                <Button Text="Repozitorij" Clicked="Repozitorij"  BackgroundColor="#1C6EBC" TextColor="White"/>
+                <Button Text="Galerija" Clicked="Galerija" BackgroundColor="#1C6EBC" TextColor="White"/>
+                <Button Text="{Binding Tekst}" Clicked="Prijava" IsVisible="{Binding Clan}" BackgroundColor="#1C6EBC" TextColor="White"/>
             </StackLayout>
         </ContentPage.Content>
     </ContentPage>
@@ -47,7 +50,10 @@
         <ContentPage.Content>
             <StackLayout>
                 <ActivityIndicator Grid.Row="2" Color="#1C6EBC" HorizontalOptions="Center" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"/>
-                <views:TEditorHtmlView Html="{Binding Repertoar}" SpremiEvent="SpremiRepertoar" x:Name="repertoar"/>
+                <views:TEditorHtmlView Html="{Binding Repertoar}" SpremiEvent="SpremiRepertoar" x:Name="repertoar" IsVisibleEdit="{Binding Mod}"/>
+                <Button Text="Repozitorij" Clicked="Repozitorij" BackgroundColor="#1C6EBC" TextColor="White"/>
+                <Button Text="Galerija" Clicked="Galerija" BackgroundColor="#1C6EBC" TextColor="White"/>
+                <Button Text="{Binding Tekst}" Clicked="Prijava" IsVisible="{Binding Clan}" BackgroundColor="#1C6EBC" TextColor="White"/>
             </StackLayout>
         </ContentPage.Content>
     </ContentPage>
@@ -60,7 +66,10 @@
         <ContentPage.Content>
             <StackLayout>
                 <ActivityIndicator Grid.Row="2" Color="#1C6EBC" HorizontalOptions="Center" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"/>
-                <views:TEditorHtmlView Html="{Binding Reprezentacija}" SpremiEvent="SpremiReprezentacija" x:Name="reprezentacija"/>
+                <views:TEditorHtmlView Html="{Binding Reprezentacija}" SpremiEvent="SpremiReprezentacija" x:Name="reprezentacija" IsVisibleEdit="{Binding Mod}"/>
+                <Button Text="Repozitorij" Clicked="Repozitorij"  BackgroundColor="#1C6EBC" TextColor="White"/>
+                <Button Text="Galerija" Clicked="Galerija" BackgroundColor="#1C6EBC" TextColor="White"/>
+                <Button Text="{Binding Tekst}" Clicked="Prijava" IsVisible="{Binding Clan}" BackgroundColor="#1C6EBC" TextColor="White"/>
             </StackLayout>
         </ContentPage.Content>
     </ContentPage>

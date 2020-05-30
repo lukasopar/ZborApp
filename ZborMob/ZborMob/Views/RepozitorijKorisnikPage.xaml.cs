@@ -17,6 +17,12 @@ namespace ZborMob.Views
     public partial class RepozitorijKorisnikPage : ContentPage
     {
         RepozitorijKorisnikViewModel model;
+        public RepozitorijKorisnikPage(Guid id)
+        {
+            model = new RepozitorijKorisnikViewModel(id);
+            BindingContext = model;
+            InitializeComponent();
+        }
         public RepozitorijKorisnikPage()
         {
             model = new RepozitorijKorisnikViewModel(App.Korisnik.Id);

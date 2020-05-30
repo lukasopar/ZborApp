@@ -66,6 +66,19 @@ namespace ZborMob.ViewModels
                 RaisePropertyChanged("Clan");
             }
         }
+        private bool mod;
+        public bool Mod
+        {
+            get
+            {
+                return mod;
+            }
+            set
+            {
+                mod = value;
+                RaisePropertyChanged("Mod");
+            }
+        }
         public JavniProfilViewModel(Guid id)
         {
             _apiServices = new ApiServices();
@@ -86,8 +99,9 @@ namespace ZborMob.ViewModels
             Repertoar = Model.Zbor.ProfilZbor.Repertoar;
             Reprezentacija = Model.Zbor.ProfilZbor.Reprezentacija;
             OVoditeljima = Model.Zbor.ProfilZbor.OVoditeljima;
-            if (Model.Prijava) Tekst = "Prijava"; else Tekst = "Povuci prijavu";
+            if (Model.Prijava) Tekst = "Povuci prijavu"; else Tekst = "Prijava";
             Clan = !(Model.Clan);
+            Mod = Model.Mod;
         }
         public async void SpremiOZboru(string tekst)
         {

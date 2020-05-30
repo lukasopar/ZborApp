@@ -58,18 +58,20 @@ namespace ZborMob.ViewModels
                 RaisePropertyChanged("Clan");
             }
         }
+        private Guid idZbor;
         public ZborDataStandard.ViewModels.RepozitorijViewModels.RepozitorijZborViewModel model { get; set; }
         public RepozitorijZborViewModel(Guid id)
         {
             _apiServices = new ApiServices();
             IsBusy = true;
-            GetData();
+            idZbor = id;
+            GetData(id);
 
         }
        
-        private async void GetData()
+        private async void GetData(Guid id)
         {
-            model = await _apiServices.RepozitorijZborAsync(App.Zbor.Id);
+            model = await _apiServices.RepozitorijZborAsync(id);
             IsBusy = false;
             Clan = model.Clan;
             Datoteke = new ObservableCollection<RepozitorijZbor>(model.Datoteke);
@@ -92,7 +94,7 @@ namespace ZborMob.ViewModels
         public async void Upload(FileData data)
         {
 
-            var dat = await _apiServices.UploadZborAsync(App.Zbor.Id, data.FilePath, data.FileName);
+            var dat = await _apiServices.UploadZborAsync(idZbor, data.FilePath, data.FileName);
             Datoteke.Insert(0, dat);
         }
 
