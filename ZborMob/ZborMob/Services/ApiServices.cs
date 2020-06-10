@@ -1626,6 +1626,22 @@ namespace ZborMob.Services
             }
             return null;
         }
+        public async Task<KalendarViewModel> Kalendar(Guid id)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, _httpClient.BaseAddress + "api/Kalendar/" + id);
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<KalendarViewModel>(content);
+                return obj;
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                PotrebanLogin();
+            }
+            return null;
+        }
 
     }
 }

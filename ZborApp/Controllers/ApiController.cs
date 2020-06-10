@@ -41,16 +41,14 @@ namespace ZborApp.Controllers
         private const string LOCATION_CHOIR = "E:/UploadZbor/Zbor/";
         private readonly ILogger<KorisnikController> _logger;
         private readonly ZborDatabaseContext _ctx;
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
         private IUserService _userService;
         private readonly IHubContext<ChatHub> _hubContext;
 
-        public ApiController(ILogger<KorisnikController> logger, ZborDatabaseContext ctx, UserManager<ApplicationUser> userManager, IUserService userService, IHubContext<ChatHub> hubContext)
+        public ApiController(ILogger<KorisnikController> logger, ZborDatabaseContext ctx, IUserService userService, IHubContext<ChatHub> hubContext)
         {
             _logger = logger;
             _ctx = ctx;
-            _userManager = userManager;
             _userService = userService;
             _emailSender = new EmailSender();
             _hubContext = hubContext;
@@ -2525,6 +2523,27 @@ namespace ZborApp.Controllers
             model.Korisnici = _ctx.Korisnik.Where(k => (k.Ime.Trim().ToLower() + ' ' + k.Prezime.Trim().ToLower()).Contains(upit.Trim().ToLower())).ToList();
             model.Zborovi = _ctx.Zbor.Where(z => z.Naziv.Trim().ToLower().Contains(upit.Trim().ToLower())).ToList();
             return Ok(model);
+        }
+        [HttpGet]
+        public IActionResult Kalendar(Guid id)
+        {
+            if (!Exists(id))
+                return NotFound();
+            var user = GetUser();
+            if (!CheckRights(id, user.Id))
+                return Forbid();
+            var dogadjaji = _ctx.Dogadjaj.Where(d => d.IdProjektNavigation.IdZbor == id)
+                .Select(d => new DogadjajModel
+                {
+                    Id = d.Id.ToString(),
+                    Title = "[" + d.IdProjektNavigation.Naziv + "]\n" + d.Naziv.ToString(),
+                    Start = d.DatumIvrijeme.ToString("yyyy-MM-dd HH:mm:ss"),
+                    End = d.DatumIvrijemeKraja.ToString("yyyy-MM-dd HH:mm:ss"),
+                    BackgroundColor = "rgb(" + ((d.IdVrsteDogadjaja.GetHashCode() >> 16) & 0xFF) + "," + ((d.IdVrsteDogadjaja.GetHashCode() >> 8) & 0xFF) + "," + (d.IdVrsteDogadjaja.GetHashCode() & 0xFF) + ")"
+                }).ToList();
+            //KalendarViewModel model = new KalendarViewModel();
+            string jsonString = JsonConvert.SerializeObject(dogadjaji);
+            return Ok(new KalendarViewModel { Dogadjaji = dogadjaji, IdZbor = id });
         }
     }
 }

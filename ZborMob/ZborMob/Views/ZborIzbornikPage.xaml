@@ -25,11 +25,13 @@
                     <x:Array Type="{x:Type local:MasterPageItem}">
                         <local:MasterPageItem Title="Obavijesti" TargetType="{x:Type local:ObavijestiPage}" IconSource="openfolder.png" />
                         <local:MasterPageItem Title="Pitanja" TargetType="{x:Type local:PitanjaPage}" IconSource="question.png"/>
+                        <local:MasterPageItem Title="Kalendar" TargetType="{x:Type local:KalendarPage}" IconSource="calendar.png"/>
                         <local:MasterPageItem Title="Projekti" TargetType="{x:Type local:ProjektiPage}" IconSource="inbox.png"/>
-                        <local:MasterPageItem Title="Upravljanje zborom" TargetType="{x:Type local:AdministracijaPage}" IconSource="setting.png"/>
-                        <local:MasterPageItem Title="Javni profil" TargetType="{x:Type local:JavniProfilPage}" IconSource="disk.png"/>
                         <local:MasterPageItem Title="Repozitorij" TargetType="{x:Type local:RepozitorijZborPage}" IconSource="save.png"/>
-                        <local:MasterPageItem Title="Pretplate" TargetType="{x:Type local:PretplatePage}" IconSource="save.png"/>
+                        <local:MasterPageItem Title="Javni profil" TargetType="{x:Type local:JavniProfilPage}" IconSource="disk.png"/>
+                        <local:MasterPageItem Title="Pretplate" TargetType="{x:Type local:PretplatePage}" IconSource="paper.png"/>
+                        <local:MasterPageItem Title="Upravljanje zborom" TargetType="{x:Type local:AdministracijaPage}" IconSource="setting.png"/>
+                        <local:MasterPageItem Title="Napusti zbor" TargetType="{x:Type local:AdministracijaPage}" IconSource="logout.png"/>
 
                     </x:Array>
                 </ListView.ItemsSource>

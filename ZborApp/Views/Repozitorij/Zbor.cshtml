@@ -36,54 +36,64 @@
                         @if (Model.Promjena)
                         {
                             <th>Vidljivost</th>
-                            <th>Akcije</th>
                         }
+                        <th>Akcije</th>
+
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var datoteka in Model.Datoteke)
                     {
-                        <tr>
+                    <tr>
 
-                            <td><a asp-action="GetZbor" asp-route-id="@datoteka.Id"><img alt="fileicon" src="@datoteka.GetSlika()" style="width:20px; height:40px" /><span class="name" data-id="@datoteka.Id" id="Naziv-@datoteka.Id">@datoteka.GetNaziv()</span>.@datoteka.GetEkstenzija()</a></td>
-                            <td>@datoteka.DatumPostavljanja.ToString("yyyy.MM.dd. HH:mm")</td>
-                            <td>@datoteka.IdKorisnikNavigation.ImeIPrezime()</td>
-                            @if (Model.Promjena)
-                            {
-                                <td>
-                                    @if (datoteka.Privatno)
-                                    {
-                                        <div id="Privatno-@datoteka.Id" style="float:right">
-                                            <span>Privatno</span> <button class="btn btn-sm btn-outline-primary" onclick="objavi('@datoteka.Id')">Objavi</button>
-                                        </div>
-                                        <div id="Javno-@datoteka.Id" style="display:none; float:right">
-                                            <span>Javno</span> <button class="btn btn-sm btn-outline-secondary" onclick="privatiziraj('@datoteka.Id')">Sakrij</button>
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <div id="Privatno-@datoteka.Id" style="display:none; float:right">
-                                            <span>Privatno</span> <button class="btn btn-sm btn-outline-primary" onclick="objavi('@datoteka.Id')">Objavi</button>
-                                        </div>
-                                        <div id="Javno-@datoteka.Id" style="float:right">
-                                            <span>Javno</span> <button class="btn btn-sm btn-outline-secondary" onclick="privatiziraj('@datoteka.Id')">Sakrij</button>
-                                        </div>
-                                    }
-                                </td>
-                                <td>
-                                    <div class="row" style="float:right">
-                                        <button class="btn btn-sm btn-outline-secondary" data-id="@datoteka.Id"  data-toggle="modal" data-target="#dialog"><i class="fa fa-link"></i>Podijeli</button>
-                                        <div style="padding-left:7px">
-                                            <button class="btn btn-sm btn-outline-secondary edit" data-id="@datoteka.Id"><i class="fa fa-pencil-square-o"></i>Preimenuj</button>
-                                        </div>
-                                        <form style="padding-left:7px" asp-action="DeleteZbor"><input asp-for="IdTrazeni" style="display:none" value="@datoteka.Id" /><button class="btn btn-sm btn-outline-danger" type="submit"><i class="fa fa-trash-o"></i>Obriši</button></form>
+                        <td><a asp-action="GetZbor" asp-route-id="@datoteka.Id"><img alt="fileicon" src="@datoteka.GetSlika()" style="width:20px; height:40px" /><span class="name" data-id="@datoteka.Id" id="Naziv-@datoteka.Id">@datoteka.GetNaziv()</span>.@datoteka.GetEkstenzija()</a></td>
+                        <td>@datoteka.DatumPostavljanja.ToString("yyyy.MM.dd. HH:mm")</td>
+                        <td>@datoteka.IdKorisnikNavigation.ImeIPrezime()</td>
+                        @if (Model.Promjena)
+                        {
+                            <td>
+                                @if (datoteka.Privatno)
+                                {
+                                    <div id="Privatno-@datoteka.Id" style="float:right">
+                                        <span>Privatno</span> <button class="btn btn-sm btn-outline-primary" onclick="objavi('@datoteka.Id')">Objavi</button>
                                     </div>
-                                </td>
-                            }
+                                    <div id="Javno-@datoteka.Id" style="display:none; float:right">
+                                        <span>Javno</span> <button class="btn btn-sm btn-outline-secondary" onclick="privatiziraj('@datoteka.Id')">Sakrij</button>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div id="Privatno-@datoteka.Id" style="display:none; float:right">
+                                        <span>Privatno</span> <button class="btn btn-sm btn-outline-primary" onclick="objavi('@datoteka.Id')">Objavi</button>
+                                    </div>
+                                    <div id="Javno-@datoteka.Id" style="float:right">
+                                        <span>Javno</span> <button class="btn btn-sm btn-outline-secondary" onclick="privatiziraj('@datoteka.Id')">Sakrij</button>
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                <div class="row" style="float:right">
+                                    <button class="btn btn-sm btn-outline-secondary" data-id="@datoteka.Id" data-toggle="modal" data-target="#dialog"><i class="fa fa-link"></i>Podijeli</button>
+                                    <div style="padding-left:7px">
+                                        <button class="btn btn-sm btn-outline-secondary edit" data-id="@datoteka.Id"><i class="fa fa-pencil-square-o"></i>Preimenuj</button>
+                                    </div>
+                                    <form style="padding-left:7px" asp-action="DeleteZbor"><input asp-for="IdTrazeni" style="display:none" value="@datoteka.Id" /><button class="btn btn-sm btn-outline-danger" type="submit"><i class="fa fa-trash-o"></i>Obriši</button></form>
+                                </div>
+                            </td>
+                        }
+                        else
+                        {
+                    <td>
+                        <div class="row" style="float:right">
+                            <button class="btn btn-sm btn-outline-secondary" data-id="@datoteka.Id" data-toggle="modal" data-target="#dialog"><i class="fa fa-link"></i>Podijeli</button>
+
+                        </div>
+                    </td>
+                        }
 
 
 
-                        </tr>
+                    </tr>
                     }
                 </tbody>
             </table>

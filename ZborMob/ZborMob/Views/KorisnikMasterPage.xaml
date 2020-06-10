@@ -31,14 +31,13 @@
             <ListView.ItemsSource>
                 <x:Array Type="{x:Type local:MasterPageItem}">
                     <local:MasterPageItem Title="Početna" TargetType="{x:Type local:PocetnaPage}" IconSource="home.png"/>
-                    <local:MasterPageItem Title="Pretraga" TargetType="{x:Type local:Pretraga}" IconSource="talking.png"/>
-
-                    <local:MasterPageItem Title="Forum" TargetType="{x:Type local:ForumPage}" IconSource="talking.png"/>
+                    <local:MasterPageItem Title="Pretraga" TargetType="{x:Type local:Pretraga}" IconSource="search.png"/>
                     <local:MasterPageItem Title="Poruke" TargetType="{x:Type local:PorukePage}" IconSource="mail.png" />
-                    <local:MasterPageItem Title="Repozitorij" TargetType="{x:Type local:RepozitorijKorisnikPage}" IconSource="save.png" />
                     <local:MasterPageItem Title="Obavijesti" TargetType="{x:Type local:ObavijestiKorisnikPage}" IconSource="signs.png" />
+                    <local:MasterPageItem Title="Repozitorij" TargetType="{x:Type local:RepozitorijKorisnikPage}" IconSource="save.png" />
                     <local:MasterPageItem Title="Javni profil" TargetType="{x:Type local:JavniProfilKorisnikPage}" IconSource="disk.png" />
-                    <local:MasterPageItem Title="Odjava" TargetType="{x:Type local:OdjavaPage}" IconSource="disk.png" />
+                    <local:MasterPageItem Title="Forum" TargetType="{x:Type local:ForumPage}" IconSource="talking.png"/>
+                    <local:MasterPageItem Title="Odjava" TargetType="{x:Type local:OdjavaPage}" IconSource="logout.png" />
 
                 </x:Array>
             </ListView.ItemsSource>

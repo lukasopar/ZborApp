@@ -62,10 +62,11 @@
                                 @foreach (PozivZaZbor poziv in Model.MojiPozivi)
                                 {
                                     <div class="row">
-                                        <div class="col-md-3">
-                                            <a asp-action="Profil" asp-route-id="@poziv.IdZbor">@poziv.IdZborNavigation.Naziv</a>
+                                        <div class="col-md-8">
+                                            <img src="/Repozitorij/GetZbor/@poziv.IdZborNavigation.IdSlika" alt="profpic" class="img-profile rounded-circle" style="width:40px; height:40px;"> &nbsp;
+                                            <a asp-action="JavniProfil" asp-route-id="@poziv.IdZborNavigation.Id">@poziv.IdZborNavigation.Naziv</a>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-4">
                                             <a class="btn btn-sm btn-outline-success" asp-action="PrihvatiPoziv" asp-route-id="@poziv.Id">Prihvati</a>
                                             <a class="btn btn-sm btn-outline-danger" asp-action="OdbijPoziv" asp-route-id="@poziv.Id">Odbij</a>
                                         </div>
