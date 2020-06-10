@@ -34,8 +34,8 @@ namespace ZborApp.Controllers
     [Authorize]
     public class RepozitorijController : Controller
     {
-        private const string LOCATION = "E:/UploadZbor/";
-        private const string LOCATION_CHOIR = "E:/UploadZbor/Zbor/";
+        private const string LOCATION = "C:/UploadZbor/";
+        private const string LOCATION_CHOIR = "C:/UploadZbor/Zbor/";
 
         private readonly ILogger<RepozitorijController> _logger;
         private readonly ZborDatabaseContext _ctx;
