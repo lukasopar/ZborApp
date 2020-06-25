@@ -36,7 +36,7 @@ namespace ZborApp.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
         private readonly IHubContext<ChatHub> _hubContext;
-        private const string LOCATION = "C:/UploadZbor/";
+        private const string LOCATION = "E:/UploadZbor/";
 
         public ZborController(ILogger<ZborController> logger, ZborDatabaseContext ctx, UserManager<ApplicationUser> userManager, IHubContext<ChatHub> hubContext)
         {

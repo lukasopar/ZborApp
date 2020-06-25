@@ -46,7 +46,7 @@ namespace ZborMob.Droid
                         return message;
                     };
                 })
-                .WithAutomaticReconnect()
+                
                 .Build();
             hubConnection.On<Poruka, string>("ReceiveMessageMob", async (poruka, ime) =>
             {
